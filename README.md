@@ -1,9 +1,10 @@
-#UnknownNetwork Bootstrap
+# UnknownNetwork Bootstrap
 Hacky code!
 
 Use SpongePowered/Mixin and Mojang/LegacyLauncher to inject customized code to Paper-Server code.
 
-#Build (First time only)
+# Build (First time only)
+
 I. Run `gradlew build`
 
 II. Gradle when throw error or build completed,
