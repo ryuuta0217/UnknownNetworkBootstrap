@@ -36,10 +36,11 @@ jar {
         attributes('MixinConfigs': 'unknownnetwork.mixins.json')
         attributes('Multi-Release': 'true')
     }
+    archiveFileName = "${archiveBaseName.get()}.${archiveExtension.get()}"
 }
 
 shadowJar {
-    archiveFileName = "${archiveBaseName.get()}-${archiveVersion.get()}.${archiveExtension.get()}"
+    archiveFileName = "${archiveBaseName.get()}.${archiveExtension.get()}"
 }
 
 reobfJar {
