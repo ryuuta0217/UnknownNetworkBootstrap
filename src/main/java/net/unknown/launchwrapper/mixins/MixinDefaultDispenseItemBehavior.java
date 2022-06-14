@@ -14,13 +14,17 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(DefaultDispenseItemBehavior.class)
 public abstract class MixinDefaultDispenseItemBehavior implements DispenseItemBehavior {
-    @Shadow private Direction enumdirection;
+    @Shadow
+    private Direction enumdirection;
 
-    @Shadow protected abstract ItemStack execute(BlockSource pointer, ItemStack stack);
+    @Shadow
+    protected abstract ItemStack execute(BlockSource pointer, ItemStack stack);
 
-    @Shadow protected abstract void playSound(BlockSource pointer);
+    @Shadow
+    protected abstract void playSound(BlockSource pointer);
 
-    @Shadow protected abstract void playAnimation(BlockSource pointer, Direction side);
+    @Shadow
+    protected abstract void playAnimation(BlockSource pointer, Direction side);
 
     /**
      * Add BlockDispenseBeforeEvent
@@ -34,7 +38,7 @@ public abstract class MixinDefaultDispenseItemBehavior implements DispenseItemBe
         // Unknown Network Start - Add BlockDispenseBeforeEvent
         BlockDispenseBeforeEvent event = new BlockDispenseBeforeEvent(pointer, stack);
         Bukkit.getPluginManager().callEvent(event);
-        if(!event.isCancelled()) {
+        if (!event.isCancelled()) {
             event.setItem(this.execute(event.getBlockSource(), event.getItem()));
             this.playSound(event.getBlockSource());
             this.playAnimation(event.getBlockSource(), enumdirection); // Paper - cache facing direction

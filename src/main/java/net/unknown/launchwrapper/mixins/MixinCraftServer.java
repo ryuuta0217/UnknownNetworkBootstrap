@@ -9,8 +9,8 @@ public class MixinCraftServer {
     /**
      * Gets the name of server implementation.
      *
-     * @author ryuuta0217
      * @return Server Software Name
+     * @author ryuuta0217
      */
     @Overwrite
     public String getName() {

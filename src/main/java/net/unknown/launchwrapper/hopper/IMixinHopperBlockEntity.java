@@ -9,7 +9,10 @@ import java.util.Set;
 
 public interface IMixinHopperBlockEntity extends Hopper {
     Set<ItemFilter> getFilters();
+
     FilterType getFilterMode();
+
     AABB getItemFindAABB(double baseX, double baseY, double baseZ);
+
     NonNullList<ItemStack> getItems0();
 }

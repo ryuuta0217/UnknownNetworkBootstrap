@@ -12,7 +12,7 @@ public abstract class MixinDedicatedServer {
     @Inject(method = "initServer", at = @At("RETURN"))
     private void onInit(CallbackInfoReturnable<Boolean> cir) {
         Bukkit.getLogger().info("""
-                
+                                
 
                 ██╗   ██╗       ███╗   ██╗
                 ██║   ██║       ████╗  ██║

@@ -10,8 +10,8 @@ public class MixinMinecraftServer {
     /**
      * Unknown Network - Unknown Network > // Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
      *
-     * @author ryuuta0217
      * @return Server Modded Name
+     * @author ryuuta0217
      */
     @DontObfuscate
     @Overwrite

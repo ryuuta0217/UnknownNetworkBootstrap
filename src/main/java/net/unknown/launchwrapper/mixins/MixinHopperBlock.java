@@ -1,21 +1,15 @@
 package net.unknown.launchwrapper.mixins;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BigDripleafBlock;
 import net.minecraft.world.level.block.HopperBlock;
-import net.minecraft.world.level.block.MagmaBlock;
-import net.minecraft.world.level.block.ShulkerBoxBlock;
-import net.minecraft.world.level.block.entity.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -36,8 +30,8 @@ public abstract class MixinHopperBlock extends BlockBehaviour {
     public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
         BlockEntity blockEntity = builder.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         if (blockEntity instanceof IMixinHopperBlockEntity hopper) {
-            if(hopper.getFilterMode() != null) {
-                if(hopper.getFilters().size() > 0) {
+            if (hopper.getFilterMode() != null) {
+                if (hopper.getFilters().size() > 0) {
                     ItemStack is = new ItemStack(state.getBlock().asItem());
                     CompoundTag tag = is.getOrCreateTag();
                     tag.put("BlockEntityTag", ((BlockEntity) hopper).saveWithoutMetadata());

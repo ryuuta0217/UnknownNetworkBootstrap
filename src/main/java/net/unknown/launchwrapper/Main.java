@@ -6,7 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Main {
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
@@ -18,12 +19,13 @@ public class Main {
 
         Files.walk(Paths.get("./libraries")).forEach(file -> {
             File f = file.toFile();
-            if(f.isDirectory()) return;
-            if(f.getName().endsWith(".jar")) {
+            if (f.isDirectory()) return;
+            if (f.getName().endsWith(".jar")) {
                 try {
                     String[] g = filePathToDependencyName(f).split(":", 3);
                     toLoadLibraries.put(g[0] + ":" + g[1], f);
-                } catch (IOException ignored) {}
+                } catch (IOException ignored) {
+                }
             }
         });
 
@@ -35,7 +37,7 @@ public class Main {
     }
 
     private static String filePathToDependencyName(File file) throws IOException {
-        if(file.isDirectory()) throw new IllegalArgumentException("It is directory.");
+        if (file.isDirectory()) throw new IllegalArgumentException("It is directory.");
 
         String group = file.getParentFile().getParentFile().getParentFile().getPath()
                 .replace("." + FILE_SEPARATOR + "libraries" + FILE_SEPARATOR, "")

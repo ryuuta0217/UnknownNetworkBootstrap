@@ -4,8 +4,6 @@ import net.minecraft.core.BlockSource;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_18_R1.block.CraftBlock;
-import org.bukkit.craftbukkit.v1_18_R1.block.CraftBlockState;
-import org.bukkit.craftbukkit.v1_18_R1.util.CraftMagicNumbers;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -13,8 +11,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class BlockDispenseBeforeEvent extends Event implements Cancellable {
     private static final HandlerList HANDLERS = new HandlerList();
-    private boolean isCancelled = false;
     private final BlockSource src;
+    private boolean isCancelled = false;
     private ItemStack item;
 
     public BlockDispenseBeforeEvent(BlockSource src, ItemStack item) {

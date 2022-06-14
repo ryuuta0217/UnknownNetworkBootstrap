@@ -34,7 +34,7 @@ public class Classpath {
 
                 return path.toArray(new URL[0]);
             }
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             throw new RuntimeException(t);
         }
         throw new RuntimeException("Failed to load Classpath");

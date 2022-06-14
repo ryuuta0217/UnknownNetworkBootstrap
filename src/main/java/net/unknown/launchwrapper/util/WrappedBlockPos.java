@@ -2,11 +2,10 @@ package net.unknown.launchwrapper.util;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class WrappedBlockPos {
     private Level level;
-    private BlockPos blockPos;
+    private final BlockPos blockPos;
 
     public WrappedBlockPos(Level level, BlockPos blockPos) {
         this.level = level;

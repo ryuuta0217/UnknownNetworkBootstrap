@@ -9,7 +9,6 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -39,122 +38,35 @@ public abstract class MixinHopperBlockEntity implements IMixinHopperBlockEntity 
 
     private boolean findItemActive = true;
 
-    private ListTag findItem1 = new ListTag() {{
+    private final ListTag findItem1 = new ListTag() {{
         add(0, DoubleTag.valueOf(-0.5D));
         add(1, DoubleTag.valueOf(0D));
         add(2, DoubleTag.valueOf(-0.5D));
     }};
-    private ListTag findItem2 = new ListTag() {{
+    private final ListTag findItem2 = new ListTag() {{
         add(0, DoubleTag.valueOf(0.5D));
         add(1, DoubleTag.valueOf(1.5D));
         add(2, DoubleTag.valueOf(0.5D));
     }};
 
-
-    @Inject(method = "load", at = @At("RETURN"))
-    public void onLoad(CompoundTag nbt, CallbackInfo ci) {
-        // {"filter":{"mode":"whitelist", items:[{"id":"minecraft:stick", "tag":{}}]}}
-        if(nbt.contains("filter")) {
-            CompoundTag filter = nbt.getCompound("filter");
-            if(filter.contains("mode")) {
-                String modeStr = filter.getString("mode");
-                FilterType mode = FilterType.DISABLED;
-                if(modeStr.matches("(?i)(white|black)list")) mode = FilterType.valueOf(modeStr.toUpperCase());
-                this.filterMode = mode;
-
-                if(filter.contains("items")) {
-                    ListTag items = filter.getList("items", CompoundTag.TAG_COMPOUND);
-                    this.filters.clear();
-                    items.forEach(filterDataTag -> {
-                        if(filterDataTag instanceof CompoundTag filterData) {
-                            if(filterData.contains("id")) {
-                                String idStr = filterData.getString("id");
-                                ResourceLocation id = ResourceLocation.tryParse(idStr);
-                                Optional<Item> item = Registry.ITEM.getOptional(id);
-                                if(item.isPresent()) {
-                                    CompoundTag tag = filterData.getCompound("tag");
-                                    this.filters.add(new ItemFilter(item.get(), tag));
-                                }
-                            }
-                        }
-                    });
-                }
-            }
-        }
-
-        // {"ItemFind":{"Active":"true", "Range":{"A":[-0.5, 0, -0.5], "B":[0.5, 1.5, 0.5]}}}
-        if(nbt.contains("ItemFind")) {
-            CompoundTag ItemFind = nbt.getCompound("ItemFind");
-            if(ItemFind.contains("Active")) {
-                this.findItemActive = ItemFind.getBoolean("Active");
-            }
-
-            if(ItemFind.contains("Range")) {
-                CompoundTag Range = ItemFind.getCompound("Range");
-                if(Range.contains("A")) {
-                    ListTag A = Range.getList("A", CompoundTag.TAG_LIST);
-                    if(A.size() >= 3) {
-                        this.findItem1.set(0, DoubleTag.valueOf(A.getDouble(0)));
-                        this.findItem1.set(1, DoubleTag.valueOf(A.getDouble(1)));
-                        this.findItem1.set(2, DoubleTag.valueOf(A.getDouble(2)));
-                    }
-                }
-
-                if(Range.contains("B")) {
-                    ListTag B = Range.getList("B", CompoundTag.TAG_LIST);
-                    if(B.size() >= 3) {
-                        this.findItem2.set(0, DoubleTag.valueOf(B.getDouble(0)));
-                        this.findItem2.set(1, DoubleTag.valueOf(B.getDouble(1)));
-                        this.findItem2.set(2, DoubleTag.valueOf(B.getDouble(2)));
-                    }
-                }
-            }
-        }
-    }
-
-    @Inject(method = "saveAdditional", at = @At("RETURN"))
-    public void onSaveAdditional(CompoundTag nbt, CallbackInfo ci) {
-        CompoundTag filterDataTag = new CompoundTag();
-        filterDataTag.putString("mode", this.getFilterMode().name().toLowerCase());
-
-        ListTag filters = new ListTag();
-        this.filters.forEach(filter -> {
-            CompoundTag filterTag = new CompoundTag();
-            filterTag.putString("id", Registry.ITEM.getKey(filter.item()).toString());
-            if(filter.tag() != null) filterTag.put("tag", filter.tag());
-            filters.add(filterTag);
-        });
-
-        filterDataTag.put("items", filters);
-        nbt.put("filter", filterDataTag);
-
-        CompoundTag ItemFind = new CompoundTag();
-        ItemFind.putBoolean("Active", this.findItemActive);
-        CompoundTag Range = new CompoundTag();
-        Range.put("A", this.findItem1);
-        Range.put("B", this.findItem2);
-        ItemFind.put("Range", Range);
-        nbt.put("ItemFind", ItemFind);
-    }
-
     @Inject(method = "hopperPull", at = @At("HEAD"), cancellable = true)
     private static void onHopperPull(Level level, Hopper hopper, Container container, ItemStack origItemStack, int i, CallbackInfoReturnable<Boolean> cir) {
-        if(hopper instanceof MixinHopperBlockEntity mHopper) {
-            if(mHopper.filterMode != FilterType.DISABLED) {
+        if (hopper instanceof MixinHopperBlockEntity mHopper) {
+            if (mHopper.filterMode != FilterType.DISABLED) {
                 // ﾌｨﾙﾀ対象
                 boolean filteringResult = mHopper.filters.stream().anyMatch(filter -> {
-                    if(origItemStack.getItem().equals(filter.item())) {
+                    if (origItemStack.getItem().equals(filter.item())) {
                         return NbtUtils.compareNbt(origItemStack.getTag(), filter.tag(), true);
                     }
                     return false;
                 });
 
-                if(filteringResult) {
-                    if(mHopper.getFilterMode() == FilterType.BLACKLIST) {
+                if (filteringResult) {
+                    if (mHopper.getFilterMode() == FilterType.BLACKLIST) {
                         cir.cancel();
                     }
                 } else {
-                    if(mHopper.getFilterMode() == FilterType.WHITELIST) {
+                    if (mHopper.getFilterMode() == FilterType.WHITELIST) {
                         cir.cancel();
                     }
                 }
@@ -177,31 +89,16 @@ public abstract class MixinHopperBlockEntity implements IMixinHopperBlockEntity 
                         return false;
                     });
 
-                    if(hopper.getFilterMode() == FilterType.WHITELIST && !filterResult) {
+                    if (hopper.getFilterMode() == FilterType.WHITELIST && !filterResult) {
                         cir.cancel();
                     }
 
-                    if(hopper.getFilterMode() == FilterType.BLACKLIST && filterResult) {
+                    if (hopper.getFilterMode() == FilterType.BLACKLIST && filterResult) {
                         cir.cancel();
                     }
                 }
             }
         }
-    }
-
-    @Override
-    public Set<ItemFilter> getFilters() {
-        return this.filters;
-    }
-
-    @Override
-    public FilterType getFilterMode() {
-        return this.filterMode;
-    }
-
-    @Override
-    public AABB getItemFindAABB(double baseX, double baseY, double baseZ) {
-        return new AABB(baseX + this.findItem1.getDouble(0), baseY + this.findItem1.getDouble(1), baseZ + this.findItem1.getDouble(2), baseX + this.findItem2.getDouble(0), baseY + this.findItem2.getDouble(1), baseZ + this.findItem2.getDouble(2));
     }
 
     /**
@@ -218,8 +115,8 @@ public abstract class MixinHopperBlockEntity implements IMixinHopperBlockEntity 
         double d2 = hopper.getLevelZ();
 
         // UnknownNet start - Customizable entity finding range
-        if(hopper instanceof MixinHopperBlockEntity hp) {
-            if(!hp.findItemActive) return Collections.emptyList();
+        if (hopper instanceof MixinHopperBlockEntity hp) {
+            if (!hp.findItemActive) return Collections.emptyList();
             return world.getEntitiesOfClass(ItemEntity.class, hp.getItemFindAABB(d0, d1, d2), Entity::isAlive);
         }
         // UnknownNet end
@@ -227,5 +124,106 @@ public abstract class MixinHopperBlockEntity implements IMixinHopperBlockEntity 
         AABB bb = new AABB(d0 - 0.5D, d1, d2 - 0.5D, d0 + 0.5D, d1 + 1.5D, d2 + 0.5D);
         return world.getEntitiesOfClass(ItemEntity.class, bb, Entity::isAlive);
         // Paper end
+    }
+
+    @Inject(method = "load", at = @At("RETURN"))
+    public void onLoad(CompoundTag nbt, CallbackInfo ci) {
+        // {"filter":{"mode":"whitelist", items:[{"id":"minecraft:stick", "tag":{}}]}}
+        if (nbt.contains("filter")) {
+            CompoundTag filter = nbt.getCompound("filter");
+            if (filter.contains("mode")) {
+                String modeStr = filter.getString("mode");
+                FilterType mode = FilterType.DISABLED;
+                if (modeStr.matches("(?i)(white|black)list")) mode = FilterType.valueOf(modeStr.toUpperCase());
+                this.filterMode = mode;
+
+                if (filter.contains("items")) {
+                    ListTag items = filter.getList("items", CompoundTag.TAG_COMPOUND);
+                    this.filters.clear();
+                    items.forEach(filterDataTag -> {
+                        if (filterDataTag instanceof CompoundTag filterData) {
+                            if (filterData.contains("id")) {
+                                String idStr = filterData.getString("id");
+                                ResourceLocation id = ResourceLocation.tryParse(idStr);
+                                Optional<Item> item = Registry.ITEM.getOptional(id);
+                                if (item.isPresent()) {
+                                    CompoundTag tag = filterData.getCompound("tag");
+                                    this.filters.add(new ItemFilter(item.get(), tag));
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        }
+
+        // {"ItemFind":{"Active":"true", "Range":{"A":[-0.5, 0, -0.5], "B":[0.5, 1.5, 0.5]}}}
+        if (nbt.contains("ItemFind")) {
+            CompoundTag ItemFind = nbt.getCompound("ItemFind");
+            if (ItemFind.contains("Active")) {
+                this.findItemActive = ItemFind.getBoolean("Active");
+            }
+
+            if (ItemFind.contains("Range")) {
+                CompoundTag Range = ItemFind.getCompound("Range");
+                if (Range.contains("A")) {
+                    ListTag A = Range.getList("A", CompoundTag.TAG_LIST);
+                    if (A.size() >= 3) {
+                        this.findItem1.set(0, DoubleTag.valueOf(A.getDouble(0)));
+                        this.findItem1.set(1, DoubleTag.valueOf(A.getDouble(1)));
+                        this.findItem1.set(2, DoubleTag.valueOf(A.getDouble(2)));
+                    }
+                }
+
+                if (Range.contains("B")) {
+                    ListTag B = Range.getList("B", CompoundTag.TAG_LIST);
+                    if (B.size() >= 3) {
+                        this.findItem2.set(0, DoubleTag.valueOf(B.getDouble(0)));
+                        this.findItem2.set(1, DoubleTag.valueOf(B.getDouble(1)));
+                        this.findItem2.set(2, DoubleTag.valueOf(B.getDouble(2)));
+                    }
+                }
+            }
+        }
+    }
+
+    @Inject(method = "saveAdditional", at = @At("RETURN"))
+    public void onSaveAdditional(CompoundTag nbt, CallbackInfo ci) {
+        CompoundTag filterDataTag = new CompoundTag();
+        filterDataTag.putString("mode", this.getFilterMode().name().toLowerCase());
+
+        ListTag filters = new ListTag();
+        this.filters.forEach(filter -> {
+            CompoundTag filterTag = new CompoundTag();
+            filterTag.putString("id", Registry.ITEM.getKey(filter.item()).toString());
+            if (filter.tag() != null) filterTag.put("tag", filter.tag());
+            filters.add(filterTag);
+        });
+
+        filterDataTag.put("items", filters);
+        nbt.put("filter", filterDataTag);
+
+        CompoundTag ItemFind = new CompoundTag();
+        ItemFind.putBoolean("Active", this.findItemActive);
+        CompoundTag Range = new CompoundTag();
+        Range.put("A", this.findItem1);
+        Range.put("B", this.findItem2);
+        ItemFind.put("Range", Range);
+        nbt.put("ItemFind", ItemFind);
+    }
+
+    @Override
+    public Set<ItemFilter> getFilters() {
+        return this.filters;
+    }
+
+    @Override
+    public FilterType getFilterMode() {
+        return this.filterMode;
+    }
+
+    @Override
+    public AABB getItemFindAABB(double baseX, double baseY, double baseZ) {
+        return new AABB(baseX + this.findItem1.getDouble(0), baseY + this.findItem1.getDouble(1), baseZ + this.findItem1.getDouble(2), baseX + this.findItem2.getDouble(0), baseY + this.findItem2.getDouble(1), baseZ + this.findItem2.getDouble(2));
     }
 }

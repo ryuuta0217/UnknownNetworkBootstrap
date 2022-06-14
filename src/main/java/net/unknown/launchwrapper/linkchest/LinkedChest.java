@@ -1,10 +1,6 @@
 package net.unknown.launchwrapper.linkchest;
 
-import net.minecraft.core.BlockPos;
 import net.unknown.launchwrapper.util.WrappedBlockPos;
-
-import java.util.List;
-import java.util.Set;
 
 public class LinkedChest {
     private WrappedBlockPos senderPos = null;

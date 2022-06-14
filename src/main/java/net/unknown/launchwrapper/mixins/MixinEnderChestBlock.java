@@ -24,13 +24,15 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(EnderChestBlock.class)
 public class MixinEnderChestBlock {
-    @Shadow @Final private static Component CONTAINER_TITLE;
+    @Shadow
+    @Final
+    private static Component CONTAINER_TITLE;
 
     /**
      * Overwrite reason: Inject de yaruno kuso mendo-kusai
      *
-     * @see net.unknown.launchwrapper.mixins.MixinSimpleContainer
      * @author ryuuta0217
+     * @see net.unknown.launchwrapper.mixins.MixinSimpleContainer
      */
     @Overwrite
     public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
@@ -43,13 +45,17 @@ public class MixinEnderChestBlock {
             } else if (world.isClientSide) {
                 return InteractionResult.SUCCESS;
             } else {
-                EnderChestBlockEntity enderChestBlockEntity = (EnderChestBlockEntity)blockEntity;
+                EnderChestBlockEntity enderChestBlockEntity = (EnderChestBlockEntity) blockEntity;
                 playerEnderChestContainer.setActiveChest(enderChestBlockEntity);
                 player.openMenu(new SimpleMenuProvider((syncId, inventory, playerx) -> {
-                    if(playerEnderChestContainer.getContainerSize() == 27) return ChestMenu.threeRows(syncId, inventory, playerEnderChestContainer);
-                    else if(playerEnderChestContainer.getContainerSize() == 36) return new ChestMenu(MenuType.GENERIC_9x4, syncId, inventory, playerEnderChestContainer, 4);
-                    else if(playerEnderChestContainer.getContainerSize() == 45) return new ChestMenu(MenuType.GENERIC_9x5, syncId, inventory, playerEnderChestContainer, 5);
-                    else if(playerEnderChestContainer.getContainerSize() == 54) return ChestMenu.sixRows(syncId, inventory, playerEnderChestContainer);
+                    if (playerEnderChestContainer.getContainerSize() == 27)
+                        return ChestMenu.threeRows(syncId, inventory, playerEnderChestContainer);
+                    else if (playerEnderChestContainer.getContainerSize() == 36)
+                        return new ChestMenu(MenuType.GENERIC_9x4, syncId, inventory, playerEnderChestContainer, 4);
+                    else if (playerEnderChestContainer.getContainerSize() == 45)
+                        return new ChestMenu(MenuType.GENERIC_9x5, syncId, inventory, playerEnderChestContainer, 5);
+                    else if (playerEnderChestContainer.getContainerSize() == 54)
+                        return ChestMenu.sixRows(syncId, inventory, playerEnderChestContainer);
                     else return ChestMenu.threeRows(syncId, inventory, playerEnderChestContainer);
                 }, CONTAINER_TITLE));
                 player.awardStat(Stats.OPEN_ENDERCHEST);

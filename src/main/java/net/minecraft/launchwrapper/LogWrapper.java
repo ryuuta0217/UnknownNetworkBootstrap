@@ -6,9 +6,8 @@ import org.apache.logging.log4j.Logger;
 
 public class LogWrapper {
     public static LogWrapper log = new LogWrapper();
-    private Logger myLog;
-
     private static boolean configured;
+    private Logger myLog;
 
     private static void configureLogging() {
         log.myLog = LogManager.getLogger("LaunchWrapper");
@@ -18,6 +17,7 @@ public class LogWrapper {
     public static void retarget(Logger to) {
         log.myLog = to;
     }
+
     public static void log(String logChannel, Level level, String format, Object... data) {
         makeLog(logChannel);
         LogManager.getLogger(logChannel).log(level, String.format(format, data));

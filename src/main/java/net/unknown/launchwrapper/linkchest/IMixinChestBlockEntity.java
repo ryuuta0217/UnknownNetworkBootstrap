@@ -8,6 +8,8 @@ import java.util.UUID;
 public interface IMixinChestBlockEntity extends Container {
 
     Map<UUID, LinkedChest> getLinks();
+
     ChestTransportMode getChestTransportMode();
+
     UUID getLinkUniqueId();
 }

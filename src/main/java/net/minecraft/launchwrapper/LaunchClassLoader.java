@@ -3,26 +3,14 @@ package net.minecraft.launchwrapper;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.security.CodeSigner;
 import java.security.CodeSource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -30,28 +18,22 @@ import java.util.jar.Manifest;
 
 public class LaunchClassLoader extends URLClassLoader {
     public static final int BUFFER_SIZE = 1 << 12;
-    private final List<URL> sources;
-    private final ClassLoader parent = getClass().getClassLoader();
-
-    private final List<IClassTransformer> transformers = new ArrayList<>(2);
-    private final Map<String, Class<?>> cachedClasses = new ConcurrentHashMap<>();
-    private final Set<String> invalidClasses = new HashSet<>(1000);
-
-    private final Set<String> classLoaderExceptions = new HashSet<>();
-    private final Set<String> transformerExceptions = new HashSet<>();
-    private final Map<String, byte[]> resourceCache = new ConcurrentHashMap<>(1000);
-    private final Set<String> negativeResourceCache = Collections.newSetFromMap(new ConcurrentHashMap<>());
-
-    private IClassNameTransformer renameTransformer;
-
-    private final ThreadLocal<byte[]> loadBuffer = new ThreadLocal<>();
-
     private static final String[] RESERVED_NAMES = {"CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"};
-
     private static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("legacy.debugClassLoading", "false"));
     private static final boolean DEBUG_FINER = DEBUG && Boolean.parseBoolean(System.getProperty("legacy.debugClassLoadingFiner", "false"));
     private static final boolean DEBUG_SAVE = DEBUG && Boolean.parseBoolean(System.getProperty("legacy.debugClassLoadingSave", "false"));
     private static File tempFolder = null;
+    private final List<URL> sources;
+    private final ClassLoader parent = getClass().getClassLoader();
+    private final List<IClassTransformer> transformers = new ArrayList<>(2);
+    private final Map<String, Class<?>> cachedClasses = new ConcurrentHashMap<>();
+    private final Set<String> invalidClasses = new HashSet<>(1000);
+    private final Set<String> classLoaderExceptions = new HashSet<>();
+    private final Set<String> transformerExceptions = new HashSet<>();
+    private final Map<String, byte[]> resourceCache = new ConcurrentHashMap<>(1000);
+    private final Set<String> negativeResourceCache = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final ThreadLocal<byte[]> loadBuffer = new ThreadLocal<>();
+    private IClassNameTransformer renameTransformer;
 
     public LaunchClassLoader(URL[] sources) {
         super(sources, null);
@@ -91,6 +73,15 @@ public class LaunchClassLoader extends URLClassLoader {
             } else {
                 LogWrapper.info("DEBUG_SAVE Enabled, saving all classes to \"%s\"", tempFolder.getAbsolutePath().replace('\\', '/'));
                 tempFolder.mkdirs();
+            }
+        }
+    }
+
+    private static void closeSilently(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (IOException ignored) {
             }
         }
     }
@@ -367,15 +358,6 @@ public class LaunchClassLoader extends URLClassLoader {
             return data;
         } finally {
             closeSilently(classStream);
-        }
-    }
-
-    private static void closeSilently(Closeable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (IOException ignored) {
-            }
         }
     }
 

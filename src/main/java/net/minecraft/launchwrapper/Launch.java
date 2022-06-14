@@ -5,7 +5,6 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.minecraft.launchwrapper.utils.Classpath;
 import org.apache.logging.log4j.Level;
-import org.spongepowered.asm.launch.MixinBootstrap;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -16,17 +15,16 @@ public class Launch {
     public static File minecraftHome;
     public static File assetsDir;
     public static Map<String, Object> blackboard;
-
-    public static void main(String[] args) {
-        new Launch().launch(args);
-    }
-
     public static LaunchClassLoader classLoader;
 
     private Launch() {
         classLoader = new LaunchClassLoader(Classpath.getClasspath());
         blackboard = new HashMap<>();
         Thread.currentThread().setContextClassLoader(classLoader);
+    }
+
+    public static void main(String[] args) {
+        new Launch().launch(args);
     }
 
     private void launch(String[] args) {
@@ -118,7 +116,7 @@ public class Launch {
                 argumentList.addAll(Arrays.asList(tweaker.getLaunchArguments()));
             }
 
-            if(primaryTweaker == null) throw new IllegalStateException("Tweaker is null.");
+            if (primaryTweaker == null) throw new IllegalStateException("Tweaker is null.");
 
             // Finally, we turn to the primary tweaker, and let it tell us where to go to launch
             final String launchTarget = primaryTweaker.getLaunchTarget();
