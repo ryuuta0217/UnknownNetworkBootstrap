@@ -5,6 +5,16 @@
   "target": "@env(DEFAULT)",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "MixinDedicatedServer"
+    "MixinChestBlockEntity",
+    "MixinCraftServer",
+    "MixinDebugPackets",
+    "MixinDedicatedServer",
+    "MixinDefaultDispenseItemBehavior",
+    "MixinEnderChestBlock",
+    "MixinHopperBlock",
+    "MixinHopperBlockEntity",
+    "MixinLevel",
+    "MixinMinecraftServer",
+    "MixinSimpleContainer"
   ]
 }
