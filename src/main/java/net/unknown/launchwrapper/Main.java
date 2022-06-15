@@ -13,7 +13,7 @@ public class Main {
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
 
     public static void main(String[] args) throws IOException {
-        Agent.addJar(new File("./versions/1.18.1/paper-1.18.1.jar"));
+        Agent.addJar(new File("./versions/1.19/paper-1.19.jar"));
 
         Map<String, File> toLoadLibraries = new HashMap<>();
 

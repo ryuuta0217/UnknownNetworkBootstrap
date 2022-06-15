@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.logging.Logger;
 
 public class LaunchClassLoader extends URLClassLoader {
     public static final int BUFFER_SIZE = 1 << 12;
@@ -43,14 +44,15 @@ public class LaunchClassLoader extends URLClassLoader {
         addClassLoaderExclusion("java.");
         addClassLoaderExclusion("javax.");
         addClassLoaderExclusion("com.sun.");
-        addClassLoaderExclusion("org.lwjgl.");
+        //addClassLoaderExclusion("org.lwjgl.");
         addClassLoaderExclusion("org.slf4j.");
         addClassLoaderExclusion("org.jline.");
+        addClassLoaderExclusion("io.leangen.");
         addClassLoaderExclusion("net.minecrell.");
-        addClassLoaderExclusion("org.apache.logging.");
-        addClassLoaderExclusion("org.yaml.snakeyaml.");
-        addClassLoaderExclusion("net.minecraft.launchwrapper.");
-        addClassLoaderExclusion("com.mojang.util.QueueLogAppender");
+        addClassLoaderExclusion("org.apache.");
+        //addClassLoaderExclusion("org.yaml.snakeyaml.");
+        //addClassLoaderExclusion("net.minecraft.launchwrapper.");
+        addClassLoaderExclusion("org.spongepowered.");
 
         // transformer exclusions
         addTransformerExclusion("javax.");

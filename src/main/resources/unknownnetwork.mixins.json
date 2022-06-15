@@ -7,14 +7,13 @@
   "mixins": [
     "MixinChestBlockEntity",
     "MixinCraftServer",
-    "MixinDebugPackets",
     "MixinDedicatedServer",
     "MixinDefaultDispenseItemBehavior",
     "MixinEnderChestBlock",
     "MixinHopperBlock",
     "MixinHopperBlockEntity",
-    "MixinLevel",
     "MixinMinecraftServer",
+    "MixinServerLevel",
     "MixinSimpleContainer"
   ]
 }
