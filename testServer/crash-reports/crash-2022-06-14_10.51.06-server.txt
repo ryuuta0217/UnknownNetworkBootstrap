@@ -1,0 +1,90 @@
+---- Minecraft Crash Report ----
+// Don't be sad, have a hug! <3
+
+Time: 2022/06/14 10:51
+Description: Exception in server tick loop
+
+java.lang.LinkageError: loader constraint violation: loader 'app' wants to load interface org.bukkit.command.CommandSender. A different interface with the same name was previously loaded by net.minecraft.launchwrapper.LaunchClassLoader @9807454. (org.bukkit.command.CommandSender is in unnamed module of loader net.minecraft.launchwrapper.LaunchClassLoader @9807454, parent loader 'bootstrap')
+	at java.base/java.lang.ClassLoader.defineClass1(Native Method)
+	at java.base/java.lang.ClassLoader.defineClass(ClassLoader.java:1012)
+	at java.base/java.security.SecureClassLoader.defineClass(SecureClassLoader.java:150)
+	at java.base/jdk.internal.loader.BuiltinClassLoader.defineClass(BuiltinClassLoader.java:862)
+	at java.base/jdk.internal.loader.BuiltinClassLoader.findClassOnClassPathOrNull(BuiltinClassLoader.java:760)
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClassOrNull(BuiltinClassLoader.java:681)
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:639)
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:520)
+	at org.bukkit.plugin.SimplePluginManager.useTimings(SimplePluginManager.java:955)
+	at org.bukkit.craftbukkit.v1_19_R1.CraftServer.<init>(CraftServer.java:356)
+	at net.minecraft.server.players.PlayerList.<init>(PlayerList.java:162)
+	at net.minecraft.server.dedicated.DedicatedPlayerList.<init>(DedicatedPlayerList.java:15)
+	at net.minecraft.server.dedicated.DedicatedServer.initServer(DedicatedServer.java:208)
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:1121)
+	at net.minecraft.server.MinecraftServer.lambda$spin$0(MinecraftServer.java:302)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- System Details --
+Details:
+	Minecraft Version: 1.19
+	Minecraft Version ID: 1.19
+	Operating System: Windows Server 2019 (amd64) version 10.0
+	Java Version: 17.0.3.1, Oracle Corporation
+	Java VM Version: Java HotSpot(TM) 64-Bit Server VM (mixed mode, sharing), Oracle Corporation
+	Memory: 159948376 bytes (152 MiB) / 553648128 bytes (528 MiB) up to 8468299776 bytes (8076 MiB)
+	CPUs: 8
+	Processor Vendor: GenuineIntel
+	Processor Name: Intel(R) Xeon(R) Platinum 8259CL CPU @ 2.50GHz
+	Identifier: Intel64 Family 6 Model 85 Stepping 7
+	Microarchitecture: Cascade Lake
+	Frequency (GHz): 2.50
+	Number of physical packages: 1
+	Number of physical CPUs: 4
+	Number of logical CPUs: 8
+	Graphics card #0 name: Parsec Virtual Display Adapter
+	Graphics card #0 vendor: Parsec Cloud, Inc.
+	Graphics card #0 VRAM (MB): 0.00
+	Graphics card #0 deviceId: unknown
+	Graphics card #0 versionInfo: DriverVersion=0.37.0.0
+	Graphics card #1 name: Microsoft 基本ディスプレイ アダプター
+	Graphics card #1 vendor: (標準ディスプレイ) (0x1d0f)
+	Graphics card #1 VRAM (MB): 0.00
+	Graphics card #1 deviceId: 0x1111
+	Graphics card #1 versionInfo: DriverVersion=10.0.17763.1
+	Graphics card #2 name: NVIDIA Tesla T4
+	Graphics card #2 vendor: NVIDIA (0x10de)
+	Graphics card #2 VRAM (MB): 4095.00
+	Graphics card #2 deviceId: 0x1eb8
+	Graphics card #2 versionInfo: DriverVersion=30.0.15.1278
+	Memory slot #0 capacity (MB): 32768.00
+	Memory slot #0 clockSpeed (GHz): 2.67
+	Memory slot #0 type: DDR4
+	Virtual memory max (MB): 37446.07
+	Virtual memory used (MB): 25989.57
+	Swap memory total (MB): 5148.55
+	Swap memory used (MB): 423.99
+	JVM Flags: 0 total; 
+	CraftBukkit Information: 
+   Running: Unknown Network version git-Paper-13 (MC: 1.19) (Implementing API version 1.19-R0.1-SNAPSHOT) true
+   Plugins: {}
+   Warnings: DEFAULT
+   Reload Count: 
+   Failed to handle CraftCrashReport:
+java.lang.NullPointerException: Cannot read field "reloadCount" because "net.minecraft.server.MinecraftServer.getServer().server" is null
+	at org.bukkit.craftbukkit.v1_19_R1.CraftCrashReport.get(CraftCrashReport.java:31)
+	at org.bukkit.craftbukkit.v1_19_R1.CraftCrashReport.get(CraftCrashReport.java:17)
+	at net.minecraft.SystemReport.a(SystemReport.java:61)
+	at net.minecraft.CrashReport.<init>(CrashReport.java:36)
+	at net.minecraft.server.MinecraftServer.a(MinecraftServer.java:1270)
+	at net.minecraft.server.MinecraftServer.v(MinecraftServer.java:1211)
+	at net.minecraft.server.MinecraftServer.lambda$spin$0(MinecraftServer.java:302)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+
+	Server Running: true
+	Data Packs: vanilla, file/bukkit (incompatible)
+	World Generation: ERR
+	Is Modded: Definitely; Server brand changed to 'Unknown Network'
+	Type: Dedicated Server (map_server.txt)

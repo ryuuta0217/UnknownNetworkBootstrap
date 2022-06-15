@@ -1,14 +1,65 @@
-[01:24:54] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 5132ms or 102 ticks behind
-[01:40:10] [Server thread/INFO]: Stopping server
-[01:40:10] [Server thread/INFO]: Saving players
-[01:40:10] [Server thread/INFO]: Saving worlds
-[01:40:11] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:overworld
-[01:40:14] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world_nether]'/minecraft:the_nether
-[01:40:14] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world_the_end]'/minecraft:the_end
-[01:40:15] [Server thread/INFO]: ThreadedAnvilChunkStorage (world): All chunks are saved
-[01:40:15] [Server thread/INFO]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
-[01:40:15] [Server thread/INFO]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
-[01:40:15] [Server thread/INFO]: ThreadedAnvilChunkStorage: All dimensions are saved
-[01:40:15] [Server thread/INFO]: Flushing Chunk IO
-[01:40:15] [Server thread/INFO]: Closing Thread Pool
-[01:40:16] [Server thread/INFO]: Closing Server
+[11:06:12] [main/INFO]: [LaunchWrapper] Loading tweak class name org.spongepowered.asm.launch.UnknownNetworkBootstrap
+[11:06:12] [main/INFO]: [mixin] SpongePowered MIXIN Subsystem Version=0.8.5 Source=file:/C:/Users/Administrator/IdeaProjects/UnknownNetworkBootstrap/build/libs/UnknownNetworkBootstrap-1.0-SNAPSHOT.jar Service=LaunchWrapper Env=SERVER
+[11:06:12] [main/INFO]: [mixin] FML platform manager could not load class cpw.mods.fml.relauncher.CoreModManager. Proceeding without FML support.
+[11:06:12] [main/INFO]: [LaunchWrapper] Using primary tweak class name org.spongepowered.asm.launch.UnknownNetworkBootstrap
+[11:06:12] [main/INFO]: [LaunchWrapper] Calling tweak class org.spongepowered.asm.launch.UnknownNetworkBootstrap
+[11:06:12] [main/WARN]: [mixin] The requested compatibility level JAVA_16 is higher than the level supported by the active subsystem 'LaunchWrapper' which supports JAVA_8. This is not a supported configuration and instability may occur.
+[11:06:12] [main/INFO]: [mixin] Compatibility level set to JAVA_16
+[11:06:12] [main/INFO]: [mixin] FML platform manager could not load class cpw.mods.fml.relauncher.CoreModManager. Proceeding without FML support.
+[11:06:12] [main/INFO]: [LaunchWrapper] Loading tweak class name org.spongepowered.asm.mixin.EnvironmentStateTweaker
+[11:06:12] [main/INFO]: [LaunchWrapper] Calling tweak class org.spongepowered.asm.mixin.EnvironmentStateTweaker
+[11:06:13] [main/INFO]: [LaunchWrapper] Launching wrapped minecraft {org.bukkit.craftbukkit.Main}
+[11:06:18] [main/INFO]: Building unoptimized datafixer
+[11:06:20] [main/INFO]: Environment: authHost='https://authserver.mojang.com', accountsHost='https://api.mojang.com', sessionHost='https://sessionserver.mojang.com', servicesHost='https://api.minecraftservices.com', name='PROD'
+[11:06:22] [main/INFO]: Loaded 7 recipes
+[11:06:24] [Server thread/INFO]: Starting minecraft server version 1.19
+[11:06:24] [Server thread/WARN]: ****************************
+[11:06:24] [Server thread/WARN]: YOU ARE RUNNING THIS SERVER AS AN ADMINISTRATIVE OR ROOT USER. THIS IS NOT ADVISED.
+[11:06:24] [Server thread/WARN]: YOU ARE OPENING YOURSELF UP TO POTENTIAL RISKS WHEN DOING THIS.
+[11:06:24] [Server thread/WARN]: FOR MORE INFORMATION, SEE https://madelinemiller.dev/blog/root-minecraft-server/
+[11:06:24] [Server thread/WARN]: ****************************
+[11:06:24] [Server thread/INFO]: Loading properties
+[11:06:24] [Server thread/INFO]: This server is running Unknown Network version git-Paper-13 (MC: 1.19) (Implementing API version 1.19-R0.1-SNAPSHOT) (Git: b844286)
+[11:06:24] [Server thread/INFO]: Server Ping Player Sample Count: 12
+[11:06:24] [Server thread/INFO]: Using 4 threads for Netty based IO
+[11:06:25] [Server thread/INFO]: Default game type: SURVIVAL
+[11:06:25] [Server thread/INFO]: Generating keypair
+[11:06:25] [Server thread/INFO]: Starting Minecraft server on *:25565
+[11:06:25] [Server thread/INFO]: Using default channel type
+[11:06:25] [Server thread/INFO]: Paper: Using Java 11 compression from Velocity.
+[11:06:25] [Server thread/INFO]: Paper: Using Java cipher from Velocity.
+[11:06:25] [Server thread/WARN]: Could not initialize LibraryLoader (missing dependencies?)
+[11:06:25] [Server thread/INFO]: Server permissions file permissions.yml is empty, ignoring it
+[11:06:25] [Server thread/INFO]: Preparing level "world"
+[11:06:26] [Server thread/INFO]: Preparing start region for dimension minecraft:overworld
+[11:06:26] [Server thread/INFO]: Time elapsed: 341 ms
+[11:06:26] [Server thread/INFO]: Preparing start region for dimension minecraft:the_nether
+[11:06:26] [Server thread/INFO]: Time elapsed: 146 ms
+[11:06:26] [Server thread/INFO]: Preparing start region for dimension minecraft:the_end
+[11:06:27] [Server thread/INFO]: Time elapsed: 125 ms
+[11:06:27] [Server thread/INFO]: 
+
+???   ???       ????   ???
+???   ???       ?????  ???
+???   ???       ?????? ???
+???   ???       ??????????
+????????????    ??? ?????????
+ ??????? ???    ???  ????????
+
+[11:06:27] [Server thread/INFO]: Running delayed init tasks
+[11:06:27] [Server thread/INFO]: Done (2.937s)! For help, type "help"
+[11:06:27] [Server thread/INFO]: Timings Reset
+[11:06:30] [Server thread/INFO]: Stopping the server
+[11:06:30] [Server thread/INFO]: Stopping server
+[11:06:30] [Server thread/INFO]: Saving players
+[11:06:30] [Server thread/INFO]: Saving worlds
+[11:06:34] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:overworld
+[11:06:35] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world_nether]'/minecraft:the_nether
+[11:06:35] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world_the_end]'/minecraft:the_end
+[11:06:35] [Server thread/INFO]: ThreadedAnvilChunkStorage (world): All chunks are saved
+[11:06:35] [Server thread/INFO]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[11:06:35] [Server thread/INFO]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[11:06:35] [Server thread/INFO]: ThreadedAnvilChunkStorage: All dimensions are saved
+[11:06:35] [Server thread/INFO]: Flushing Chunk IO
+[11:06:35] [Server thread/INFO]: Closing Thread Pool
+[11:06:38] [Server thread/INFO]: Closing Server
