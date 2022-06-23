@@ -48,6 +48,6 @@ public class BlockDispenseBeforeEvent extends Event implements Cancellable {
 
     @Override
     public @NotNull HandlerList getHandlers() {
-        return BlockDispenseBeforeEvent.HANDLERS;
+        return HANDLERS;
     }
 }
