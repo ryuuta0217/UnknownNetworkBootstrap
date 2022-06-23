@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    //id 'maven-publish'
     id 'io.papermc.paperweight.userdev' version '+' // Enable Development of using Mojang Mapping.
     id 'com.github.johnrengelman.shadow' version '7.1.0' // fatJar
 }
@@ -38,13 +39,14 @@ jar {
         attributes('MixinConfigs': 'unknownnetwork.mixins.json')
         attributes('Multi-Release': 'true')
     }
-    archiveFileName = "${archiveBaseName.get()}.${archiveExtension.get()}"
+    archiveFileName = "original-${archiveBaseName.get()}.${archiveExtension.get()}"
 }
 
 shadowJar {
-    archiveFileName = "${archiveBaseName.get()}.${archiveExtension.get()}"
+    archiveFileName = "${archiveBaseName.get()}-mojang.${archiveExtension.get()}"
 }
 
 reobfJar {
-
+    remapperArgs.add("mixin")
+    outputJar = layout.buildDirectory.file("libs/${project.name}.jar")
 }
