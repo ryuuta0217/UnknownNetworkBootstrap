@@ -1,11 +1,31 @@
 plugins {
     id 'java'
+    id 'maven-publish'
     id 'io.papermc.paperweight.userdev' version '+' // Enable Development of using Mojang Mapping.
     id 'com.github.johnrengelman.shadow' version '7.1.0' // fatJar
+    id 'com.palantir.git-version' version '+' // Git Information Getter
+    id 'org.cadixdev.licenser' version '0.6.1' // Add License Header to source code headers.
 }
 
 group 'net.unknown'
-version '1.0-SNAPSHOT'
+version versionDetails().gitHash[0..7]
+
+compileJava.options.encoding = 'UTF-8'
+
+compileJava.dependsOn = ["licenseFormat"]
+tasks.build.dependsOn(reobfJar)
+
+license {
+    header = project.file("HEADER.txt")
+    include 'net/unknown/**/*.java'
+    include 'org/spongepowered/asm/launch/UnknownNetworkBootstrap.java'
+    include 'net/minecraft/launchwrapper/LaunchClassLoader.java'
+    properties {
+        organization = 'Unknown Network'
+        year = 2022
+    }
+    newLine = true
+}
 
 repositories {
     mavenLocal()
@@ -44,5 +64,48 @@ shadowJar {
 }
 
 reobfJar {
+    remapperArgs.add("--mixin") // Add Mixin Support
+    outputJar = layout.buildDirectory.file("libs/${project.name}.jar")
+}
 
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = 'net.unknown'
+            artifactId = project.name
+            version = version
+            artifact "build/libs/UnknownNetworkBootstrap.jar"
+
+            pom {
+                name = project.name
+                description = "Unknown Network Core plugin"
+                url = "https://www.unknownnet.jp"
+                inceptionYear = "2022"
+
+                licenses {
+                    license {
+                        name = "All rights reserved"
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = "ryuuta0217"
+                        name = "Ryuta Iwakura"
+                        email = "ryuuta.iwakura@gmail.com"
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url 'https://repo.ryuuta0217.com/repository/unknown-network/'
+            credentials {
+                username = System.getenv("NEXUS_USERNAME")
+                password = System.getenv("NEXUS_PASSWORD")
+            }
+        }
+    }
 }

@@ -31,40 +31,71 @@
 
 package net.unknown.launchwrapper.event;
 
-import net.minecraft.core.BlockSource;
-import net.minecraft.world.item.ItemStack;
-import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_18_R1.block.CraftBlock;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.ObserverBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 
-public class BlockDispenseBeforeEvent extends Event implements Cancellable {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+public class ObserverBlockTickEvent extends Event implements Cancellable {
     private static final HandlerList HANDLERS = new HandlerList();
-    private final BlockSource src;
+
+    private final BlockState state;
+    private final ServerLevel level;
+    private final BlockPos pos;
+    private final RandomSource random;
+    private boolean isUpdateFrontNeighbors = true;
     private boolean isCancelled = false;
-    private ItemStack item;
 
-    public BlockDispenseBeforeEvent(BlockSource src, ItemStack item) {
-        this.src = src;
-        this.item = item;
+    public ObserverBlockTickEvent(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        this.state = state;
+        this.level = level;
+        this.pos = pos;
+        this.random = random;
     }
 
-    public BlockSource getBlockSource() {
-        return this.src;
+    public BlockState getObserver() {
+        return this.state;
     }
 
-    public Block getBukkitBlock() {
-        return CraftBlock.at(this.src.getLevel(), this.src.getPos());
+    public Direction getObserverDirection() {
+        return this.state.getValue(ObserverBlock.FACING);
     }
 
-    public ItemStack getItem() {
-        return this.item;
+    public ServerLevel getLevel() {
+        return this.level;
     }
 
-    public void setItem(ItemStack newItem) {
-        this.item = newItem;
+    public BlockPos getObserverPos() {
+        return this.pos;
+    }
+
+    @Nullable
+    public BlockState getNeighbor() {
+        return this.getLevel().getBlockStateIfLoaded(this.getNeighborPos());
+    }
+
+    public BlockPos getNeighborPos() {
+        return this.pos.relative(this.getObserverDirection());
+    }
+
+    public RandomSource getRandom() {
+        return this.random;
+    }
+
+    public boolean isUpdateFrontNeighbors() {
+        return this.isUpdateFrontNeighbors;
+    }
+
+    public void setUpdateFrontNeighbors(boolean update) {
+        this.isUpdateFrontNeighbors = update;
     }
 
     @Override
@@ -77,8 +108,13 @@ public class BlockDispenseBeforeEvent extends Event implements Cancellable {
         this.isCancelled = cancel;
     }
 
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
+
     @Override
-    public @NotNull HandlerList getHandlers() {
-        return BlockDispenseBeforeEvent.HANDLERS;
+    @Nonnull
+    public HandlerList getHandlers() {
+        return HANDLERS;
     }
 }

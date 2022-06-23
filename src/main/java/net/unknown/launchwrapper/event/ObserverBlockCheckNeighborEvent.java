@@ -31,40 +31,61 @@
 
 package net.unknown.launchwrapper.event;
 
-import net.minecraft.core.BlockSource;
-import net.minecraft.world.item.ItemStack;
-import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_18_R1.block.CraftBlock;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.state.BlockState;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 
-public class BlockDispenseBeforeEvent extends Event implements Cancellable {
+import javax.annotation.Nonnull;
+import java.util.Objects;
+import java.util.function.Predicate;
+
+public class ObserverBlockCheckNeighborEvent extends Event implements Cancellable {
     private static final HandlerList HANDLERS = new HandlerList();
-    private final BlockSource src;
-    private boolean isCancelled = false;
-    private ItemStack item;
 
-    public BlockDispenseBeforeEvent(BlockSource src, ItemStack item) {
-        this.src = src;
-        this.item = item;
+    private Predicate<WrappedData> predicate;
+    private final WrappedData data;
+    private boolean isCancelled;
+
+    public ObserverBlockCheckNeighborEvent(@Nonnull Predicate<WrappedData> predicate, @Nonnull WrappedData data) {
+        this.predicate = predicate;
+        this.data = data;
     }
 
-    public BlockSource getBlockSource() {
-        return this.src;
+    public Predicate<WrappedData> getPredicate() {
+        return this.predicate;
     }
 
-    public Block getBukkitBlock() {
-        return CraftBlock.at(this.src.getLevel(), this.src.getPos());
+    public void setPredicate(@Nonnull Predicate<WrappedData> predicate) {
+        Objects.requireNonNull(predicate);
+        this.predicate = predicate;
     }
 
-    public ItemStack getItem() {
-        return this.item;
+    public LevelAccessor getLevel() {
+        return this.data.level();
     }
 
-    public void setItem(ItemStack newItem) {
-        this.item = newItem;
+    public BlockState getObserver() {
+        return this.data.observer();
+    }
+
+    public BlockPos getObserverPos() {
+        return this.data.observerPos();
+    }
+
+    public Direction getObserverDirection() {
+        return this.data.observerDirection();
+    }
+
+    public BlockState getNeighborState() {
+        return this.data.neighborState();
+    }
+
+    public BlockPos getNeighborPos() {
+        return this.data.neighborPos();
     }
 
     @Override
@@ -77,8 +98,17 @@ public class BlockDispenseBeforeEvent extends Event implements Cancellable {
         this.isCancelled = cancel;
     }
 
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
+
     @Override
-    public @NotNull HandlerList getHandlers() {
-        return BlockDispenseBeforeEvent.HANDLERS;
+    @Nonnull
+    public HandlerList getHandlers() {
+        return HANDLERS;
+    }
+
+    public record WrappedData(BlockState observer, Direction observerDirection, BlockState neighborState, LevelAccessor level, BlockPos observerPos, BlockPos neighborPos) {
+
     }
 }

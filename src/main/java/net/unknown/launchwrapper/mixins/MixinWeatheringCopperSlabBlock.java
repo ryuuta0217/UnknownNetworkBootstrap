@@ -29,35 +29,21 @@
  *     arising in any way out of the use of this source code, event if advised of the possibility of such damage.
  */
 
-package net.unknown.launchwrapper;
+package net.unknown.launchwrapper.mixins;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.lang.instrument.Instrumentation;
-import java.util.jar.JarFile;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.WeatheringCopper;
+import net.minecraft.world.level.block.WeatheringCopperSlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.unknown.launchwrapper.util.CopperBlockUtil;
+import org.spongepowered.asm.mixin.Mixin;
 
-public class Agent {
-    private static Instrumentation INSTRUMENT = null;
-
-    public static void addJar(File jarFile) throws IOException {
-        if (!jarFile.exists()) throw new FileNotFoundException(jarFile.getAbsolutePath());
-        if (jarFile.isDirectory() || !jarFile.getName().endsWith(".jar"))
-            throw new IOException(jarFile.getName() + " is not a JarFile");
-        if (INSTRUMENT != null) {
-            INSTRUMENT.appendToSystemClassLoaderSearch(new JarFile(jarFile));
-            System.out.println("Loaded Jar: " + jarFile.getPath());
-            return;
-        }
-        throw new IllegalStateException("Failed to inject " + jarFile.getName() + " to SystemClassPath");
-    }
-
-    public static void premain(String args, Instrumentation instrumentation) {
-        agentmain(args, instrumentation);
-    }
-
-    public static void agentmain(String args, Instrumentation instrumentation) {
-        if (INSTRUMENT == null) INSTRUMENT = instrumentation;
-        if (INSTRUMENT == null) throw new NullPointerException("WHY JAPANESE PEOPLE");
+@Mixin(WeatheringCopperSlabBlock.class)
+public abstract class MixinWeatheringCopperSlabBlock implements WeatheringCopper {
+    @Override
+    public void onRandomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+        CopperBlockUtil.randomTick(this, state, world, pos, random);
     }
 }

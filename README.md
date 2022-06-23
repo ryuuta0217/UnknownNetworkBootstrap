@@ -1,24 +1,38 @@
 # UnknownNetwork Bootstrap
-Hacky code!
+"UnknownNetworkBootstrap" is a project that uses the Mixin created by SpongePowered and LegacyLauncher created by Mojang to modify the code of Paper at the bytecode level and customize it specifically for Unknown Network.
 
-Use SpongePowered/Mixin and Mojang/LegacyLauncher to inject customized code to Paper-Server code.
+This project is using(contains code) Mojang's Launchwrapper(LegacyLauncher). Repository is a [here](https://github.com/Mojang/LegacyLauncher).
 
-# Build (First time only)
+# License
+(c) 2022 Unknown Network Developer Team and contributors. All rights reserved.
 
-I. Run `gradlew build`
+(EN) No copying of source code or secondary distribution of compiled binaries in this repository is permitted.
 
-II. Gradle when throw error or build completed,
-please check `.gradle/caches/paperweight/taskCache/reobfJar.log`
+(JP) 本リポジトリ内におけるソースコードのコピー、コンパイル済みのバイナリの二次頒布は一切許可しません。
 
-III. Grab a tiny-remapper jar file location.<br>
-Format: `Command: {java} -Xmx1G -classpath {tiny-remapper-jar-location} {class-name} {in-file} {out-file} {tiny-mapping-file} mojang+yarn spigot {paper-clip-patcher} --threads=1`
+## How works?
+* LegacyLauncher (Launcher)
+* Load paper.jar
+* Load libraries/* jar
+* Hook & Inject Mixins
+* Call main class (e.g. org.bukkit.craftbukkit.main.Main)
 
-IV. Open gathered file directory to open file explorer.
+LegacyLauncher is used ClassLoading, Class transforming (adapt to mixin).
 
-V. Copy and overwrite `tiny-remapper-0.7.0-fat.jar` to opened folder.
-
-VI. Re-run `gradlew build`
-
-VII. `build/libs/launchwrapper-1.0-SNAPSHOT.jar` is now usable.
-
-**It is first time only, next time to build, only need to run `gradlew build`.**
+### Thanks to:
+<table>
+    <tr>
+        <td align="center" width="50%">
+            <a href="https://www.jetbrains.com/idea/">
+                <img src="https://resources.jetbrains.com/storage/products/intellij-idea/img/meta/intellij-idea_1280x800.png" alt="Jetbrains IntelliJ IDEA">
+            </a>
+            <p><strong>JetBrainsによる<br/>プロ開発者のためのJava統合開発環境</strong></p>            
+        </td>
+        <td align="center" width="50%">
+            <a href="https://github.com/SpongePowered/Mixin">
+                <img src="https://github.com/SpongePowered/Mixin/blob/master/docs/javadoc/resources/logo.png?raw=true" alt="SpongePowered Mixin">
+            </a>
+            <p><strong>SpongePoweredによる<br/>MojangのLegacyLauncherシステムを利用したtrait/mixinフレームワーク</strong></p>
+        </td>
+    </tr>
+</table>
