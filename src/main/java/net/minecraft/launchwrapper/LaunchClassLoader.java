@@ -1,5 +1,7 @@
 package net.minecraft.launchwrapper;
 
+import io.papermc.paper.util.StacktraceDeobfuscator;
+import net.minecrell.terminalconsole.TerminalConsoleAppender;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 
@@ -41,18 +43,10 @@ public class LaunchClassLoader extends URLClassLoader {
         this.sources = new ArrayList<>(Arrays.asList(sources));
 
         // classloader exclusions
+        addClassLoaderExclusion("org.slf4j.");
+        addClassLoaderExclusion("com.sun.");
         addClassLoaderExclusion("java.");
         addClassLoaderExclusion("javax.");
-        addClassLoaderExclusion("com.sun.");
-        //addClassLoaderExclusion("org.lwjgl.");
-        addClassLoaderExclusion("org.slf4j.");
-        addClassLoaderExclusion("org.jline.");
-        addClassLoaderExclusion("io.leangen.");
-        addClassLoaderExclusion("net.minecrell.");
-        addClassLoaderExclusion("org.apache.");
-        //addClassLoaderExclusion("org.yaml.snakeyaml.");
-        //addClassLoaderExclusion("net.minecraft.launchwrapper.");
-        addClassLoaderExclusion("org.spongepowered.");
 
         // transformer exclusions
         addTransformerExclusion("javax.");
@@ -155,7 +149,7 @@ public class LaunchClassLoader extends URLClassLoader {
 
                         Package pkg = getPackage(packageName);
                         getClassBytes(untransformedName);
-                        signers = entry.getCodeSigners();
+                        signers = null;//entry.getCodeSigners(); /* Force Disable CODE SIGN CHECK */
                         if (pkg == null) {
                             pkg = definePackage(packageName, manifest, jarURLConnection.getJarFileURL());
                         } else {
@@ -180,7 +174,7 @@ public class LaunchClassLoader extends URLClassLoader {
             }
 
             final CodeSource codeSource = urlConnection == null ? null : new CodeSource(urlConnection.getURL(), signers);
-            final Class<?> clazz = defineClass(transformedName, transformedClass, 0, transformedClass.length, codeSource);
+            final Class<?> clazz = this.defineClass(transformedName, transformedClass, 0, transformedClass.length, codeSource);
             cachedClasses.put(transformedName, clazz);
             return clazz;
         } catch (Throwable e) {
