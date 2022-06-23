@@ -1,0 +1,14 @@
+config-version: 3
+home-base-count: 5
+home-additional-count: 0
+force-global-chat-prefix: g.
+use-kana-convert: false
+homes:
+  default:
+    test:
+      world: world
+      x: -5.5
+      y: 107.0
+      z: 7.5
+      yaw: 0.0
+      pitch: 0.0

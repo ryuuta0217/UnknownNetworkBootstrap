@@ -27,6 +27,8 @@ license {
     newLine = true
 }
 
+compileJava.options.encoding = 'UTF-8'
+
 repositories {
     mavenLocal()
     mavenCentral()
@@ -37,11 +39,11 @@ repositories {
 }
 
 dependencies {
-    paperweightDevelopmentBundle("io.papermc.paper:dev-bundle:1.18.1-R0.1-SNAPSHOT")
+    paperweightDevelopmentBundle("io.papermc.paper:dev-bundle:1.19-R0.1-SNAPSHOT")
     implementation "net.sf.jopt-simple:jopt-simple:5.0.4"
-    implementation "org.ow2.asm:asm:9.2"
-    implementation "org.ow2.asm:asm-commons:9.2"
-    implementation "org.ow2.asm:asm-util:9.2"
+    implementation 'org.ow2.asm:asm:9.3'
+    implementation 'org.ow2.asm:asm-commons:9.3'
+    implementation 'org.ow2.asm:asm-util:9.3'
     implementation "org.apache.logging.log4j:log4j-core:2.17.0"
     implementation "org.apache.logging.log4j:log4j-api:2.17.0"
     implementation "org.spongepowered:mixin:+"
@@ -56,11 +58,11 @@ jar {
         attributes('MixinConfigs': 'unknownnetwork.mixins.json')
         attributes('Multi-Release': 'true')
     }
-    archiveFileName = "${archiveBaseName.get()}.${archiveExtension.get()}"
+    archiveFileName = "original-${archiveBaseName.get()}.${archiveExtension.get()}"
 }
 
 shadowJar {
-    archiveFileName = "${archiveBaseName.get()}.${archiveExtension.get()}"
+    archiveFileName = "${archiveBaseName.get()}-mojang.${archiveExtension.get()}"
 }
 
 reobfJar {

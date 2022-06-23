@@ -126,7 +126,8 @@ public class Launch {
             LogWrapper.info("Launching wrapped minecraft {%s}", launchTarget);
             mainMethod.invoke(null, (Object) argumentList.toArray(new String[0]));
         } catch (Exception e) {
-            LogWrapper.log(Level.ERROR, e, "Unable to launch");
+            //LogWrapper.log(Level.ERROR, e, "Unable to launch");
+            e.printStackTrace();
             System.exit(1);
         }
     }

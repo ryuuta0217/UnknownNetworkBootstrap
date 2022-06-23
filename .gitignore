@@ -2,3 +2,8 @@ libs/
 .gradle/
 .idea/
 build/
+testServer/cache/
+testServer/versions/
+testServer/logs/
+testServer/crash-reports/
+testServer/hs_err_*.log

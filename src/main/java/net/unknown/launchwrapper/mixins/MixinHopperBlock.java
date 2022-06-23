@@ -37,7 +37,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -68,8 +67,8 @@ public abstract class MixinHopperBlock extends BlockBehaviour {
                     tag.put("BlockEntityTag", ((BlockEntity) hopper).saveWithoutMetadata());
                     CompoundTag display = new CompoundTag();
                     ListTag lore = new ListTag();
-                    lore.add(StringTag.valueOf(Component.Serializer.toJson(new TextComponent("フィルターモード: " + hopper.getFilterMode().getLocalizedName()).withStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.AQUA)))));
-                    lore.add(StringTag.valueOf(Component.Serializer.toJson(new TextComponent("登録フィルター数: " + hopper.getFilters().size()).withStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.AQUA)))));
+                    lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.literal("フィルターモード: " + hopper.getFilterMode().getLocalizedName()).withStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.AQUA)))));
+                    lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.literal("登録フィルター数: " + hopper.getFilters().size()).withStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.AQUA)))));
                     display.put("Lore", lore);
                     tag.put("display", display);
                     return Collections.singletonList(is);
