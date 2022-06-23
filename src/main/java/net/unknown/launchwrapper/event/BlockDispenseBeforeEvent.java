@@ -3,7 +3,7 @@ package net.unknown.launchwrapper.event;
 import net.minecraft.core.BlockSource;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_18_R1.block.CraftBlock;
+import org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -48,6 +48,6 @@ public class BlockDispenseBeforeEvent extends Event implements Cancellable {
 
     @Override
     public @NotNull HandlerList getHandlers() {
-        return BlockDispenseBeforeEvent.HANDLERS;
+        return HANDLERS;
     }
 }
