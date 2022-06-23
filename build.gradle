@@ -82,9 +82,6 @@ publishing {
             artifactId = 'UnknownNetworkBootstrap'
             version = version
             artifact "build/libs/UnknownNetworkBootstrap-mojang.jar"
-            artifact("build/libs/UnknownNetworkBootstrap.jar") {
-                classifier "spigot"
-            }
 
             pom {
                 name = project.name
