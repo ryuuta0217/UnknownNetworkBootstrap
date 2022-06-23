@@ -13,7 +13,11 @@
     "MixinHopperBlock",
     "MixinHopperBlockEntity",
     "MixinMinecraftServer",
+    "MixinObserverBlock",
     "MixinServerLevel",
-    "MixinSimpleContainer"
+    "MixinSimpleContainer",
+    "MixinWeatheringCopperFullBlock",
+    "MixinWeatheringCopperSlabBlock",
+    "MixinWeatheringCopperStairBlock"
   ]
 }
