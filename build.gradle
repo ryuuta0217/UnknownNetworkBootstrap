@@ -74,13 +74,13 @@ publishing {
     publications {
         release(MavenPublication) {
             groupId = 'net.unknown'
-            artifactId = project.name
+            artifactId = 'UnknownNetworkBootstrap'
             version = version
             artifact "build/libs/UnknownNetworkBootstrap.jar"
 
             pom {
                 name = project.name
-                description = "Unknown Network Core plugin"
+                description = "Unknown Network Bootstrapper"
                 url = "https://www.unknownnet.jp"
                 inceptionYear = "2022"
 
