@@ -27,7 +27,12 @@ license {
     newLine = true
 }
 
-compileJava.options.encoding = 'UTF-8'
+javadoc.options.encoding = "UTF-8"
+compileJava.options.encoding = "UTF-8"
+
+java {
+    withSourcesJar()
+}
 
 repositories {
     mavenLocal()
@@ -76,7 +81,10 @@ publishing {
             groupId = 'net.unknown'
             artifactId = 'UnknownNetworkBootstrap'
             version = version
-            artifact "build/libs/UnknownNetworkBootstrap.jar"
+            artifact "build/libs/UnknownNetworkBootstrap-mojang.jar"
+            artifact("build/libs/UnknownNetworkBootstrap.jar") {
+                classifier "spigot"
+            }
 
             pom {
                 name = project.name
