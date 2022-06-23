@@ -162,6 +162,8 @@ world-settings:
     trident-despawn-rate: 1200
     verbose: false
     below-zero-generation-in-existing-chunks: true
+  faweregentempworld:
+    verbose: false
 players:
   disable-saving: false
 config-version: 12
