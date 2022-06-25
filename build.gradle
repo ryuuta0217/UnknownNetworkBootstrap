@@ -83,6 +83,10 @@ publishing {
             version = version
             artifact "build/libs/UnknownNetworkBootstrap-mojang.jar"
 
+            artifact("build/libs/UnknownNetworkBootstrap.jar") {
+                classifier "spigot"
+            }
+
             pom {
                 name = project.name
                 description = "Unknown Network Bootstrapper"
