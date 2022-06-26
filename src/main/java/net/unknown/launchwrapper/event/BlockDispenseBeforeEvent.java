@@ -77,6 +77,10 @@ public class BlockDispenseBeforeEvent extends Event implements Cancellable {
         this.isCancelled = cancel;
     }
 
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
+
     @Override
     public @NotNull HandlerList getHandlers() {
         return HANDLERS;
