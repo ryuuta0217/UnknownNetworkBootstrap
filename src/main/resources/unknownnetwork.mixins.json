@@ -13,6 +13,7 @@
     "MixinHopperBlock",
     "MixinHopperBlockEntity",
     "MixinMinecraftServer",
+    "MixinNearestAttackableTargetGoal",
     "MixinObserverBlock",
     "MixinServerLevel",
     "MixinSimpleContainer",
