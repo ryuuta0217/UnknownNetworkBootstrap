@@ -71,9 +71,9 @@ public class MixinNearestAttackableTargetGoal {
         return entity -> {
             if (entity instanceof ServerPlayer player) {
                 ItemStack head = player.getInventory().getArmor(0);
-                return head.is(skull);
+                return !head.is(skull);
             }
-            return false;
+            return true;
         };
     }
 }
