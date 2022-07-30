@@ -32,6 +32,7 @@
 package net.unknown.launchwrapper.mixins;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -70,7 +71,7 @@ public class MixinNearestAttackableTargetGoal {
         }
         return entity -> {
             if (entity instanceof ServerPlayer player) {
-                ItemStack head = player.getInventory().getArmor(0);
+                ItemStack head = player.getItemBySlot(EquipmentSlot.HEAD);
                 return !head.is(skull);
             }
             return true;
