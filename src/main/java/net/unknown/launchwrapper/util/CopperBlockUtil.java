@@ -46,10 +46,7 @@ public class CopperBlockUtil {
             copper.applyChangeOverTime(state, world, pos, random);
         }
 
-        int r = random.nextInt(1, 3);
-        System.out.println("r: " + r);
-        if (world.getBlockState(pos.below()).is(Blocks.CAMPFIRE) && r == 2) { // Unknown Network
-            System.out.println();
+        if (world.getBlockState(pos.below()).is(Blocks.CAMPFIRE) && random.nextInt(1, 3) == 2) { // Unknown Network
             copper.applyChangeOverTime(state, world, pos, random);
         }
     }
