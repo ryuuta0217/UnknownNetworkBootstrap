@@ -1,0 +1,13 @@
+death_items:
+  465d418d-3b73-40a2-bfd9-c97f07b191c2:
+    '1':
+      removal_time: 1658995328117
+      location:
+        world: world
+        x: -42.0
+        y: 114.0
+        z: 13.0
+        yaw: 0.0
+        pitch: 0.0
+      items:
+      - '{Count:1b,id:"minecraft:zombie_head"}'
