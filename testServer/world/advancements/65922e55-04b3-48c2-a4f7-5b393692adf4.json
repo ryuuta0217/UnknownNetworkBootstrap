@@ -1,218 +1,272 @@
 {
+  "minecraft:recipes/building_blocks/sponge": {
+    "criteria": {
+      "has_wet_sponge": "2023-01-14 05:54:25 +0900"
+    },
+    "done": true
+  },
   "minecraft:recipes/building_blocks/cut_copper_slab_from_copper_block_stonecutting": {
     "criteria": {
-      "has_copper_block": "2022-06-22 19:37:46 +0000"
+      "has_copper_block": "2022-06-23 04:37:46 +0900"
     },
     "done": true
   },
   "minecraft:recipes/redstone/oak_fence_gate": {
     "criteria": {
-      "has_planks": "2022-06-22 19:29:15 +0000"
+      "has_planks": "2022-06-23 04:29:15 +0900"
     },
     "done": true
   },
   "minecraft:recipes/tools/clock": {
     "criteria": {
-      "has_redstone": "2022-06-22 17:48:47 +0000"
+      "has_redstone": "2022-06-23 02:48:47 +0900"
+    },
+    "done": true
+  },
+  "minecraft:recipes/transportation/dark_oak_boat": {
+    "criteria": {
+      "in_water": "2023-01-14 06:38:54 +0900"
     },
     "done": true
   },
   "minecraft:recipes/building_blocks/oxidized_cut_copper": {
     "criteria": {
-      "has_oxidized_copper": "2022-06-22 18:15:47 +0000"
+      "has_oxidized_copper": "2022-06-23 03:15:47 +0900"
     },
     "done": true
   },
   "minecraft:recipes/tools/compass": {
     "criteria": {
-      "has_redstone": "2022-06-22 17:48:47 +0000"
+      "has_redstone": "2022-06-23 02:48:47 +0900"
     },
     "done": true
   },
   "minecraft:recipes/building_blocks/waxed_oxidized_cut_copper_slab_from_waxed_oxidized_copper_stonecutting": {
     "criteria": {
-      "has_waxed_oxidized_copper": "2022-06-22 18:15:50 +0000"
+      "has_waxed_oxidized_copper": "2022-06-23 03:15:50 +0900"
     },
     "done": true
   },
   "minecraft:recipes/redstone/oak_button": {
     "criteria": {
-      "has_planks": "2022-06-22 19:29:15 +0000"
+      "has_planks": "2022-06-23 04:29:15 +0900"
     },
     "done": true
   },
   "minecraft:recipes/redstone/redstone_block": {
     "criteria": {
-      "has_redstone": "2022-06-22 17:48:47 +0000"
+      "has_redstone": "2022-06-23 02:48:47 +0900"
     },
     "done": true
   },
   "minecraft:recipes/misc/copper_ingot": {
     "criteria": {
-      "has_copper_block": "2022-06-22 19:37:46 +0000"
+      "has_copper_block": "2022-06-23 04:37:46 +0900"
     },
     "done": true
   },
   "minecraft:recipes/redstone/piston": {
     "criteria": {
-      "has_redstone": "2022-06-22 17:48:47 +0000"
+      "has_redstone": "2022-06-23 02:48:47 +0900"
     },
     "done": true
   },
   "minecraft:recipes/redstone/target": {
     "criteria": {
-      "has_redstone": "2022-06-22 17:48:47 +0000"
+      "has_redstone": "2022-06-23 02:48:47 +0900"
     },
     "done": true
   },
   "minecraft:recipes/building_blocks/waxed_oxidized_cut_copper_stairs_from_waxed_oxidized_copper_stonecutting": {
     "criteria": {
-      "has_waxed_oxidized_copper": "2022-06-22 18:15:50 +0000"
+      "has_waxed_oxidized_copper": "2022-06-23 03:15:50 +0900"
     },
     "done": true
   },
   "minecraft:recipes/building_blocks/oxidized_cut_copper_slab_from_oxidized_copper_stonecutting": {
     "criteria": {
-      "has_oxidized_copper": "2022-06-22 18:15:47 +0000"
+      "has_oxidized_copper": "2022-06-23 03:15:47 +0900"
     },
     "done": true
   },
   "minecraft:recipes/redstone/oak_pressure_plate": {
     "criteria": {
-      "has_planks": "2022-06-22 19:29:15 +0000"
+      "has_planks": "2022-06-23 04:29:15 +0900"
     },
     "done": true
   },
   "minecraft:recipes/building_blocks/waxed_oxidized_copper_from_honeycomb": {
     "criteria": {
-      "has_oxidized_copper": "2022-06-22 18:15:47 +0000"
+      "has_oxidized_copper": "2022-06-23 03:15:47 +0900"
+    },
+    "done": true
+  },
+  "minecraft:recipes/brewing/cauldron": {
+    "criteria": {
+      "has_water_bucket": "2023-01-14 06:38:48 +0900"
     },
     "done": true
   },
   "minecraft:adventure/adventuring_time": {
     "criteria": {
-      "minecraft:forest": "2022-06-22 06:43:06 +0000",
-      "minecraft:meadow": "2022-06-22 17:43:36 +0000"
+      "minecraft:forest": "2022-06-22 15:43:06 +0900",
+      "minecraft:meadow": "2022-06-23 02:43:36 +0900"
     },
     "done": false
   },
   "minecraft:recipes/decorations/crafting_table": {
     "criteria": {
-      "has_planks": "2022-06-22 19:29:15 +0000"
+      "has_planks": "2022-06-23 04:29:15 +0900"
     },
     "done": true
   },
   "minecraft:recipes/building_blocks/waxed_copper_block_from_honeycomb": {
     "criteria": {
-      "has_copper_block": "2022-06-22 19:37:46 +0000"
+      "has_copper_block": "2022-06-23 04:37:46 +0900"
     },
     "done": true
   },
   "minecraft:recipes/redstone/redstone_torch": {
     "criteria": {
-      "has_redstone": "2022-06-22 17:48:47 +0000"
+      "has_redstone": "2022-06-23 02:48:47 +0900"
     },
     "done": true
   },
   "minecraft:recipes/building_blocks/cut_copper_stairs_from_copper_block_stonecutting": {
     "criteria": {
-      "has_copper_block": "2022-06-22 19:37:46 +0000"
+      "has_copper_block": "2022-06-23 04:37:46 +0900"
+    },
+    "done": true
+  },
+  "minecraft:recipes/transportation/birch_boat": {
+    "criteria": {
+      "in_water": "2023-01-14 06:38:54 +0900"
     },
     "done": true
   },
   "minecraft:recipes/building_blocks/cut_copper_from_copper_block_stonecutting": {
     "criteria": {
-      "has_copper_block": "2022-06-22 19:37:46 +0000"
+      "has_copper_block": "2022-06-23 04:37:46 +0900"
     },
     "done": true
   },
   "minecraft:recipes/redstone/note_block": {
     "criteria": {
-      "has_redstone": "2022-06-22 17:48:47 +0000"
+      "has_redstone": "2022-06-23 02:48:47 +0900"
     },
     "done": true
   },
   "minecraft:recipes/building_blocks/oak_stairs": {
     "criteria": {
-      "has_planks": "2022-06-22 19:29:15 +0000"
+      "has_planks": "2022-06-23 04:29:15 +0900"
+    },
+    "done": true
+  },
+  "minecraft:recipes/transportation/mangrove_boat": {
+    "criteria": {
+      "in_water": "2023-01-14 06:38:54 +0900"
     },
     "done": true
   },
   "minecraft:recipes/decorations/barrel": {
     "criteria": {
-      "has_planks": "2022-06-22 19:29:15 +0000"
+      "has_planks": "2022-06-23 04:29:15 +0900"
     },
     "done": true
   },
   "minecraft:recipes/decorations/oak_fence": {
     "criteria": {
-      "has_planks": "2022-06-22 19:29:15 +0000"
+      "has_planks": "2022-06-23 04:29:15 +0900"
+    },
+    "done": true
+  },
+  "minecraft:recipes/transportation/acacia_boat": {
+    "criteria": {
+      "in_water": "2023-01-14 06:38:54 +0900"
     },
     "done": true
   },
   "minecraft:recipes/redstone/dropper": {
     "criteria": {
-      "has_redstone": "2022-06-22 17:48:47 +0000"
+      "has_redstone": "2022-06-23 02:48:47 +0900"
+    },
+    "done": true
+  },
+  "minecraft:recipes/transportation/oak_boat": {
+    "criteria": {
+      "in_water": "2023-01-14 06:38:54 +0900"
     },
     "done": true
   },
   "minecraft:recipes/building_blocks/waxed_oxidized_cut_copper": {
     "criteria": {
-      "has_waxed_oxidized_copper": "2022-06-22 18:15:50 +0000"
+      "has_waxed_oxidized_copper": "2022-06-23 03:15:50 +0900"
     },
     "done": true
   },
   "minecraft:recipes/building_blocks/oxidized_cut_copper_from_oxidized_copper_stonecutting": {
     "criteria": {
-      "has_oxidized_copper": "2022-06-22 18:15:47 +0000"
+      "has_oxidized_copper": "2022-06-23 03:15:47 +0900"
     },
     "done": true
   },
   "minecraft:recipes/building_blocks/waxed_oxidized_cut_copper_from_waxed_oxidized_copper_stonecutting": {
     "criteria": {
-      "has_waxed_oxidized_copper": "2022-06-22 18:15:50 +0000"
+      "has_waxed_oxidized_copper": "2022-06-23 03:15:50 +0900"
     },
     "done": true
   },
   "minecraft:recipes/redstone/oak_door": {
     "criteria": {
-      "has_planks": "2022-06-22 19:29:15 +0000"
+      "has_planks": "2022-06-23 04:29:15 +0900"
     },
     "done": true
   },
   "minecraft:recipes/building_blocks/cut_copper": {
     "criteria": {
-      "has_copper_block": "2022-06-22 19:37:46 +0000"
+      "has_copper_block": "2022-06-23 04:37:46 +0900"
     },
     "done": true
   },
   "minecraft:recipes/decorations/oak_sign": {
     "criteria": {
-      "has_planks": "2022-06-22 19:29:15 +0000"
+      "has_planks": "2022-06-23 04:29:15 +0900"
     },
     "done": true
   },
   "minecraft:recipes/misc/stick": {
     "criteria": {
-      "has_planks": "2022-06-22 19:29:15 +0000"
+      "has_planks": "2022-06-23 04:29:15 +0900"
     },
     "done": true
   },
   "minecraft:recipes/redstone/oak_trapdoor": {
     "criteria": {
-      "has_planks": "2022-06-22 19:29:15 +0000"
+      "has_planks": "2022-06-23 04:29:15 +0900"
     },
     "done": true
   },
   "minecraft:recipes/building_blocks/oxidized_cut_copper_stairs_from_oxidized_copper_stonecutting": {
     "criteria": {
-      "has_oxidized_copper": "2022-06-22 18:15:47 +0000"
+      "has_oxidized_copper": "2022-06-23 03:15:47 +0900"
     },
     "done": true
   },
   "minecraft:recipes/building_blocks/oak_slab": {
     "criteria": {
-      "has_planks": "2022-06-22 19:29:15 +0000"
+      "has_planks": "2022-06-23 04:29:15 +0900"
+    },
+    "done": true
+  },
+  "minecraft:recipes/transportation/jungle_boat": {
+    "criteria": {
+      "in_water": "2023-01-14 06:38:54 +0900"
+    },
+    "done": true
+  },
+  "minecraft:recipes/transportation/spruce_boat": {
+    "criteria": {
+      "in_water": "2023-01-14 06:38:54 +0900"
     },
     "done": true
   },
