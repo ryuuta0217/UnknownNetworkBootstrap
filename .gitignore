@@ -4,6 +4,7 @@ libs/
 build/
 testServer/cache/
 testServer/versions/
+testServer/libraries/
 testServer/logs/
 testServer/crash-reports/
 testServer/hs_err_*.log
