@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Initialize testServer (Paper)" type="JarApplication">
+    <option name="JAR_PATH" value="$PROJECT_DIR$/testServer/paper.jar" />
+    <option name="VM_PARAMETERS" value="-Dpaperclip.patchonly=true" />
+    <option name="PROGRAM_PARAMETERS" value="nogui" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/testServer" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <method v="2" />
+  </configuration>
+</component>
