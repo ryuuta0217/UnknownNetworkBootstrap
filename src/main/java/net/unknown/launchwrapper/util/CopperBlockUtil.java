@@ -44,9 +44,7 @@ public class CopperBlockUtil {
     public static void randomTick(@Nonnull WeatheringCopper copper, @Nonnull BlockState state, @Nonnull ServerLevel world, @Nonnull BlockPos pos, @Nonnull RandomSource random) {
         if (random.nextFloat() < 0.05688889F) { // Vanilla
             copper.applyChangeOverTime(state, world, pos, random);
-        }
-
-        if (world.getBlockState(pos.below()).is(Blocks.CAMPFIRE) && random.nextInt(1, 3) == 2) { // Unknown Network
+        } else if (world.getBlockState(pos.below()).is(Blocks.CAMPFIRE) && random.nextInt(1, 3) == 2) { // Unknown Network
             copper.applyChangeOverTime(state, world, pos, random);
         }
     }
