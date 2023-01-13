@@ -19,6 +19,7 @@
     "MixinSimpleContainer",
     "MixinWeatheringCopperFullBlock",
     "MixinWeatheringCopperSlabBlock",
-    "MixinWeatheringCopperStairBlock"
+    "MixinWeatheringCopperStairBlock",
+    "MixinWetSpongeBlock"
   ]
 }
