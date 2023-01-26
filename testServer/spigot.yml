@@ -57,6 +57,9 @@ commands:
   silent-commandblock-console: false
 world-settings:
   default:
+    seed-ancientcity: 20083232
+    seed-buriedtreasure: 10387320
+    seed-mineshaft: default
     hanging-tick-frequency: 100
     zombie-aggressive-towards-villager: true
     end-portal-sound-radius: 0
