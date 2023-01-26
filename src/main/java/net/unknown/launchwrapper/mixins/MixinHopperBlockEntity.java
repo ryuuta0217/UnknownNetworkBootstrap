@@ -33,6 +33,8 @@ package net.unknown.launchwrapper.mixins;
 
 import com.google.common.collect.Sets;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
@@ -176,7 +178,7 @@ public abstract class MixinHopperBlockEntity implements IMixinHopperBlockEntity 
                             if (filterData.contains("id")) {
                                 String idStr = filterData.getString("id");
                                 ResourceLocation id = ResourceLocation.tryParse(idStr);
-                                Optional<Item> item = Registry.ITEM.getOptional(id);
+                                Optional<Item> item = BuiltInRegistries.ITEM.getOptional(id);
                                 if (item.isPresent()) {
                                     CompoundTag tag = filterData.getCompound("tag");
                                     this.filters.add(new ItemFilter(item.get(), tag));
@@ -226,7 +228,7 @@ public abstract class MixinHopperBlockEntity implements IMixinHopperBlockEntity 
         ListTag filters = new ListTag();
         this.filters.forEach(filter -> {
             CompoundTag filterTag = new CompoundTag();
-            filterTag.putString("id", Registry.ITEM.getKey(filter.item()).toString());
+            filterTag.putString("id", BuiltInRegistries.ITEM.getKey(filter.item()).toString());
             if (filter.tag() != null) filterTag.put("tag", filter.tag());
             filters.add(filterTag);
         });
