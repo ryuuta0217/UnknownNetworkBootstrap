@@ -5,6 +5,12 @@
     },
     "done": true
   },
+  "minecraft:recipes/decorations/smoker": {
+    "criteria": {
+      "has_furnace": "2023-02-05 11:40:30 +0900"
+    },
+    "done": true
+  },
   "minecraft:recipes/redstone/oak_fence_gate": {
     "criteria": {
       "has_planks": "2022-06-23 04:29:15 +0900"
@@ -177,6 +183,12 @@
   "minecraft:recipes/misc/stick": {
     "criteria": {
       "has_planks": "2022-06-23 04:29:15 +0900"
+    },
+    "done": true
+  },
+  "minecraft:recipes/building_blocks/coal_block": {
+    "criteria": {
+      "has_coal": "2023-02-05 11:41:02 +0900"
     },
     "done": true
   },
