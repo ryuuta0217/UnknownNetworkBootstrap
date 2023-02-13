@@ -32,6 +32,7 @@
 package net.unknown.launchwrapper.mixins;
 
 import com.google.common.collect.Sets;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -46,8 +47,12 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.HopperBlock;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.Hopper;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.unknown.launchwrapper.hopper.FilterType;
 import net.unknown.launchwrapper.hopper.IMixinHopperBlockEntity;
@@ -65,22 +70,25 @@ import java.util.Optional;
 import java.util.Set;
 
 @Mixin(HopperBlockEntity.class)
-public abstract class MixinHopperBlockEntity implements IMixinHopperBlockEntity {
-    public final Set<ItemFilter> filters = Sets.newHashSet();
+public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockEntity implements IMixinHopperBlockEntity {
+    public Set<ItemFilter> filters = Sets.newHashSet();
     public FilterType filterMode = FilterType.DISABLED;
-
-    private boolean findItemActive = true;
 
     private final ListTag findItem1 = new ListTag() {{
         add(0, DoubleTag.valueOf(-0.5D));
         add(1, DoubleTag.valueOf(0D));
         add(2, DoubleTag.valueOf(-0.5D));
     }};
+
     private final ListTag findItem2 = new ListTag() {{
         add(0, DoubleTag.valueOf(0.5D));
         add(1, DoubleTag.valueOf(1.5D));
         add(2, DoubleTag.valueOf(0.5D));
     }};
+
+    protected MixinHopperBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
+    }
 
     @Inject(method = "hopperPull", at = @At("HEAD"), cancellable = true)
     private static void onHopperPull(Level level, Hopper hopper, Container container, ItemStack origItemStack, int i, CallbackInfoReturnable<Boolean> cir) {
@@ -149,7 +157,7 @@ public abstract class MixinHopperBlockEntity implements IMixinHopperBlockEntity 
 
         // UnknownNet start - Customizable entity finding range
         if (hopper instanceof MixinHopperBlockEntity hp) {
-            if (!hp.findItemActive) return Collections.emptyList();
+            if (!hp.isEnabledFindItem()) return Collections.emptyList();
             return world.getEntitiesOfClass(ItemEntity.class, hp.getItemFindAABB(d0, d1, d2), Entity::isAlive);
         }
         // UnknownNet end
@@ -193,10 +201,6 @@ public abstract class MixinHopperBlockEntity implements IMixinHopperBlockEntity 
         // {"ItemFind":{"Active":"true", "Range":{"A":[-0.5, 0, -0.5], "B":[0.5, 1.5, 0.5]}}}
         if (nbt.contains("ItemFind")) {
             CompoundTag ItemFind = nbt.getCompound("ItemFind");
-            if (ItemFind.contains("Active")) {
-                this.findItemActive = ItemFind.getBoolean("Active");
-            }
-
             if (ItemFind.contains("Range")) {
                 CompoundTag Range = ItemFind.getCompound("Range");
                 if (Range.contains("A")) {
@@ -237,7 +241,6 @@ public abstract class MixinHopperBlockEntity implements IMixinHopperBlockEntity 
         nbt.put("filter", filterDataTag);
 
         CompoundTag ItemFind = new CompoundTag();
-        ItemFind.putBoolean("Active", this.findItemActive);
         CompoundTag Range = new CompoundTag();
         Range.put("A", this.findItem1);
         Range.put("B", this.findItem2);
@@ -251,12 +254,48 @@ public abstract class MixinHopperBlockEntity implements IMixinHopperBlockEntity 
     }
 
     @Override
+    public void setFilters(Set<ItemFilter> filters) {
+        this.filters = filters;
+    }
+
+    @Override
     public FilterType getFilterMode() {
         return this.filterMode;
     }
 
     @Override
+    public void setFilterMode(FilterType filterMode) {
+        this.filterMode = filterMode;
+    }
+
+    @Override
+    public boolean isFilterEnabled() {
+        return (this.filterMode != null && this.filterMode != FilterType.DISABLED) && !this.filters.isEmpty();
+    }
+
+    @Override
+    public boolean isEnabledFindItem() {
+        return this.getBlockState().getValue(HopperBlock.ENABLED);
+    }
+
+    @Override
+    public void setEnabledFindItem(boolean enabled) {
+        this.getBlockState().setValue(HopperBlock.ENABLED, enabled);
+    }
+
+    @Override
     public AABB getItemFindAABB(double baseX, double baseY, double baseZ) {
         return new AABB(baseX + this.findItem1.getDouble(0), baseY + this.findItem1.getDouble(1), baseZ + this.findItem1.getDouble(2), baseX + this.findItem2.getDouble(0), baseY + this.findItem2.getDouble(1), baseZ + this.findItem2.getDouble(2));
+    }
+
+    @Override
+    public void setItemFindAABB(double aX, double aY, double aZ, double bX, double bY, double bZ) {
+        this.findItem1.set(0, DoubleTag.valueOf(aX));
+        this.findItem1.set(1, DoubleTag.valueOf(aY));
+        this.findItem1.set(2, DoubleTag.valueOf(aZ));
+
+        this.findItem2.set(0, DoubleTag.valueOf(bX));
+        this.findItem2.set(1, DoubleTag.valueOf(bY));
+        this.findItem2.set(2, DoubleTag.valueOf(bZ));
     }
 }

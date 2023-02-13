@@ -41,9 +41,19 @@ import java.util.Set;
 public interface IMixinHopperBlockEntity extends Hopper {
     Set<ItemFilter> getFilters();
 
+    void setFilters(Set<ItemFilter> filters);
+
     FilterType getFilterMode();
+
+    void setFilterMode(FilterType filterMode);
+
+    boolean isFilterEnabled();
+
+    boolean isEnabledFindItem();
+
+    void setEnabledFindItem(boolean enabled);
 
     AABB getItemFindAABB(double baseX, double baseY, double baseZ);
 
-    NonNullList<ItemStack> getItems0();
+    void setItemFindAABB(double aX, double aY, double aZ, double bX, double bY, double bZ);
 }
