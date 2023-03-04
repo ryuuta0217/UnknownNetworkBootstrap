@@ -51,6 +51,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
@@ -59,12 +60,18 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
     private static final Map<UUID, LinkedChest> LINKED_CHESTS = Maps.newHashMap();
     @Shadow
     private NonNullList<ItemStack> items;
+    private boolean isVoidChest = false;
+    private final NonNullList<ItemStack> voidList = NonNullList.withSize(27, ItemStack.EMPTY);
     private ChestTransportMode previousTransportMode = null;
     private ChestTransportMode transportMode = ChestTransportMode.DISABLED;
     private UUID previousUniqueId = null;
     private UUID linkUniqueId = null;
     protected MixinChestBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+    }
+
+    public void setVoidChest(boolean isVoidChest) {
+        this.isVoidChest = isVoidChest;
     }
 
     @Inject(method = "load", at = @At("RETURN"))
@@ -116,6 +123,10 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
                 }
             }
         }
+
+        if (nbt.contains("VoidChest")) {
+            this.isVoidChest = nbt.getBoolean("VoidChest");
+        }
     }
 
     @Inject(method = "saveAdditional", at = @At("RETURN"))
@@ -128,6 +139,8 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
 
             nbt.put("Link", link);
         }
+
+        nbt.putBoolean("VoidChest", this.isVoidChest);
     }
 
     @Override
@@ -161,6 +174,10 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
      */
     @Overwrite
     public NonNullList<ItemStack> getItems() {
+        if (this.isVoidChest) {
+            this.voidList.clear();
+            return this.voidList;
+        }
         if (this.transportMode == ChestTransportMode.SENDER && this.linkUniqueId != null) {
             if (LINKED_CHESTS.containsKey(this.linkUniqueId)) {
                 LinkedChest lc = LINKED_CHESTS.get(this.linkUniqueId);
@@ -185,6 +202,13 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
             }
         }
         return this.items;
+    }
+
+    @Inject(method = "setItems", at = @At("HEAD"), cancellable = true)
+    public void onSetItems(NonNullList<ItemStack> list, CallbackInfo ci) {
+        if (this.isVoidChest) {
+            ci.cancel();
+        }
     }
 
     @Shadow
