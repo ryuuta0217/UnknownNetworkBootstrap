@@ -6,6 +6,7 @@
   "compatibilityLevel": "JAVA_16",
   "mixins": [
     "MixinAbstractFurnaceBlockEntity",
+    "MixinChestBlock",
     "MixinChestBlockEntity",
     "MixinCraftServer",
     "MixinDedicatedServer",

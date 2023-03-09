@@ -38,6 +38,8 @@ import java.util.UUID;
 
 public interface IMixinChestBlockEntity extends Container {
 
+    boolean isVoidChest();
+
     Map<UUID, LinkedChest> getLinks();
 
     ChestTransportMode getChestTransportMode();

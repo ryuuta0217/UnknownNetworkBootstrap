@@ -70,6 +70,11 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
         super(type, pos, state);
     }
 
+    @Override
+    public boolean isVoidChest() {
+        return this.isVoidChest;
+    }
+
     public void setVoidChest(boolean isVoidChest) {
         this.isVoidChest = isVoidChest;
     }
