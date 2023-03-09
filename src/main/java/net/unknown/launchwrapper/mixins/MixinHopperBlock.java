@@ -62,16 +62,20 @@ public abstract class MixinHopperBlock extends BlockBehaviour {
         if (blockEntity instanceof IMixinHopperBlockEntity hopper) {
             if (hopper.getFilterMode() != null) {
                 if (hopper.getFilters().size() > 0) {
-                    ItemStack is = new ItemStack(state.getBlock().asItem());
-                    CompoundTag tag = is.getOrCreateTag();
-                    tag.put("BlockEntityTag", ((BlockEntity) hopper).saveWithoutMetadata());
-                    CompoundTag display = new CompoundTag();
-                    ListTag lore = new ListTag();
-                    lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.literal("フィルターモード: " + hopper.getFilterMode().getLocalizedName()).withStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.AQUA)))));
-                    lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.literal("登録フィルター数: " + hopper.getFilters().size()).withStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.AQUA)))));
-                    display.put("Lore", lore);
-                    tag.put("display", display);
-                    return Collections.singletonList(is);
+                    List<ItemStack> drops = super.getDrops(state, builder);
+                    drops.forEach(stack -> {
+                        if (stack.getItem() == state.getBlock().asItem()) {
+                            CompoundTag tag = stack.getOrCreateTag();
+                            tag.put("BlockEntityTag", ((BlockEntity) hopper).saveWithoutMetadata());
+                            CompoundTag display = new CompoundTag();
+                            ListTag lore = new ListTag();
+                            lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.literal("フィルターモード: " + hopper.getFilterMode().getLocalizedName()).withStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.AQUA)))));
+                            lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.literal("登録フィルター数: " + hopper.getFilters().size()).withStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.AQUA)))));
+                            display.put("Lore", lore);
+                            tag.put("display", display);
+                        }
+                    });
+                    return drops;
                 }
             }
         }
