@@ -122,7 +122,7 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
                 if (hopper.getFilters().size() > 0) {
                     boolean filterResult = hopper.getFilters().stream().anyMatch(filter -> {
                         if (itemEntity.getItem().getItem().equals(filter.item())) {
-                            return NbtUtils.compareNbt(itemEntity.getItem().getTag(), filter.tag(), true);
+                            return filter.tag() == null || NbtUtils.compareNbt(itemEntity.getItem().getTag(), filter.tag(), true);
                         }
 
                         //itemEntity.getServer().getTags().getTagOrThrow()
@@ -188,7 +188,7 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
                                 ResourceLocation id = ResourceLocation.tryParse(idStr);
                                 Optional<Item> item = BuiltInRegistries.ITEM.getOptional(id);
                                 if (item.isPresent()) {
-                                    CompoundTag tag = filterData.getCompound("tag");
+                                    CompoundTag tag = filterData.contains("key") ? filterData.getCompound("tag") : null;
                                     this.filters.add(new ItemFilter(item.get(), tag));
                                 }
                             }
