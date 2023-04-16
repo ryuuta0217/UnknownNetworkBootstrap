@@ -40,7 +40,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.unknown.launchwrapper.linkchest.ChestTransportMode;
-import net.unknown.launchwrapper.linkchest.IMixinChestBlockEntity;
+import net.unknown.launchwrapper.mixininterfaces.IMixinChestBlockEntity;
 import net.unknown.launchwrapper.linkchest.LinkedChest;
 import net.unknown.launchwrapper.util.WrappedBlockPos;
 import org.jetbrains.annotations.NotNull;
@@ -51,7 +51,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 

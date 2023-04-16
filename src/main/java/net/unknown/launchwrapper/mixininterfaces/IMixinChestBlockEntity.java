@@ -29,10 +29,13 @@
  *     arising in any way out of the use of this source code, event if advised of the possibility of such damage.
  */
 
-package net.unknown.launchwrapper.linkchest;
+package net.unknown.launchwrapper.mixininterfaces;
 
 import net.minecraft.world.Container;
+import net.unknown.launchwrapper.linkchest.ChestTransportMode;
+import net.unknown.launchwrapper.linkchest.LinkedChest;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 

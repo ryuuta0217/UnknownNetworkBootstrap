@@ -31,7 +31,6 @@
 
 package net.unknown.launchwrapper.mixins;
 
-import io.papermc.paper.configuration.serializer.ComponentSerializer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -47,7 +46,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.unknown.launchwrapper.linkchest.IMixinChestBlockEntity;
+import net.unknown.launchwrapper.mixininterfaces.IMixinChestBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 
 import java.util.List;
