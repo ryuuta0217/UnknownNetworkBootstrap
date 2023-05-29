@@ -31,49 +31,42 @@
 
 package net.unknown.launchwrapper.mixins;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.unknown.launchwrapper.BlockEventCapture;
-import net.unknown.launchwrapper.mixininterfaces.IMixinBlockEntity;
+import org.bukkit.block.BlockState;
+import org.bukkit.craftbukkit.v1_19_R2.block.CraftBlockState;
+import org.bukkit.craftbukkit.v1_19_R2.event.CraftEventFactory;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockMultiPlaceEvent;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import javax.annotation.Nullable;
-import java.util.UUID;
+import java.util.List;
 
-@Mixin(BlockEntity.class)
-public abstract class MixinBlockEntity implements IMixinBlockEntity {
-    @Shadow public abstract BlockPos getBlockPos();
-
-    private UUID placer = null;
-
-    @Inject(method = "load", at = @At("RETURN"))
-    public void onLoad(CompoundTag nbt, CallbackInfo ci) {
-        if (BlockEventCapture.hasPlacer(this.getBlockPos())) {
-            this.placer = BlockEventCapture.getPlacer(this.getBlockPos());
-        } else if (nbt.contains("Placer", Tag.TAG_INT_ARRAY)) {
-            this.placer = nbt.getUUID("Placer");
+@Mixin(CraftEventFactory.class)
+public class MixinCraftEventFactory {
+    @Inject(method = "callBlockPlaceEvent", at = @At("HEAD"))
+    private static void onCalledBlockPlaceEvent(ServerLevel world, net.minecraft.world.entity.player.Player who, InteractionHand hand, BlockState replacedBlockState, int clickedX, int clickedY, int clickedZ, CallbackInfoReturnable<BlockBreakEvent> cir) {
+        CraftBlockState state = ((CraftBlockState) replacedBlockState);
+        if (state.getHandle().hasBlockEntity()) {
+            BlockEventCapture.capture(state.getPosition(), who.getUUID());
         }
     }
 
-    @Inject(method = "saveAdditional", at = @At("RETURN"))
-    public void onSaveAdditional(CompoundTag nbt, CallbackInfo ci) {
-        if (this.placer != null) nbt.putUUID("Placer", this.placer);
-    }
-
-    @Nullable
-    @Override
-    public UUID getPlacer() {
-        return this.placer;
-    }
-
-    @Override
-    public void setPlacer(@Nullable UUID placer) {
-        this.placer = placer;
+    @Inject(method = "callBlockMultiPlaceEvent", at = @At("HEAD"))
+    private static void onCalledBlockMultiPlaceEvent(ServerLevel world, Player who, InteractionHand hand, List<BlockState> blockStates, int clickedX, int clickedY, int clickedZ, CallbackInfoReturnable<BlockMultiPlaceEvent> cir) {
+        blockStates.stream()
+                .map(state -> (CraftBlockState) state)
+                .forEach(blockState -> {
+                    if (blockState.getHandle().hasBlockEntity()) {
+                        BlockEventCapture.capture(blockState.getPosition(), who.getUUID());
+                    }
+                });
     }
 }

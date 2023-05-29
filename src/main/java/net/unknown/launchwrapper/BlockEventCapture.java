@@ -29,51 +29,26 @@
  *     arising in any way out of the use of this source code, event if advised of the possibility of such damage.
  */
 
-package net.unknown.launchwrapper.mixins;
+package net.unknown.launchwrapper;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.unknown.launchwrapper.BlockEventCapture;
-import net.unknown.launchwrapper.mixininterfaces.IMixinBlockEntity;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
-@Mixin(BlockEntity.class)
-public abstract class MixinBlockEntity implements IMixinBlockEntity {
-    @Shadow public abstract BlockPos getBlockPos();
+public class BlockEventCapture {
+    private static Map<BlockPos, UUID> CAPTURES = new HashMap<>();
 
-    private UUID placer = null;
-
-    @Inject(method = "load", at = @At("RETURN"))
-    public void onLoad(CompoundTag nbt, CallbackInfo ci) {
-        if (BlockEventCapture.hasPlacer(this.getBlockPos())) {
-            this.placer = BlockEventCapture.getPlacer(this.getBlockPos());
-        } else if (nbt.contains("Placer", Tag.TAG_INT_ARRAY)) {
-            this.placer = nbt.getUUID("Placer");
-        }
+    public static void capture(BlockPos pos, UUID placer) {
+        CAPTURES.put(pos, placer);
     }
 
-    @Inject(method = "saveAdditional", at = @At("RETURN"))
-    public void onSaveAdditional(CompoundTag nbt, CallbackInfo ci) {
-        if (this.placer != null) nbt.putUUID("Placer", this.placer);
+    public static boolean hasPlacer(BlockPos pos) {
+        return CAPTURES.containsKey(pos);
     }
 
-    @Nullable
-    @Override
-    public UUID getPlacer() {
-        return this.placer;
-    }
-
-    @Override
-    public void setPlacer(@Nullable UUID placer) {
-        this.placer = placer;
+    public static UUID getPlacer(BlockPos pos) {
+        return CAPTURES.remove(pos);
     }
 }
