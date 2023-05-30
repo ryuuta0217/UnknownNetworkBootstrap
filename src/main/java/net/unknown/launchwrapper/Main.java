@@ -37,13 +37,27 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 public class Main {
+    public static boolean FORCE_ALLOW_1_20_FEATURES = System.getProperty("UnknownNetworkMagic") != null && System.getProperty("UnknownNetworkMagic").equals("1.20");
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
+        if (FORCE_ALLOW_1_20_FEATURES) {
+            System.out.println("""
+                    
+                    
+                                            Unknown Network Bootstrap
+                    Hey! You're activated 1.20 features, but this is contains bugs or crashes. Be careful!
+                    Server will start after 3 seconds...
+                    
+                    
+                    """);
+            Thread.sleep(TimeUnit.SECONDS.toMillis(3));
+        }
         Agent.addJar(new File("./versions/1.19.4/paper-1.19.4.jar"));
 
         Map<String, File> toLoadLibraries = new HashMap<>();

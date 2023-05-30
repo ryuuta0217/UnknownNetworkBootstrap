@@ -14,6 +14,7 @@
     "MixinDedicatedServer",
     "MixinDefaultDispenseItemBehavior",
     "MixinEnderChestBlock",
+    "MixinFeatureFlags",
     "MixinHopperBlock",
     "MixinHopperBlockEntity",
     "MixinMinecraftServer",

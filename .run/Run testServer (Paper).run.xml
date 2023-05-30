@@ -1,6 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Run testServer (Paper)" type="JarApplication">
     <option name="JAR_PATH" value="$PROJECT_DIR$/build/libs/UnknownNetworkBootstrap.jar" />
+    <option name="VM_PARAMETERS" value="-DUnknownNetworkMagic=1.20" />
     <option name="PROGRAM_PARAMETERS" value="nogui" />
     <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/testServer" />
     <option name="ALTERNATIVE_JRE_PATH" />
