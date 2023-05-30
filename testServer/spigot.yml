@@ -74,6 +74,7 @@ world-settings:
     nerf-spawner-mobs: false
     enable-zombie-pigmen-portal-spawns: true
     growth:
+      torchflower-modifier: 100
       cactus-modifier: 100
       cane-modifier: 100
       melon-modifier: 100
@@ -95,6 +96,7 @@ world-settings:
       cavevines-modifier: 100
       glowberry-modifier: 100
     entity-tracking-range:
+      display: 128
       players: 48
       animals: 48
       monsters: 48
