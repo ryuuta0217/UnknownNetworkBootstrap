@@ -35,6 +35,7 @@ import io.papermc.paper.configuration.WorldConfiguration;
 import io.papermc.paper.util.math.ThreadUnsafeRandom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -64,8 +65,8 @@ import java.util.function.Supplier;
 public abstract class MixinServerLevel extends Level {
     @Shadow @Final private ThreadUnsafeRandom randomTickRandom;
 
-    protected MixinServerLevel(WritableLevelData worlddatamutable, ResourceKey<Level> resourcekey, Holder<DimensionType> holder, Supplier<ProfilerFiller> supplier, boolean flag, boolean flag1, long i, int j, ChunkGenerator gen, BiomeProvider biomeProvider, World.Environment env, Function<SpigotWorldConfig, WorldConfiguration> paperWorldConfigCreator, Executor executor) {
-        super(worlddatamutable, resourcekey, holder, supplier, flag, flag1, i, j, gen, biomeProvider, env, paperWorldConfigCreator, executor);
+    protected MixinServerLevel(WritableLevelData worlddatamutable, ResourceKey<Level> resourcekey, RegistryAccess iregistrycustom, Holder<DimensionType> holder, Supplier<ProfilerFiller> supplier, boolean flag, boolean flag1, long i, int j, ChunkGenerator gen, BiomeProvider biomeProvider, World.Environment env, Function<SpigotWorldConfig, WorldConfiguration> paperWorldConfigCreator, Executor executor) {
+        super(worlddatamutable, resourcekey, iregistrycustom, holder, supplier, flag, flag1, i, j, gen, biomeProvider, env, paperWorldConfigCreator, executor);
     }
 
     @Inject(method = "neighborChanged(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/core/BlockPos;)V", at = @At("HEAD"))
