@@ -31,42 +31,26 @@
 
 package net.unknown.launchwrapper.mixins;
 
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.unknown.launchwrapper.BlockEventCapture;
-import org.bukkit.block.BlockState;
-import org.bukkit.craftbukkit.v1_19_R3.block.CraftBlockState;
-import org.bukkit.craftbukkit.v1_19_R3.event.CraftEventFactory;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockMultiPlaceEvent;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.unknown.launchwrapper.mixininterfaces.IMixinBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.List;
-
-@Mixin(CraftEventFactory.class)
-public class MixinCraftEventFactory {
-    @Inject(method = "callBlockPlaceEvent", at = @At("HEAD"))
-    private static void onCalledBlockPlaceEvent(ServerLevel world, net.minecraft.world.entity.player.Player who, InteractionHand hand, BlockState replacedBlockState, int clickedX, int clickedY, int clickedZ, CallbackInfoReturnable<BlockBreakEvent> cir) {
-        CraftBlockState state = ((CraftBlockState) replacedBlockState);
-        if (state.getHandle().hasBlockEntity()) {
-            BlockEventCapture.capture(state.getPosition(), who.getUUID());
+@Mixin(BlockItem.class)
+public class MixinBlockItem {
+    @Inject(method = "place", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/context/BlockPlaceContext;getClickedPos()Lnet/minecraft/core/BlockPos;"))
+    public void onSuccessfullyBlockPlaced(BlockPlaceContext context, CallbackInfoReturnable<InteractionResult> cir) {
+        // Very early block placed detection
+        if (context.getPlayer() != null) {
+            BlockEntity blockEntity = context.getLevel().getBlockEntity(context.getClickedPos());
+            if (blockEntity instanceof IMixinBlockEntity blockEntityMixin) {
+                blockEntityMixin.setPlacer(context.getPlayer().getUUID());
+            }
         }
-    }
-
-    @Inject(method = "callBlockMultiPlaceEvent", at = @At("HEAD"))
-    private static void onCalledBlockMultiPlaceEvent(ServerLevel world, Player who, InteractionHand hand, List<BlockState> blockStates, int clickedX, int clickedY, int clickedZ, CallbackInfoReturnable<BlockMultiPlaceEvent> cir) {
-        blockStates.stream()
-                .map(state -> (CraftBlockState) state)
-                .forEach(blockState -> {
-                    if (blockState.getHandle().hasBlockEntity()) {
-                        BlockEventCapture.capture(blockState.getPosition(), who.getUUID());
-                    }
-                });
     }
 }

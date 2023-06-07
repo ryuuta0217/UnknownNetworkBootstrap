@@ -35,7 +35,17 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 
 public interface IMixinBlockEntity {
+    /**
+     * ブロックエンティティを設置したプレイヤーのUUIDを返却します。
+     *
+     * @return プレイヤーのUUID
+     */
     @Nullable UUID getPlacer();
 
+    /**
+     * ブロックエンティティを設置したプレイヤーのUUIDを設定します。
+     *
+     * @param placer プレイヤーのUUID
+     */
     void setPlacer(@Nullable UUID placer);
 }

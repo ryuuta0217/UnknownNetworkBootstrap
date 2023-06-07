@@ -31,14 +31,11 @@
 
 package net.unknown.launchwrapper.mixins;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.unknown.launchwrapper.BlockEventCapture;
 import net.unknown.launchwrapper.mixininterfaces.IMixinBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -48,15 +45,11 @@ import java.util.UUID;
 
 @Mixin(BlockEntity.class)
 public abstract class MixinBlockEntity implements IMixinBlockEntity {
-    @Shadow public abstract BlockPos getBlockPos();
-
     private UUID placer = null;
 
     @Inject(method = "load", at = @At("RETURN"))
     public void onLoad(CompoundTag nbt, CallbackInfo ci) {
-        if (BlockEventCapture.hasPlacer(this.getBlockPos())) {
-            this.placer = BlockEventCapture.getPlacer(this.getBlockPos());
-        } else if (nbt.contains("Placer", Tag.TAG_INT_ARRAY)) {
+        if (nbt.contains("Placer", Tag.TAG_INT_ARRAY)) {
             this.placer = nbt.getUUID("Placer");
         }
     }
