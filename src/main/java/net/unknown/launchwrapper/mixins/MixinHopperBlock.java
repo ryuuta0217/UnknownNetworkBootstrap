@@ -42,12 +42,11 @@ import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.unknown.launchwrapper.hopper.IMixinHopperBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 
-import java.util.Collections;
 import java.util.List;
 
 @Mixin(HopperBlock.class)
@@ -57,7 +56,7 @@ public abstract class MixinHopperBlock extends BlockBehaviour {
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         BlockEntity blockEntity = builder.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         if (blockEntity instanceof IMixinHopperBlockEntity hopper) {
             if (hopper.getFilterMode() != null) {

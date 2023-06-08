@@ -33,10 +33,11 @@ package net.unknown.launchwrapper.mixins;
 
 import net.minecraft.world.level.block.AmethystBlock;
 import net.minecraft.world.level.block.BuddingAmethystBlock;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.PushReaction;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BuddingAmethystBlock.class)
 public abstract class MixinBuddingAmethystBlock extends AmethystBlock {
@@ -44,12 +45,8 @@ public abstract class MixinBuddingAmethystBlock extends AmethystBlock {
         super(settings);
     }
 
-    /**
-     * @author ryuuta0217
-     * @reason Make it possible to move with a piston
-     */
-    @Overwrite
-    public PushReaction getPistonPushReaction(BlockState state) {
-        return super.getPistonPushReaction(state);
+    @Inject(method = "<init>", at = @At("TAIL"))
+    private static void onInitialize(Properties settings, CallbackInfo ci) {
+        settings.pushReaction(PushReaction.NORMAL);
     }
 }

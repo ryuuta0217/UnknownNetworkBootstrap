@@ -42,8 +42,8 @@ import org.spongepowered.asm.mixin.injection.*;
 public class MixinFeatureFlags {
     @Redirect(method = "<clinit>", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/flag/FeatureFlagSet;of(Lnet/minecraft/world/flag/FeatureFlag;)Lnet/minecraft/world/flag/FeatureFlagSet;"))
     private static FeatureFlagSet onClInit(FeatureFlag feature) {
-        if (Main.FORCE_ALLOW_1_20_FEATURES) {
-            return FeatureFlagSet.of(feature, FeatureFlags.UPDATE_1_20, FeatureFlags.BUNDLE);
+        if (Main.FORCE_ALLOW_BUNDLE_FEATURES) {
+            return FeatureFlagSet.of(feature, FeatureFlags.BUNDLE);
         } else {
             return FeatureFlagSet.of(feature);
         }
