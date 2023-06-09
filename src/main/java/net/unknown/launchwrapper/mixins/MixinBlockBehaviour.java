@@ -31,22 +31,25 @@
 
 package net.unknown.launchwrapper.mixins;
 
-import net.minecraft.world.level.block.AmethystBlock;
 import net.minecraft.world.level.block.BuddingAmethystBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.PushReaction;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(BuddingAmethystBlock.class)
-public abstract class MixinBuddingAmethystBlock extends AmethystBlock {
-    public MixinBuddingAmethystBlock(Properties settings) {
-        super(settings);
-    }
+@Mixin(BlockBehaviour.class)
+public class MixinBlockBehaviour {
+    @Shadow @Final protected BlockBehaviour.Properties properties;
 
-    @Inject(method = "<init>", at = @At("TAIL"))
-    private static void onInitialize(Properties settings, CallbackInfo ci) {
-        settings.pushReaction(PushReaction.NORMAL);
+    @Inject(method = "<init>", at = @At("RETURN"))
+    public void onInitialize(BlockBehaviour.Properties settings, CallbackInfo ci) {
+        if ((Object) this instanceof BuddingAmethystBlock) {
+            this.properties.pushReaction(PushReaction.NORMAL);
+            System.out.println("[BuddingAmethystBlock] Changed push reaction to NORMAL.");
+        }
     }
 }
