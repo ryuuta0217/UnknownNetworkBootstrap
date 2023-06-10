@@ -21,6 +21,7 @@
     "MixinNearestAttackableTargetGoal",
     "MixinObserverBlock",
     "MixinServerLevel",
+    "MixinSignBlockEntity",
     "MixinSimpleContainer",
     "MixinWeatheringCopperFullBlock",
     "MixinWeatheringCopperSlabBlock",
