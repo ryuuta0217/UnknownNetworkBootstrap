@@ -31,55 +31,16 @@
 
 package net.unknown.launchwrapper.linkchest;
 
-import net.unknown.launchwrapper.util.WrappedBlockPos;
+public enum LinkChestMode {
+    DISABLED,
+    CLIENT,
+    SOURCE;
 
-import java.util.HashSet;
-import java.util.Set;
-
-public class LinkedChest {
-    private final Set<WrappedBlockPos> clientPos;
-    private WrappedBlockPos sourcePos;
-
-    public LinkedChest(Set<WrappedBlockPos> clientPos, WrappedBlockPos sourcePos) {
-        this.clientPos = clientPos;
-        this.sourcePos = sourcePos;
-    }
-
-    public Set<WrappedBlockPos> getClientPos() {
-        return clientPos;
-    }
-
-    /*public WrappedBlockPos getWrappedPosInstance(BlockPos blockPos) {
-        List<WrappedBlockPos> results = this.senderPos.stream().filter(wrapped -> wrapped.blockPos().equals(blockPos)).toList();
-        if(results.size() > 0) return results.get(0);
-        return null;
-    }
-
-    public void addAccessorPos(WrappedBlockPos accessorPos) {
-        this.senderPos.add(accessorPos);
-    }
-
-    public void removeAccessorPos(WrappedBlockPos accessorPos) {
-        this.senderPos.remove(accessorPos);
-    }*/
-
-    public void addClientPos(WrappedBlockPos clientPos) {
-        this.clientPos.add(clientPos);
-    }
-
-    public void removeClientPos(WrappedBlockPos clientPos) {
-        this.clientPos.remove(clientPos);
-    }
-
-    public void clearClients() {
-        this.clientPos.clear();
-    }
-
-    public WrappedBlockPos getSourcePos() {
-        return sourcePos;
-    }
-
-    public void setSourcePos(WrappedBlockPos sourcePos) {
-        this.sourcePos = sourcePos;
+    public static LinkChestMode valueOfOrDefault(String name, LinkChestMode fallback) {
+        try {
+            return valueOf(name.toUpperCase());
+        } catch(IllegalArgumentException e) {
+            return fallback;
+        }
     }
 }

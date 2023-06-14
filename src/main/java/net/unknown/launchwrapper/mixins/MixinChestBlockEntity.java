@@ -31,23 +31,19 @@
 
 package net.unknown.launchwrapper.mixins;
 
-import com.google.common.collect.Maps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.unknown.launchwrapper.linkchest.ChestTransportMode;
+import net.unknown.launchwrapper.linkchest.LinkChestMode;
 import net.unknown.launchwrapper.mixininterfaces.IMixinChestBlockEntity;
-import net.unknown.launchwrapper.linkchest.LinkedChest;
 import net.unknown.launchwrapper.util.WrappedBlockPos;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -55,22 +51,20 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Mixin(ChestBlockEntity.class)
 public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEntity implements LidBlockEntity, IMixinChestBlockEntity {
-    private static final Map<UUID, LinkedChest> LINKED_CHESTS = Maps.newHashMap();
     @Shadow
     private NonNullList<ItemStack> items;
     private boolean isVoidChest = false;
     private final NonNullList<ItemStack> voidList = NonNullList.withSize(27, ItemStack.EMPTY);
-    private ChestTransportMode previousTransportMode = null;
-    private ChestTransportMode transportMode = ChestTransportMode.DISABLED;
-    private UUID previousUniqueId = null;
-    private UUID linkUniqueId = null;
+
+    /* Link Chest - Unknown Network*/
+    private LinkChestMode linkChestMode = LinkChestMode.DISABLED;
+    private WrappedBlockPos linkChestSource;
+    /* Link Chest - end */
+
     protected MixinChestBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
     }
@@ -81,6 +75,7 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
     }
 
     public void setVoidChest(boolean isVoidChest) {
+        if (this.linkChestMode == LinkChestMode.CLIENT) throw new IllegalStateException("Cannot set as void chest when in LinkedChest: CLIENT mode!");
         this.isVoidChest = isVoidChest;
     }
 
@@ -88,89 +83,39 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
     public void onLoad(CompoundTag nbt, CallbackInfo ci) {
         if (nbt.contains("Link")) {
             CompoundTag link = nbt.getCompound("Link");
-            if (link.contains("Mode")) {
-                this.previousTransportMode = this.transportMode;
-                this.transportMode = ChestTransportMode.valueOfOrDefault(link.getString("Mode"), ChestTransportMode.DISABLED);
+            if (link.contains("Mode", CompoundTag.TAG_STRING)) {
+                this.linkChestMode = LinkChestMode.valueOfOrDefault(link.getString("Mode"), LinkChestMode.DISABLED);
             }
 
-            if (link.contains("UUID")) {
-                this.previousUniqueId = this.linkUniqueId;
-                this.linkUniqueId = link.getUUID("UUID");
-            }
-
-            if (this.linkUniqueId != null) {
-                LinkedChest linkedChest;
-                if (LINKED_CHESTS.containsKey(this.linkUniqueId)) {
-                    linkedChest = LINKED_CHESTS.get(this.linkUniqueId);
-                } else {
-                    linkedChest = new LinkedChest(new HashSet<>(), null);
-                    LINKED_CHESTS.put(this.linkUniqueId, linkedChest);
-                }
-
-                if (this.transportMode != ChestTransportMode.DISABLED) {
-                    switch (this.transportMode) {
-                        case CLIENT -> linkedChest.addClientPos(new WrappedBlockPos(this.getLevel(), this.getBlockPos()));
-                        case SOURCE -> {
-                            this.getViewers().forEach(human -> human.closeInventory(InventoryCloseEvent.Reason.CANT_USE));
-                            if (linkedChest.getSourcePos() != null) { // If already exists source chest, set it to client mode
-                                BlockEntity entity = linkedChest.getSourcePos().getBlockEntity(true);
-                                if (entity != null) {
-                                    if (entity instanceof IMixinChestBlockEntity chestBlock && !entity.getBlockPos().equals(this.getBlockPos())) {
-                                        chestBlock.setChestTransportMode(ChestTransportMode.CLIENT);
-                                    }
-                                }
-                            }
-                            linkedChest.setSourcePos(new WrappedBlockPos(this.getLevel(), this.getBlockPos()));
-                        }
-                    }
-                }
-            }
-
-            if (this.previousUniqueId != null) {
-                if (LINKED_CHESTS.containsKey(this.previousUniqueId)) {
-                    LinkedChest lc = LINKED_CHESTS.get(this.previousUniqueId);
-
-                    lc.getClientPos().removeIf(clientPos -> { // Remove client if not referenced anymore
-                        BlockEntity entity = clientPos.getBlockEntity(true);
-                        if (entity != null) {
-                            if (entity instanceof IMixinChestBlockEntity chestBlock) {
-                                return !chestBlock.getLinkUniqueId().equals(this.previousUniqueId);
-                            }
-                        }
-                        return true;
-                    });
-
-                    WrappedBlockPos sourcePos = lc.getSourcePos();
-                    if (sourcePos != null) { // Remove source if not referenced anymore
-                        BlockEntity entity = sourcePos.getBlockEntity(true);
-                        if (entity != null) {
-                            if (entity instanceof IMixinChestBlockEntity chestBlock) {
-                                if (!chestBlock.getLinkUniqueId().equals(this.previousUniqueId)) {
-                                    lc.setSourcePos(null);
-                                }
-                            }
-                        }
-                    }
-
-                    if (lc.getClientPos().size() == 0 && lc.getSourcePos() == null) {
-                        LINKED_CHESTS.remove(this.previousUniqueId);
+            if (this.linkChestMode == LinkChestMode.CLIENT && link.contains("SourcePos", CompoundTag.TAG_COMPOUND)) {
+                CompoundTag sourcePos = link.getCompound("SourcePos");
+                if (sourcePos.contains("Level") && sourcePos.contains("Pos", CompoundTag.TAG_INT_ARRAY)) {
+                    ResourceKey<Level> levelKey = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(sourcePos.getString("Level")));
+                    int[] pos = sourcePos.getIntArray("Pos");
+                    if (pos.length == 3) {
+                        this.linkChestSource = new WrappedBlockPos(levelKey, new BlockPos(pos[0], pos[1], pos[2]));
                     }
                 }
             }
         }
 
-        if (nbt.contains("VoidChest")) {
+        if (nbt.contains("VoidChest", CompoundTag.TAG_BYTE)) {
             this.isVoidChest = nbt.getBoolean("VoidChest");
         }
     }
 
     @Inject(method = "saveAdditional", at = @At("RETURN"))
     public void onSaveAdditional(CompoundTag nbt, CallbackInfo ci) {
-        if (this.transportMode != ChestTransportMode.DISABLED && this.linkUniqueId != null) {
+        if (this.linkChestMode != LinkChestMode.DISABLED) {
             CompoundTag link = new CompoundTag();
 
-            link.putString("Mode", this.transportMode.name());
-            link.putUUID("UUID", this.linkUniqueId);
+            link.putString("Mode", this.linkChestMode.name());
+            if (this.linkChestMode == LinkChestMode.CLIENT && this.linkChestSource != null) {
+                CompoundTag sourcePos = new CompoundTag();
+                sourcePos.putString("Level", this.linkChestSource.levelKey().location().toString());
+                sourcePos.putIntArray("Pos", new int[]{this.linkChestSource.blockPos().getX(), this.linkChestSource.blockPos().getY(), this.linkChestSource.blockPos().getZ()});
+                link.put("SourcePos", sourcePos);
+            }
 
             nbt.put("Link", link);
         }
@@ -179,36 +124,29 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
     }
 
     @Override
-    public ChestTransportMode getChestTransportMode() {
-        return this.transportMode;
+    public LinkChestMode getChestTransportMode() {
+        return this.linkChestMode;
     }
 
     @Override
-    public void setChestTransportMode(ChestTransportMode transportMode) {
-        this.transportMode = transportMode;
+    public void setChestTransportMode(LinkChestMode transportMode) {
+        this.linkChestMode = transportMode;
     }
 
     @Override
-    public UUID getLinkUniqueId() {
-        return this.linkUniqueId;
+    public WrappedBlockPos getLinkSource() {
+        return this.linkChestSource;
     }
 
-    @Override
-    public void setLevel(@NotNull Level level) {
-        if (this.transportMode != ChestTransportMode.DISABLED && this.linkUniqueId != null) {
-            if (LINKED_CHESTS.containsKey(this.linkUniqueId)) {
-                LinkedChest lc = LINKED_CHESTS.get(this.linkUniqueId);
-                if (this.transportMode == ChestTransportMode.CLIENT && lc.getClientPos().size() != 0) {
-                    lc.getClientPos().removeIf(clientPos -> clientPos.level().equals(this.getLevel()) && clientPos.blockPos().equals(this.getBlockPos()));
-                    lc.addClientPos(new WrappedBlockPos(level, this.getBlockPos()));
-                }
-                if (this.transportMode == ChestTransportMode.SOURCE && lc.getSourcePos() != null) {
-                    lc.getSourcePos().level(level);
-                }
-            }
-        }
-        super.setLevel(level);
+    /**
+     * @author ryuuta0217
+     * @reason Use #getItems() instead of #getContents()
+     */
+    @Overwrite
+    public List<ItemStack> getContents() {
+        return this.getItems();
     }
+
 
     /**
      * Overwrite a getItems method.
@@ -221,21 +159,21 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
             this.voidList.clear();
             return this.voidList;
         }
-        if (this.transportMode == ChestTransportMode.CLIENT && this.linkUniqueId != null) {
-            if (LINKED_CHESTS.containsKey(this.linkUniqueId)) {
-                LinkedChest linkChest = LINKED_CHESTS.get(this.linkUniqueId);
-                if (linkChest.getSourcePos() != null) {
-                    BlockEntity be = linkChest.getSourcePos().getBlockEntity(true);
-                    if (be instanceof MixinChestBlockEntity sourceChest) {
-                        if (sourceChest.getLinkUniqueId() != null) {
-                            if (sourceChest.getLinkUniqueId().equals(this.getLinkUniqueId())) {
-                                if (sourceChest.getChestTransportMode() == ChestTransportMode.SOURCE) {
-                                    return sourceChest.getItems();
-                                }
-                            }
-                        }
+
+        if (this.linkChestMode == LinkChestMode.CLIENT) {
+            if (this.linkChestSource != null) {
+                BlockEntity blockEntity = this.linkChestSource.getBlockEntity(true, 3);
+                if (blockEntity instanceof MixinChestBlockEntity chestBlockEntity) {
+                    if (chestBlockEntity.getChestTransportMode() == LinkChestMode.SOURCE) {
+                        return chestBlockEntity.getItems();
+                    } else {
+                        this.selfDestroy();
                     }
+                } else if (blockEntity != null) {
+                    this.selfDestroy();
                 }
+            } else {
+                this.selfDestroy();
             }
         }
         return this.items;
@@ -247,30 +185,22 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
             ci.cancel();
         }
 
-        if (this.transportMode == ChestTransportMode.CLIENT && this.linkUniqueId != null) {
-            if (LINKED_CHESTS.containsKey(this.linkUniqueId)) {
-                LinkedChest linkChest = LINKED_CHESTS.get(this.linkUniqueId);
-                if (linkChest.getSourcePos() != null) {
-                    BlockEntity be = linkChest.getSourcePos().getBlockEntity(true);
-                    if (be instanceof MixinChestBlockEntity sourceChest) {
-                        if (sourceChest.getLinkUniqueId() != null) {
-                            if (sourceChest.getLinkUniqueId().equals(this.getLinkUniqueId())) {
-                                if (sourceChest.getChestTransportMode() == ChestTransportMode.SOURCE) {
-                                    sourceChest.setItems(list);
-                                    ci.cancel();
-                                }
-                            }
-                        }
+        if (this.linkChestMode == LinkChestMode.CLIENT) {
+            if (this.linkChestSource != null) {
+                BlockEntity blockEntity = this.linkChestSource.getBlockEntity(true, 3);
+                if (blockEntity instanceof MixinChestBlockEntity chestBlockEntity) {
+                    if (chestBlockEntity.getChestTransportMode() == LinkChestMode.SOURCE) {
+                        chestBlockEntity.setItems(list);
+                        ci.cancel();
                     }
                 }
             }
         }
     }
 
-    @Shadow public abstract List<HumanEntity> getViewers();
-
-    @Override
-    public Map<UUID, LinkedChest> getLinks() {
-        return LINKED_CHESTS;
+    private void selfDestroy() {
+        if (this.hasLevel() && this.getLevel() != null) {
+            this.getLevel().destroyBlock(this.getBlockPos(), true);
+        }
     }
 }

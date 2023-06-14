@@ -35,11 +35,20 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.TicketType;
+import net.minecraft.util.Unit;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 public class WrappedBlockPos {
     private ResourceKey<Level> level; // weak reference to level
@@ -81,15 +90,28 @@ public class WrappedBlockPos {
 
     @Nullable
     public BlockEntity getBlockEntity(boolean load) {
+        return getBlockEntity(load, 0);
+    }
+
+    @Nullable
+    public BlockEntity getBlockEntity(boolean load, int maxRetry) {
+        return getBlockEntity(load, maxRetry, 0);
+    }
+
+    private BlockEntity getBlockEntity(boolean load, int maxRetry, int retryCount) {
+        if (retryCount >= maxRetry) return null;
         ServerLevel level = this.serverLevel();
         if (level != null) {
             if (!level.isLoaded(this.blockPos()) && load) {
-                LevelChunk chunk = level.getChunkSource().getChunkNow(this.blockPos().getX() >> 4, this.blockPos().getZ() >> 4);
+                ChunkPos chunkPos = new ChunkPos(this.blockPos());
+                level.getChunkSource().addRegionTicket(TicketType.CHUNK_LOAD, chunkPos, 0, 20 * 3L);
+                ChunkAccess chunk = level.getChunkSource().getChunk(chunkPos.x, chunkPos.z, ChunkStatus.FULL, true);
                 if (chunk != null) return chunk.getBlockEntity(this.blockPos());
             } else if (level.isLoaded(this.blockPos())) {
                 return level.getBlockEntity(this.blockPos());
             }
         }
-        return null;
+        retryCount++;
+        return getBlockEntity(load, maxRetry, retryCount);
     }
 }

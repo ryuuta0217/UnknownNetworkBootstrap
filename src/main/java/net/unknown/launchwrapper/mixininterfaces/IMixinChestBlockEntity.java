@@ -32,22 +32,16 @@
 package net.unknown.launchwrapper.mixininterfaces;
 
 import net.minecraft.world.Container;
-import net.unknown.launchwrapper.linkchest.ChestTransportMode;
-import net.unknown.launchwrapper.linkchest.LinkedChest;
-
-import javax.annotation.Nullable;
-import java.util.Map;
-import java.util.UUID;
+import net.unknown.launchwrapper.linkchest.LinkChestMode;
+import net.unknown.launchwrapper.util.WrappedBlockPos;
 
 public interface IMixinChestBlockEntity extends Container {
 
     boolean isVoidChest();
 
-    Map<UUID, LinkedChest> getLinks();
+    void setChestTransportMode(LinkChestMode linkChestMode);
 
-    void setChestTransportMode(ChestTransportMode chestTransportMode);
+    LinkChestMode getChestTransportMode();
 
-    ChestTransportMode getChestTransportMode();
-
-    UUID getLinkUniqueId();
+    WrappedBlockPos getLinkSource();
 }
