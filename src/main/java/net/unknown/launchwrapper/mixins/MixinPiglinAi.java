@@ -60,7 +60,7 @@ public class MixinPiglinAi {
             ItemStack itemstack = iterator.next();
 
             item = itemstack.getItem();
-        } while (!(item instanceof ArmorItem) || ((ArmorItem) item).getMaterial() != ArmorMaterials.GOLD || item != Items.PIGLIN_HEAD);
+        } while (item != Items.PIGLIN_HEAD && (!(item instanceof ArmorItem) || ((ArmorItem) item).getMaterial() != ArmorMaterials.GOLD));
 
         return true;
     }
