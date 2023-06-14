@@ -31,8 +31,18 @@
 
 package net.unknown.launchwrapper.linkchest;
 
+import javax.annotation.Nullable;
+
 public enum ChestTransportMode {
     DISABLED,
-    SENDER,
-    RECEIVER
+    CLIENT,
+    SOURCE;
+
+    public static ChestTransportMode valueOfOrDefault(String name, ChestTransportMode mode) {
+        try {
+            return valueOf(name.toUpperCase());
+        } catch(IllegalArgumentException e) {
+            return mode;
+        }
+    }
 }

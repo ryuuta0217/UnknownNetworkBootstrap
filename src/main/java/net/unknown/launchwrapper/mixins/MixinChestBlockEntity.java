@@ -35,6 +35,8 @@ import com.google.common.collect.Maps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.*;
@@ -43,6 +45,8 @@ import net.unknown.launchwrapper.linkchest.ChestTransportMode;
 import net.unknown.launchwrapper.mixininterfaces.IMixinChestBlockEntity;
 import net.unknown.launchwrapper.linkchest.LinkedChest;
 import net.unknown.launchwrapper.util.WrappedBlockPos;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -51,6 +55,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -84,11 +90,7 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
             CompoundTag link = nbt.getCompound("Link");
             if (link.contains("Mode")) {
                 this.previousTransportMode = this.transportMode;
-                String modeStr = link.getString("Mode");
-                ChestTransportMode mode = ChestTransportMode.DISABLED;
-                if (modeStr.equalsIgnoreCase("sender")) mode = ChestTransportMode.SENDER;
-                if (modeStr.equalsIgnoreCase("receiver")) mode = ChestTransportMode.RECEIVER;
-                this.transportMode = mode;
+                this.transportMode = ChestTransportMode.valueOfOrDefault(link.getString("Mode"), ChestTransportMode.DISABLED);
             }
 
             if (link.contains("UUID")) {
@@ -97,18 +99,29 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
             }
 
             if (this.linkUniqueId != null) {
-                LinkedChest lc;
+                LinkedChest linkedChest;
                 if (LINKED_CHESTS.containsKey(this.linkUniqueId)) {
-                    lc = LINKED_CHESTS.get(this.linkUniqueId);
+                    linkedChest = LINKED_CHESTS.get(this.linkUniqueId);
                 } else {
-                    lc = new LinkedChest(null, null);
-                    LINKED_CHESTS.put(this.linkUniqueId, lc);
+                    linkedChest = new LinkedChest(new HashSet<>(), null);
+                    LINKED_CHESTS.put(this.linkUniqueId, linkedChest);
                 }
 
                 if (this.transportMode != ChestTransportMode.DISABLED) {
                     switch (this.transportMode) {
-                        case SENDER -> lc.setSenderPos(new WrappedBlockPos(this.getLevel(), this.getBlockPos()));
-                        case RECEIVER -> lc.setReceiverPos(new WrappedBlockPos(this.getLevel(), this.getBlockPos()));
+                        case CLIENT -> linkedChest.addClientPos(new WrappedBlockPos(this.getLevel(), this.getBlockPos()));
+                        case SOURCE -> {
+                            this.getViewers().forEach(human -> human.closeInventory(InventoryCloseEvent.Reason.CANT_USE));
+                            if (linkedChest.getSourcePos() != null) { // If already exists source chest, set it to client mode
+                                BlockEntity entity = linkedChest.getSourcePos().getBlockEntity(true);
+                                if (entity != null) {
+                                    if (entity instanceof IMixinChestBlockEntity chestBlock && !entity.getBlockPos().equals(this.getBlockPos())) {
+                                        chestBlock.setChestTransportMode(ChestTransportMode.CLIENT);
+                                    }
+                                }
+                            }
+                            linkedChest.setSourcePos(new WrappedBlockPos(this.getLevel(), this.getBlockPos()));
+                        }
                     }
                 }
             }
@@ -116,12 +129,30 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
             if (this.previousUniqueId != null) {
                 if (LINKED_CHESTS.containsKey(this.previousUniqueId)) {
                     LinkedChest lc = LINKED_CHESTS.get(this.previousUniqueId);
-                    switch (this.previousTransportMode) {
-                        case SENDER -> lc.setSenderPos(null);
-                        case RECEIVER -> lc.setReceiverPos(null);
+
+                    lc.getClientPos().removeIf(clientPos -> { // Remove client if not referenced anymore
+                        BlockEntity entity = clientPos.getBlockEntity(true);
+                        if (entity != null) {
+                            if (entity instanceof IMixinChestBlockEntity chestBlock) {
+                                return !chestBlock.getLinkUniqueId().equals(this.previousUniqueId);
+                            }
+                        }
+                        return true;
+                    });
+
+                    WrappedBlockPos sourcePos = lc.getSourcePos();
+                    if (sourcePos != null) { // Remove source if not referenced anymore
+                        BlockEntity entity = sourcePos.getBlockEntity(true);
+                        if (entity != null) {
+                            if (entity instanceof IMixinChestBlockEntity chestBlock) {
+                                if (!chestBlock.getLinkUniqueId().equals(this.previousUniqueId)) {
+                                    lc.setSourcePos(null);
+                                }
+                            }
+                        }
                     }
 
-                    if (lc.getSenderPos() == null && lc.getReceiverPos() == null) {
+                    if (lc.getClientPos().size() == 0 && lc.getSourcePos() == null) {
                         LINKED_CHESTS.remove(this.previousUniqueId);
                     }
                 }
@@ -138,7 +169,7 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
         if (this.transportMode != ChestTransportMode.DISABLED && this.linkUniqueId != null) {
             CompoundTag link = new CompoundTag();
 
-            link.putString("Mode", this.transportMode.name().toLowerCase());
+            link.putString("Mode", this.transportMode.name());
             link.putUUID("UUID", this.linkUniqueId);
 
             nbt.put("Link", link);
@@ -153,6 +184,11 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
     }
 
     @Override
+    public void setChestTransportMode(ChestTransportMode transportMode) {
+        this.transportMode = transportMode;
+    }
+
+    @Override
     public UUID getLinkUniqueId() {
         return this.linkUniqueId;
     }
@@ -162,10 +198,13 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
         if (this.transportMode != ChestTransportMode.DISABLED && this.linkUniqueId != null) {
             if (LINKED_CHESTS.containsKey(this.linkUniqueId)) {
                 LinkedChest lc = LINKED_CHESTS.get(this.linkUniqueId);
-                if (this.transportMode == ChestTransportMode.SENDER && lc.getSenderPos() != null)
-                    lc.getSenderPos().level(level);
-                if (this.transportMode == ChestTransportMode.RECEIVER && lc.getReceiverPos() != null)
-                    lc.getReceiverPos().level(level);
+                if (this.transportMode == ChestTransportMode.CLIENT && lc.getClientPos().size() != 0) {
+                    lc.getClientPos().removeIf(clientPos -> clientPos.level().equals(this.getLevel()) && clientPos.blockPos().equals(this.getBlockPos()));
+                    lc.addClientPos(new WrappedBlockPos(level, this.getBlockPos()));
+                }
+                if (this.transportMode == ChestTransportMode.SOURCE && lc.getSourcePos() != null) {
+                    lc.getSourcePos().level(level);
+                }
             }
         }
         super.setLevel(level);
@@ -182,22 +221,16 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
             this.voidList.clear();
             return this.voidList;
         }
-        if (this.transportMode == ChestTransportMode.SENDER && this.linkUniqueId != null) {
+        if (this.transportMode == ChestTransportMode.CLIENT && this.linkUniqueId != null) {
             if (LINKED_CHESTS.containsKey(this.linkUniqueId)) {
-                LinkedChest lc = LINKED_CHESTS.get(this.linkUniqueId);
-                if (lc.getReceiverPos() != null) {
-                    WrappedBlockPos wbp = lc.getReceiverPos();
-                    if (wbp.level() != null) {
-                        /*if(!wbp.level().isLoaded(wbp.blockPos())) {
-                        wbp.level().getWorld().loadChunk(wbp.level().getChunkAt(wbp.blockPos()).getBukkitChunk());
-                    }*/
-                        BlockEntity be = wbp.level().getBlockEntity(wbp.blockPos());
-                        if (be instanceof MixinChestBlockEntity receiverChest) {
-                            if (receiverChest.getLinkUniqueId() != null) {
-                                if (receiverChest.getLinkUniqueId().equals(this.getLinkUniqueId())) {
-                                    if (receiverChest.getChestTransportMode() == ChestTransportMode.RECEIVER) {
-                                        return receiverChest.getItems();
-                                    }
+                LinkedChest linkChest = LINKED_CHESTS.get(this.linkUniqueId);
+                if (linkChest.getSourcePos() != null) {
+                    BlockEntity be = linkChest.getSourcePos().getBlockEntity(true);
+                    if (be instanceof MixinChestBlockEntity sourceChest) {
+                        if (sourceChest.getLinkUniqueId() != null) {
+                            if (sourceChest.getLinkUniqueId().equals(this.getLinkUniqueId())) {
+                                if (sourceChest.getChestTransportMode() == ChestTransportMode.SOURCE) {
+                                    return sourceChest.getItems();
                                 }
                             }
                         }
@@ -213,10 +246,28 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
         if (this.isVoidChest) {
             ci.cancel();
         }
+
+        if (this.transportMode == ChestTransportMode.CLIENT && this.linkUniqueId != null) {
+            if (LINKED_CHESTS.containsKey(this.linkUniqueId)) {
+                LinkedChest linkChest = LINKED_CHESTS.get(this.linkUniqueId);
+                if (linkChest.getSourcePos() != null) {
+                    BlockEntity be = linkChest.getSourcePos().getBlockEntity(true);
+                    if (be instanceof MixinChestBlockEntity sourceChest) {
+                        if (sourceChest.getLinkUniqueId() != null) {
+                            if (sourceChest.getLinkUniqueId().equals(this.getLinkUniqueId())) {
+                                if (sourceChest.getChestTransportMode() == ChestTransportMode.SOURCE) {
+                                    sourceChest.setItems(list);
+                                    ci.cancel();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    @Shadow
-    protected abstract void setItems(NonNullList<ItemStack> list);
+    @Shadow public abstract List<HumanEntity> getViewers();
 
     @Override
     public Map<UUID, LinkedChest> getLinks() {

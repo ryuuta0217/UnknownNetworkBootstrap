@@ -33,17 +33,20 @@ package net.unknown.launchwrapper.linkchest;
 
 import net.unknown.launchwrapper.util.WrappedBlockPos;
 
-public class LinkedChest {
-    private WrappedBlockPos senderPos = null;
-    private WrappedBlockPos receiverPos = null;
+import java.util.HashSet;
+import java.util.Set;
 
-    public LinkedChest(WrappedBlockPos senderPos, WrappedBlockPos receiverPos) {
-        this.senderPos = senderPos;
-        this.receiverPos = receiverPos;
+public class LinkedChest {
+    private final Set<WrappedBlockPos> clientPos;
+    private WrappedBlockPos sourcePos;
+
+    public LinkedChest(Set<WrappedBlockPos> clientPos, WrappedBlockPos sourcePos) {
+        this.clientPos = clientPos;
+        this.sourcePos = sourcePos;
     }
 
-    public WrappedBlockPos getSenderPos() {
-        return senderPos;
+    public Set<WrappedBlockPos> getClientPos() {
+        return clientPos;
     }
 
     /*public WrappedBlockPos getWrappedPosInstance(BlockPos blockPos) {
@@ -60,15 +63,23 @@ public class LinkedChest {
         this.senderPos.remove(accessorPos);
     }*/
 
-    public void setSenderPos(WrappedBlockPos senderPos) {
-        this.senderPos = senderPos;
+    public void addClientPos(WrappedBlockPos clientPos) {
+        this.clientPos.add(clientPos);
     }
 
-    public WrappedBlockPos getReceiverPos() {
-        return receiverPos;
+    public void removeClientPos(WrappedBlockPos clientPos) {
+        this.clientPos.remove(clientPos);
     }
 
-    public void setReceiverPos(WrappedBlockPos receiverPos) {
-        this.receiverPos = receiverPos;
+    public void clearClients() {
+        this.clientPos.clear();
+    }
+
+    public WrappedBlockPos getSourcePos() {
+        return sourcePos;
+    }
+
+    public void setSourcePos(WrappedBlockPos sourcePos) {
+        this.sourcePos = sourcePos;
     }
 }

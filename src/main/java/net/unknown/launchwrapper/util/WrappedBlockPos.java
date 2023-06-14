@@ -32,28 +32,64 @@
 package net.unknown.launchwrapper.util;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.LevelChunk;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 public class WrappedBlockPos {
-    private Level level;
+    private ResourceKey<Level> level; // weak reference to level
     private final BlockPos blockPos;
 
-    public WrappedBlockPos(Level level, BlockPos blockPos) {
+    public WrappedBlockPos(ResourceKey<Level> level, BlockPos blockPos) {
         this.level = level;
         this.blockPos = blockPos;
     }
 
+    public WrappedBlockPos(Level level, BlockPos blockPos) {
+        this.level = level != null ? level.dimension() : Level.OVERWORLD;
+        this.blockPos = blockPos;
+    }
+
+    @Deprecated
     public Level level() {
+        return this.serverLevel();
+    }
+
+    @Deprecated
+    public ServerLevel serverLevel() {
+        return MinecraftServer.getServer().getLevel(this.level);
+    }
+
+    public ResourceKey<Level> levelKey() {
         return this.level;
     }
 
     public Level level(Level newLevel) {
-        Level old = this.level;
-        this.level = newLevel;
+        Level old = this.level();
+        this.level = newLevel.dimension();
         return old;
     }
 
     public BlockPos blockPos() {
         return this.blockPos;
+    }
+
+    @Nullable
+    public BlockEntity getBlockEntity(boolean load) {
+        ServerLevel level = this.serverLevel();
+        if (level != null) {
+            if (!level.isLoaded(this.blockPos()) && load) {
+                LevelChunk chunk = level.getChunkSource().getChunkNow(this.blockPos().getX() >> 4, this.blockPos().getZ() >> 4);
+                if (chunk != null) return chunk.getBlockEntity(this.blockPos());
+            } else if (level.isLoaded(this.blockPos())) {
+                return level.getBlockEntity(this.blockPos());
+            }
+        }
+        return null;
     }
 }

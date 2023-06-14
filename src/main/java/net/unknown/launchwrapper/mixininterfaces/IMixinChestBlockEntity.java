@@ -45,6 +45,8 @@ public interface IMixinChestBlockEntity extends Container {
 
     Map<UUID, LinkedChest> getLinks();
 
+    void setChestTransportMode(ChestTransportMode chestTransportMode);
+
     ChestTransportMode getChestTransportMode();
 
     UUID getLinkUniqueId();
