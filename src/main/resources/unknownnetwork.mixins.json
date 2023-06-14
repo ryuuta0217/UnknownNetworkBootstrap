@@ -21,6 +21,7 @@
     "MixinMinecraftServer",
     "MixinNearestAttackableTargetGoal",
     "MixinObserverBlock",
+    "MixinPiglinAi",
     "MixinServerLevel",
     "MixinSignBlockEntity",
     "MixinSimpleContainer",
