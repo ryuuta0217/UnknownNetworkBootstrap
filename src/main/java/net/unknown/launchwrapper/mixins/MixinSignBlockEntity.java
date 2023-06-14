@@ -31,6 +31,7 @@
 
 package net.unknown.launchwrapper.mixins;
 
+import net.minecraft.Util;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.unknown.launchwrapper.mixininterfaces.IMixinBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -49,6 +50,7 @@ public class MixinSignBlockEntity {
     public UUID getPlayerWhoMayEdit() {
         if (this instanceof IMixinBlockEntity mixinBlockEntity) {
             if (mixinBlockEntity.getPlacer() != null) return mixinBlockEntity.getPlacer();
+            else return Util.NIL_UUID;
         }
         return this.playerWhoMayEdit;
     }
