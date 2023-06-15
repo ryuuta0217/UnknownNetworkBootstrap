@@ -31,7 +31,9 @@
 
 package net.unknown.launchwrapper.mixininterfaces;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
+import net.minecraft.world.level.Level;
 import net.unknown.launchwrapper.linkchest.LinkChestMode;
 import net.unknown.launchwrapper.util.WrappedBlockPos;
 
@@ -42,6 +44,8 @@ public interface IMixinChestBlockEntity extends Container {
     void setChestTransportMode(LinkChestMode linkChestMode);
 
     LinkChestMode getChestTransportMode();
+
+    void setLinkSource(Level level, BlockPos pos);
 
     WrappedBlockPos getLinkSource();
 }

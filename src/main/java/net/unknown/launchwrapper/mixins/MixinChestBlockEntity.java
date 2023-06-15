@@ -138,6 +138,11 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
         return this.linkChestSource;
     }
 
+    @Override
+    public void setLinkSource(Level level, BlockPos pos) {
+        this.linkChestSource = new WrappedBlockPos(level, pos);
+    }
+
     /**
      * @author ryuuta0217
      * @reason Use #getItems() instead of #getContents()
