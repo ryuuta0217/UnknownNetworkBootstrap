@@ -31,29 +31,40 @@
 
 package net.unknown.launchwrapper.hopper;
 
-import net.minecraft.world.level.block.entity.Hopper;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
-import java.util.Set;
+import javax.annotation.Nullable;
 
-public interface IMixinHopperBlockEntity extends Hopper {
-    Set<Filter> getFilters();
+public class TagFilter implements Filter {
+    private final TagKey<Item> itemTag;
 
-    void setFilters(Set<Filter> filters);
+    @Nullable
+    private final CompoundTag tag;
 
-    void addFilter(Filter filter);
+    public TagFilter(TagKey<Item> itemTag, @Nullable CompoundTag tag) {
+        this.itemTag = itemTag;
+        this.tag = tag;
+    }
 
-    FilterType getFilterMode();
+    public TagKey<Item> getTag() {
+        return this.itemTag;
+    }
 
-    void setFilterMode(FilterType filterMode);
+    @Nullable
+    @Override
+    public CompoundTag getNbt() {
+        return this.tag;
+    }
 
-    boolean isFilterEnabled();
-
-    boolean isEnabledFindItem();
-
-    void setEnabledFindItem(boolean enabled);
-
-    AABB getItemFindAABB(double baseX, double baseY, double baseZ);
-
-    void setItemFindAABB(double aX, double aY, double aZ, double bX, double bY, double bZ);
+    @Override
+    public boolean matches(@Nullable ItemStack stack) {
+        if (stack != null && stack.is(this.itemTag)) {
+            return this.tag == null || NbtUtils.compareNbt(this.tag, stack.getTag(), true);
+        }
+        return false;
+    }
 }

@@ -31,10 +31,40 @@
 
 package net.unknown.launchwrapper.hopper;
 
+import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 
-public record ItemFilter(Item item, @Nullable CompoundTag tag) {
+public class ItemFilter implements Filter {
+    private final Item item;
+
+    @Nullable
+    private final CompoundTag tag;
+
+    public ItemFilter(Item item, @Nullable CompoundTag tag) {
+        this.item = item;
+        this.tag = tag;
+    }
+
+    public Item getItem() {
+        return this.item;
+    }
+
+    @Nullable
+    @Override
+    public CompoundTag getNbt() {
+        return this.tag;
+    }
+
+    @Override
+    public boolean matches(@Nullable ItemStack stack) {
+        if (stack != null && stack.is(this.item)) {
+            return this.tag == null || NbtUtils.compareNbt(this.tag, stack.getTag(), true);
+        }
+        return false;
+    }
 }

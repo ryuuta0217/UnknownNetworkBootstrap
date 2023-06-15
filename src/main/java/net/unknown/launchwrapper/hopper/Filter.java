@@ -31,29 +31,14 @@
 
 package net.unknown.launchwrapper.hopper;
 
-import net.minecraft.world.level.block.entity.Hopper;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 
-import java.util.Set;
+import javax.annotation.Nullable;
 
-public interface IMixinHopperBlockEntity extends Hopper {
-    Set<Filter> getFilters();
+public interface Filter {
+    @Nullable
+    CompoundTag getNbt();
 
-    void setFilters(Set<Filter> filters);
-
-    void addFilter(Filter filter);
-
-    FilterType getFilterMode();
-
-    void setFilterMode(FilterType filterMode);
-
-    boolean isFilterEnabled();
-
-    boolean isEnabledFindItem();
-
-    void setEnabledFindItem(boolean enabled);
-
-    AABB getItemFindAABB(double baseX, double baseY, double baseZ);
-
-    void setItemFindAABB(double aX, double aY, double aZ, double bX, double bY, double bZ);
+    boolean matches(@Nullable ItemStack stack);
 }

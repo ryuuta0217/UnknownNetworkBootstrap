@@ -45,4 +45,12 @@ public enum FilterType {
     public String getLocalizedName() {
         return this.localizedName;
     }
+
+    public static FilterType valueOfOrDefault(String name, FilterType fallback) {
+        try {
+            return FilterType.valueOf(name);
+        } catch (IllegalArgumentException e) {
+            return fallback;
+        }
+    }
 }
