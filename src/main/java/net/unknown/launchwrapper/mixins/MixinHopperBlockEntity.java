@@ -68,8 +68,6 @@ import java.util.Set;
 
 @Mixin(HopperBlockEntity.class)
 public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockEntity implements IMixinHopperBlockEntity {
-    @Shadow @Final private static AABB HOPPER_ITEM_SUCK_OVERALL;
-    @Shadow @Final private static AABB[] HOPPER_ITEM_SUCK_INDIVIDUAL;
     public Set<Filter> filters = Sets.newHashSet();
     public FilterType filterMode = FilterType.DISABLED;
 
