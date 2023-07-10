@@ -18,6 +18,8 @@
     "MixinFeatureFlags",
     "MixinHopperBlock",
     "MixinHopperBlockEntity",
+    "MixinItem",
+    "MixinItems",
     "MixinMinecart",
     "MixinMinecraftServer",
     "MixinNearestAttackableTargetGoal",
