@@ -37,6 +37,7 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ItemFilter implements Filter {
@@ -45,9 +46,17 @@ public class ItemFilter implements Filter {
     @Nullable
     private final CompoundTag tag;
 
+    @Nullable
+    private final TransportType transportType;
+
     public ItemFilter(Item item, @Nullable CompoundTag tag) {
+        this(item, tag, null);
+    }
+
+    public ItemFilter(Item item, @Nullable CompoundTag tag, @Nullable TransportType transportType) {
         this.item = item;
         this.tag = tag;
+        this.transportType = transportType;
     }
 
     public Item getItem() {
@@ -61,10 +70,15 @@ public class ItemFilter implements Filter {
     }
 
     @Override
-    public boolean matches(@Nullable ItemStack stack) {
-        if (stack != null && stack.is(this.item)) {
+    public boolean matches(@Nullable ItemStack stack, @Nonnull TransportType transportType) {
+        if ((this.getTransportType() == null || transportType.equals(this.getTransportType())) && stack != null && stack.is(this.item)) {
             return this.tag == null || NbtUtils.compareNbt(this.tag, stack.getTag(), true);
         }
         return false;
+    }
+
+    @Override
+    public TransportType getTransportType() {
+        return this.transportType;
     }
 }

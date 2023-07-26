@@ -33,6 +33,7 @@ package net.unknown.launchwrapper.mixins;
 
 import com.google.common.collect.Sets;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -55,12 +56,14 @@ import net.minecraft.world.phys.AABB;
 import net.unknown.launchwrapper.hopper.*;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -68,6 +71,24 @@ import java.util.Set;
 
 @Mixin(HopperBlockEntity.class)
 public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockEntity implements IMixinHopperBlockEntity {
+    @Shadow private static boolean skipPushModeEventFire;
+    @Shadow public static boolean skipHopperEvents;
+
+    @Shadow
+    @Nullable
+    protected static ItemStack callPushMoveEvent(Container iinventory, ItemStack itemstack, HopperBlockEntity hopper) {
+        return null;
+    }
+
+    @Shadow
+    public static ItemStack addItem(@Nullable Container from, Container to, ItemStack stack, @Nullable Direction side) {
+        return null;
+    }
+
+    @Shadow
+    private void setCooldown(int cooldown) {
+    }
+
     public Set<Filter> filters = Sets.newHashSet();
     public FilterType filterMode = FilterType.DISABLED;
 
@@ -89,12 +110,87 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
         super(type, pos, state);
     }
 
+    /**
+     * @author ryuuta0217
+     * @reason Supports TransportType.PUSH_TO_CONTAINER
+     */
+    @Overwrite
+    private static boolean hopperPush(final Level level, final Container destination, final Direction direction, final HopperBlockEntity hopper) {
+        skipPushModeEventFire = skipHopperEvents;
+        boolean foundItem = false;
+        for (int i = 0; i < hopper.getContainerSize(); ++i) {
+            final ItemStack item = hopper.getItem(i);
+            if (!item.isEmpty()) {
+                foundItem = true;
+                boolean filterPassed = true; // Unknown Network - Supports filter
+
+                // Unknown Network start - Supports filter
+                if ((Hopper) hopper instanceof MixinHopperBlockEntity mHopper) {
+                    if (mHopper.filterMode != FilterType.DISABLED) {
+                        // ﾌｨﾙﾀ対象
+                        boolean filteringResult = mHopper.filters.stream().anyMatch(filter -> filter.matches(item, TransportType.PUSH_TO_CONTAINER));
+
+                        if (filteringResult) {
+                            if (mHopper.getFilterMode() == FilterType.BLACKLIST) {
+                                filterPassed = false;
+                            }
+                        } else {
+                            if (mHopper.getFilterMode() == FilterType.WHITELIST) {
+                                filterPassed = false;
+                            }
+                        }
+                    }
+                }
+                // Unknown Network end
+
+                if (filterPassed) { // Unknown Network - Supports filter
+                    ItemStack origItemStack = item;
+                    ItemStack movedItem = origItemStack;
+
+                    final int originalItemCount = origItemStack.getCount();
+                    final int movedItemCount = Math.min(level.spigotConfig.hopperAmount, originalItemCount);
+                    origItemStack.setCount(movedItemCount);
+
+                    // We only need to fire the event once to give protection plugins a chance to cancel this event
+                    // Because nothing uses getItem, every event call should end up the same result.
+                    if (!skipPushModeEventFire) {
+                        movedItem = callPushMoveEvent(destination, movedItem, hopper);
+                        if (movedItem == null) { // cancelled
+                            origItemStack.setCount(originalItemCount);
+                            return false;
+                        }
+                    }
+
+                    final ItemStack remainingItem = addItem(hopper, destination, movedItem, direction);
+                    final int remainingItemCount = remainingItem.getCount();
+                    if (remainingItemCount != movedItemCount) {
+                        origItemStack = origItemStack.copy(true);
+                        origItemStack.setCount(originalItemCount);
+                        if (!origItemStack.isEmpty()) {
+                            origItemStack.setCount(originalItemCount - movedItemCount + remainingItemCount);
+                        }
+                        hopper.setItem(i, origItemStack);
+                        destination.setChanged();
+                        return true;
+                    }
+                    origItemStack.setCount(originalItemCount);
+                } else {
+                    foundItem = false; // Unknown Network - Supports filter
+                }
+            }
+        }
+        if (foundItem && level.paperConfig().hopper.cooldownWhenFull) { // Inventory was full - cooldown
+            ((MixinHopperBlockEntity) ((Object) hopper)).setCooldown(level.spigotConfig.hopperTransfer);
+        }
+        return false;
+    }
+
     @Inject(method = "hopperPull", at = @At("HEAD"), cancellable = true)
     private static void onHopperPull(Level level, Hopper hopper, Container container, ItemStack origItemStack, int i, CallbackInfoReturnable<Boolean> cir) {
         if (hopper instanceof MixinHopperBlockEntity mHopper) {
             if (mHopper.filterMode != FilterType.DISABLED) {
                 // ﾌｨﾙﾀ対象
-                boolean filteringResult = mHopper.filters.stream().anyMatch(filter -> filter.matches(origItemStack));
+                boolean filteringResult = mHopper.filters.stream().anyMatch(filter -> filter.matches(origItemStack, TransportType.PULL_FROM_CONTAINER));
 
                 if (filteringResult) {
                     if (mHopper.getFilterMode() == FilterType.BLACKLIST) {
@@ -114,7 +210,7 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
         if (inventory instanceof MixinHopperBlockEntity hopper) {
             if (hopper.getFilterMode() != FilterType.DISABLED) {
                 if (hopper.getFilters().size() > 0) {
-                    boolean filterResult = hopper.getFilters().stream().anyMatch(filter -> filter.matches(itemEntity.getItem()));
+                    boolean filterResult = hopper.getFilters().stream().anyMatch(filter -> filter.matches(itemEntity.getItem(), TransportType.PULL_FROM_DROPPED_ITEM));
 
                     if (hopper.getFilterMode() == FilterType.WHITELIST && !filterResult) {
                         cir.cancel();

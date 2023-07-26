@@ -40,5 +40,7 @@ public interface Filter {
     @Nullable
     CompoundTag getNbt();
 
-    boolean matches(@Nullable ItemStack stack);
+    boolean matches(@Nullable ItemStack stack, TransportType transportType);
+
+    TransportType getTransportType();
 }
