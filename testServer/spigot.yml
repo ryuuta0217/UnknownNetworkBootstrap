@@ -57,6 +57,7 @@ commands:
   silent-commandblock-console: false
 world-settings:
   default:
+    seed-trailruins: 83469867
     seed-ancientcity: 20083232
     seed-buriedtreasure: 10387320
     seed-mineshaft: default
@@ -74,6 +75,7 @@ world-settings:
     nerf-spawner-mobs: false
     enable-zombie-pigmen-portal-spawns: true
     growth:
+      pitcherplant-modifier: 100
       torchflower-modifier: 100
       cactus-modifier: 100
       cane-modifier: 100
