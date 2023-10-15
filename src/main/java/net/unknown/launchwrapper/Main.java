@@ -41,23 +41,23 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
-    public static boolean FORCE_ALLOW_BUNDLE_FEATURES = System.getProperty("UnknownNetworkMagic") != null && System.getProperty("UnknownNetworkMagic").equals("bundle");
+    public static boolean FORCE_ALLOW_BUNDLE_FEATURES = System.getProperty("UnknownNetworkMagic") != null && System.getProperty("UnknownNetworkMagic").contains("bundle");
+    public static boolean FORCE_ALLOW_TRADE_REBALANCE_FEATURES = System.getProperty("UnknownNetworkMagic") != null && System.getProperty("UnknownNetworkMagic").contains("trade-rebalance");
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        if (FORCE_ALLOW_BUNDLE_FEATURES) {
-            System.out.println("""
-                    
-                    
-                                               Unknown Network Bootstrap
-                    Hey! You're activated "bundle" feature, but this is contains bugs or crashes. Be careful!
-                    Server will start after 3 seconds...
-                    
-                    
-                    """);
+        if (FORCE_ALLOW_BUNDLE_FEATURES || FORCE_ALLOW_TRADE_REBALANCE_FEATURES) {
+            String activatedFeatureFlags = String.join(",", (FORCE_ALLOW_BUNDLE_FEATURES ? "bundle" : ""), (FORCE_ALLOW_TRADE_REBALANCE_FEATURES ? "trade_rebalance" : ""));
+            System.out.println("\n" +
+                               "\n" +
+                               "                           Unknown Network Bootstrap\n" +
+                               "Hey! You're activated \"" + activatedFeatureFlags + "\" feature, but this is contains bugs or crashes. Be careful!\n" +
+                               "Server will start after 3 seconds...\n" +
+                               "\n" +
+                               "\n");
             Thread.sleep(TimeUnit.SECONDS.toMillis(3));
         }
-        Agent.addJar(new File("./versions/1.20.1/paper-1.20.1.jar"));
+        Agent.addJar(new File("./versions/1.20.2/paper-1.20.2.jar"));
 
         Map<String, File> toLoadLibraries = new HashMap<>();
 

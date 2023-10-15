@@ -43,6 +43,7 @@ import java.util.UUID;
 
 @Mixin(SignBlockEntity.class)
 public class MixinSignBlockEntity {
+    // TODO: Add "UUID owner;" field, and add to saveAdditional()
     @Shadow @Nullable public UUID playerWhoMayEdit;
 
     @Overwrite

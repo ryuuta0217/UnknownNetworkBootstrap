@@ -31,8 +31,8 @@
 
 package net.unknown.launchwrapper.mixins;
 
-import net.minecraft.core.BlockSource;
 import net.minecraft.core.Direction;
+import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.world.item.ItemStack;
@@ -61,11 +61,12 @@ public abstract class MixinDefaultDispenseItemBehavior implements DispenseItemBe
      * Add BlockDispenseBeforeEvent
      *
      * @author ryuuta0217
+     * @reason Add BlockDispenseBeforeEvent
      */
     @Overwrite
     @Override
     public final ItemStack dispense(BlockSource pointer, ItemStack stack) {
-        this.enumdirection = pointer.getBlockState().getValue(DispenserBlock.FACING); // Paper - cache facing direction
+        this.enumdirection = pointer.state().getValue(DispenserBlock.FACING); // Paper - cache facing direction
         // Unknown Network Start - Add BlockDispenseBeforeEvent
         BlockDispenseBeforeEvent event = new BlockDispenseBeforeEvent(pointer, stack);
         Bukkit.getPluginManager().callEvent(event);

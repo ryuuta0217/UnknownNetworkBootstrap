@@ -60,10 +60,10 @@ public class MixinEnderChestBlock {
     @Shadow @Final private static Component CONTAINER_TITLE;
 
     /**
-     * Overwrite reason: Inject de yaruno kuso mendo-kusai
      *
      * @author ryuuta0217
      * @see net.unknown.launchwrapper.mixins.MixinSimpleContainer
+     * @reason Inject de yaruno kuso mendo-kusai
      */
     @Overwrite
     public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
