@@ -12,6 +12,7 @@
     "MixinChestBlock",
     "MixinChestBlockEntity",
     "MixinCraftServer",
+    "MixinDamageEnchantment",
     "MixinDedicatedServer",
     "MixinDefaultDispenseItemBehavior",
     "MixinEnderChestBlock",
