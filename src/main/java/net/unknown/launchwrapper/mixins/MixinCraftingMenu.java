@@ -31,52 +31,24 @@
 
 package net.unknown.launchwrapper.mixins;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.CraftingMenu;
+import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.unknown.launchwrapper.mixininterfaces.IMixinItemStackWhoCrafted;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.*;
 
-import java.util.UUID;
-
-@Mixin(ItemStack.class)
-public abstract class MixinItemStack implements IMixinItemStackWhoCrafted {
-    @Shadow public abstract CompoundTag getOrCreateTag();
-
-    @Unique
-    private static final String TAG_WHO_CRAFTED = "WhoCrafted";
-
-    private UUID whoCrafted;
-
-    @Override
-    public UUID getWhoCrafted() {
-        if (this.getOrCreateTag().hasUUID(TAG_WHO_CRAFTED)) {
-            this.whoCrafted = this.getOrCreateTag().getUUID(TAG_WHO_CRAFTED);
+@Mixin(CraftingMenu.class)
+public class MixinCraftingMenu {
+    @ModifyVariable(method = "slotChangedCraftingGrid", at = @At("STORE"), ordinal = 1)
+    private static ItemStack onAssemble(ItemStack stack, AbstractContainerMenu handler, Level world, Player player, CraftingContainer craftingInventory, ResultContainer resultInventory) {
+        if (player != null && (Object) stack instanceof IMixinItemStackWhoCrafted mixinStack) {
+            mixinStack.setWhoCrafted(player.getUUID());
         }
-        return this.whoCrafted;
-    }
-
-    @Override
-    public void setWhoCrafted(UUID whoCrafted) {
-        this.whoCrafted = whoCrafted;
-        if (this.whoCrafted != null) this.getOrCreateTag().putUUID(TAG_WHO_CRAFTED, this.whoCrafted);
-    }
-
-    @Inject(method = "load", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;processEnchantOrder(Lnet/minecraft/nbt/CompoundTag;)V"))
-    private void onLoad(CompoundTag nbt, CallbackInfo ci) {
-        if (this.getOrCreateTag().hasUUID(TAG_WHO_CRAFTED)) {
-            this.whoCrafted = this.getOrCreateTag().getUUID(TAG_WHO_CRAFTED);
-        }
-    }
-
-
-    @Inject(method = "save", at = @At(value = "INVOKE", target = "Lnet/minecraft/nbt/CompoundTag;put(Ljava/lang/String;Lnet/minecraft/nbt/Tag;)Lnet/minecraft/nbt/Tag;"))
-    private void onSave(CompoundTag nbt, CallbackInfoReturnable<CompoundTag> cir) {
-        if (this.whoCrafted != null) this.getOrCreateTag().putUUID(TAG_WHO_CRAFTED, this.whoCrafted);
+        return stack;
     }
 }
