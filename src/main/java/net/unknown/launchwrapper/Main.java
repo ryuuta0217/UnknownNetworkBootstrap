@@ -57,7 +57,7 @@ public class Main {
                                "\n");
             Thread.sleep(TimeUnit.SECONDS.toMillis(3));
         }
-        Agent.addJar(new File("./versions/1.20.2/paper-1.20.2.jar"));
+        Agent.addJar(new File("./versions/1.20.4/paper-1.20.4.jar"));
 
         Map<String, File> toLoadLibraries = new HashMap<>();
 
