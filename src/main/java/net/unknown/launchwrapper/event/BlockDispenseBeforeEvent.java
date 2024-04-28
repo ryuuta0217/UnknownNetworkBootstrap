@@ -34,7 +34,7 @@ package net.unknown.launchwrapper.event;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_20_R2.block.CraftBlock;
+import org.bukkit.craftbukkit.v1_20_R3.block.CraftBlock;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;

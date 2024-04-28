@@ -39,11 +39,12 @@ import net.minecraft.world.level.block.WeatheringCopperSlabBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.unknown.launchwrapper.util.CopperBlockUtil;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 
 @Mixin(WeatheringCopperSlabBlock.class)
 public abstract class MixinWeatheringCopperSlabBlock implements WeatheringCopper {
-    @Override
-    public void onRandomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+    @Overwrite
+    public void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
         CopperBlockUtil.randomTick(this, state, world, pos, random);
     }
 }
