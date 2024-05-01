@@ -52,7 +52,7 @@ public class Main {
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        if (FORCE_ALLOW_BUNDLE_FEATURES || FORCE_ALLOW_TRADE_REBALANCE_FEATURES) {
+        if (FORCE_ALLOW_BUNDLE_FEATURES || FORCE_ALLOW_TRADE_REBALANCE_FEATURES || FORCE_ALLOW_UPDATE_1_21) {
             String activatedFeatureFlags = String.join(",", (FORCE_ALLOW_BUNDLE_FEATURES ? "bundle" : ""), (FORCE_ALLOW_TRADE_REBALANCE_FEATURES ? "trade_rebalance" : ""), (FORCE_ALLOW_UPDATE_1_21 ? "update_1_21" : ""));
             System.out.println("\n" +
                                "\n" +
