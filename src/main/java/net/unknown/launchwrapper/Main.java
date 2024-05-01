@@ -34,8 +34,15 @@ package net.unknown.launchwrapper;
 import net.minecraft.launchwrapper.Launch;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -58,24 +65,43 @@ public class Main {
                                "\n");
             Thread.sleep(TimeUnit.SECONDS.toMillis(3));
         }
-        Agent.addJar(new File("./versions/1.20.4/paper-1.20.4.jar"));
 
-        Map<String, File> toLoadLibraries = new HashMap<>();
+        File paperJar = new File("./paper.jar");
 
-        Files.walk(Paths.get("./libraries")).forEach(file -> {
-            File f = file.toFile();
-            if (f.isDirectory()) return;
-            if (f.getName().endsWith(".jar")) {
-                try {
-                    String[] g = filePathToDependencyName(f).split(":", 3);
-                    toLoadLibraries.put(g[0] + ":" + g[1], f);
-                } catch (IOException ignored) {
+        URL[] classpathUrls;
+        if (paperJar.exists()) {
+            try {
+                ClassLoader cl = new URLClassLoader(new URL[]{ paperJar.toURL() }, null);
+                Class<?> paperClipClass = cl.loadClass("io.papermc.paperclip.Paperclip");
+                Method setupClasspathField = paperClipClass.getDeclaredMethod("setupClasspath");
+                if (Modifier.isStatic(setupClasspathField.getModifiers())) {
+                    if (setupClasspathField.trySetAccessible()) {
+                        classpathUrls = (URL[]) setupClasspathField.invoke(null);
+                        if (classpathUrls.length == 0) {
+                            throw new IllegalStateException("Failed to setup classpath");
+                        }
+                    } else {
+                        throw new IllegalStateException("Failed to invoke Paperclip#setupClasspath");
+                    }
+                } else {
+                    throw new IllegalStateException("Failed to lookup Paperclip#setupClasspath");
                 }
+            } catch(Throwable t) {
+                t.printStackTrace();
+                return;
             }
-        });
+        } else {
+            throw new FileNotFoundException("paper.jar が見つかりませんでした");
+        }
 
-        for (File file : toLoadLibraries.values()) {
-            Agent.addJar(file);
+        Path workingPath = new File(System.getProperty("user.dir")).toPath();
+
+        for (URL classpathUrl : classpathUrls) {
+            try {
+                Agent.addJar(new File(".", workingPath.relativize(Paths.get(classpathUrl.toURI())).toString()));
+            } catch (URISyntaxException ignored) {
+                System.out.println("Failed to load " + classpathUrl + ", but proceeding...");
+            }
         }
 
         Launch.main(args);
