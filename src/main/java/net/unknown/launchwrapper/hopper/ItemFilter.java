@@ -31,7 +31,6 @@
 
 package net.unknown.launchwrapper.hopper;
 
-import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.item.Item;

@@ -43,7 +43,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.unknown.launchwrapper.SpongeState;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;

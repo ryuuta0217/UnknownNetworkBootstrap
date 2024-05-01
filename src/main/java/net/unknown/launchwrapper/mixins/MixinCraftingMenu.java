@@ -40,7 +40,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.unknown.launchwrapper.mixininterfaces.IMixinItemStackWhoCrafted;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(CraftingMenu.class)
 public class MixinCraftingMenu {
