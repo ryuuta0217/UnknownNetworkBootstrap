@@ -31,59 +31,17 @@
 
 package net.unknown.launchwrapper.mixins;
 
-import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import net.unknown.launchwrapper.mixininterfaces.IMixinItemStackWhoCrafted;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.util.UUID;
 
 @Mixin(ItemStack.class)
-public abstract class MixinItemStack implements IMixinItemStackWhoCrafted {
-    @Unique
-    private static final String TAG_WHO_CRAFTED = "WhoCrafted";
-
-    private UUID whoCrafted = Util.NIL_UUID;
-
-    @Override
-    public UUID getWhoCrafted() {
-        return this.whoCrafted;
-    }
-
-    @Override
-    public void setWhoCrafted(UUID whoCrafted) {
-        this.whoCrafted = whoCrafted;
-    }
-
+public abstract class MixinItemStack {
     @Inject(method = "load", at = @At(value = "INVOKE", target = "Lnet/minecraft/nbt/CompoundTag;getByte(Ljava/lang/String;)B", shift = At.Shift.AFTER))
     private void onLoad(CompoundTag nbt, CallbackInfo ci) {
-        this.whoCrafted = nbt.contains(TAG_WHO_CRAFTED, CompoundTag.TAG_INT_ARRAY) ? nbt.getUUID(TAG_WHO_CRAFTED) : Util.NIL_UUID;
 
-        // Migration from Item's Tag
-        if (nbt.contains("tag", CompoundTag.TAG_COMPOUND) && nbt.getCompound("tag").contains(TAG_WHO_CRAFTED, CompoundTag.TAG_INT_ARRAY)) {
-            if (this.whoCrafted.equals(Util.NIL_UUID)) this.whoCrafted = nbt.getCompound("tag").getUUID(TAG_WHO_CRAFTED);
-            nbt.getCompound("tag").remove(TAG_WHO_CRAFTED);
-        }
-    }
-
-    @Inject(method = "save", at = @At(value = "INVOKE", target = "Lnet/minecraft/nbt/CompoundTag;putByte(Ljava/lang/String;B)V", shift = At.Shift.AFTER))
-    private void onSave(CompoundTag nbt, CallbackInfoReturnable<CompoundTag> cir) {
-        nbt.putUUID(TAG_WHO_CRAFTED, this.whoCrafted);
-    }
-
-    @Redirect(method = "copy(Z)Lnet/minecraft/world/item/ItemStack;", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;setPopTime(I)V"))
-    private void onCopy(ItemStack instance, int bobbingAnimationTime) {
-        instance.setPopTime(bobbingAnimationTime); // Original call
-
-        if ((Object) instance instanceof IMixinItemStackWhoCrafted mixinStack) { // Additional call
-            mixinStack.setWhoCrafted(this.whoCrafted);
-        }
     }
 }
