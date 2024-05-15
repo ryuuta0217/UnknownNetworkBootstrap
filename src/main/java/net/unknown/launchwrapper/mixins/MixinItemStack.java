@@ -31,17 +31,52 @@
 
 package net.unknown.launchwrapper.mixins;
 
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import javax.annotation.Nullable;
+
 @Mixin(ItemStack.class)
 public abstract class MixinItemStack {
-    @Inject(method = "load", at = @At(value = "INVOKE", target = "Lnet/minecraft/nbt/CompoundTag;getByte(Ljava/lang/String;)B", shift = At.Shift.AFTER))
-    private void onLoad(CompoundTag nbt, CallbackInfo ci) {
+    @Shadow @Nullable public abstract CompoundTag getTagElement(String key);
 
+    @Shadow protected abstract void processText();
+
+    @Inject(method = "setTag", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;processEnchantOrder(Lnet/minecraft/nbt/CompoundTag;)V", shift = At.Shift.AFTER))
+    private void onTagUpdated(CompoundTag nbt, CallbackInfo ci) {
+        this.processText();
+    }
+
+    @Inject(method = "processText", at = @At(value = "INVOKE", target = "Lnet/minecraft/nbt/CompoundTag;contains(Ljava/lang/String;I)Z"))
+    private void onProcessTextParsingLore(CallbackInfo ci) {
+        CompoundTag display = this.getTagElement("display");
+        if (display != null) {
+            if (display.contains("Name", Tag.TAG_STRING)) {
+                String json = display.getString("Name");
+                if (json != null) {
+                    display.put("Name", StringTag.valueOf(GsonComponentSerializer.gson().serialize(GsonComponentSerializer.gson().deserialize(json))));
+                }
+            }
+
+            if (display.contains("Lore", Tag.TAG_LIST)) {
+                ListTag list = display.getList("Lore", Tag.TAG_STRING);
+
+                for (int i = 0; i < list.size(); i++) {
+                    String json = list.getString(i);
+                    if (json != null) {
+                        list.set(i, StringTag.valueOf(GsonComponentSerializer.gson().serialize(GsonComponentSerializer.gson().deserialize(json))));
+                    }
+                }
+            }
+        }
     }
 }
