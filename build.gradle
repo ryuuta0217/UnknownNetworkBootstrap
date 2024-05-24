@@ -119,4 +119,9 @@ publishing {
             }
         }
     }
+
+    publishReleasePublicationToMavenRepository {
+        dependsOn shadowJar
+        dependsOn reobfJar
+    }
 }
