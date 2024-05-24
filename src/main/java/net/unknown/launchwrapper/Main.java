@@ -32,6 +32,7 @@
 package net.unknown.launchwrapper;
 
 import net.minecraft.launchwrapper.Launch;
+import org.spongepowered.asm.util.asm.ASM;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -50,6 +51,7 @@ public class Main {
     public static boolean FORCE_ALLOW_TRADE_REBALANCE_FEATURES = System.getProperty("UnknownNetworkMagic") != null && System.getProperty("UnknownNetworkMagic").contains("trade-rebalance");
     public static boolean FORCE_ALLOW_UPDATE_1_21 = System.getProperty("UnknownNetworkMagic") != null && System.getProperty("UnknownNetworkMagic").contains("update_1_21");
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
+    public static Path SERVER_JAR = System.getProperties().contains("unknown.bootstrap.server_jar_path") ? Path.of(System.getProperty("unknown.bootstrap.server_jar_path")) : null;
 
     public static void main(String[] args) throws IOException, InterruptedException {
         if (FORCE_ALLOW_BUNDLE_FEATURES || FORCE_ALLOW_TRADE_REBALANCE_FEATURES || FORCE_ALLOW_UPDATE_1_21) {
@@ -100,6 +102,12 @@ public class Main {
             } catch (URISyntaxException ignored) {
                 System.out.println("Failed to load " + classpathUrl + ", but proceeding...");
             }
+        }
+
+        try {
+            SERVER_JAR = Path.of(Class.forName("io.papermc.paper.pluginremap.ReobfServer").getProtectionDomain().getCodeSource().getLocation().toURI());
+        } catch (URISyntaxException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         Launch.main(args);
