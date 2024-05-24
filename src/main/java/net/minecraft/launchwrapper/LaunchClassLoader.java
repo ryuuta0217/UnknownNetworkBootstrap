@@ -75,6 +75,7 @@ public class LaunchClassLoader extends URLClassLoader {
         addClassLoaderExclusion("com.sun.");
         addClassLoaderExclusion("java.");
         addClassLoaderExclusion("javax.");
+        addClassLoaderExclusion("net.unknown.launchwrapper.Main"); // Add main-class as classloader exclusion to allow access main-class field values from running server context.
 
         // transformer exclusions
         addTransformerExclusion("javax.");
