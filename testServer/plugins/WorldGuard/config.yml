@@ -161,3 +161,6 @@ blacklist:
 custom-metrics-charts: true
 extra-timings:
     session-handlers: true
+sniffer-egg:
+    disable-creature-trampling: false
+    disable-player-trampling: false
