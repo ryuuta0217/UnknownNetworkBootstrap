@@ -31,6 +31,7 @@
 
 package net.unknown.launchwrapper.mixins;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -47,15 +48,15 @@ import java.util.UUID;
 public abstract class MixinBlockEntity implements IMixinBlockEntity {
     private UUID placer = null;
 
-    @Inject(method = "load", at = @At("RETURN"))
-    public void onLoad(CompoundTag nbt, CallbackInfo ci) {
+    @Inject(method = "loadAdditional", at = @At("RETURN"))
+    public void onLoad(CompoundTag nbt, HolderLookup.Provider registryLookup, CallbackInfo ci) {
         if (nbt.contains("Placer", Tag.TAG_INT_ARRAY)) {
             this.placer = nbt.getUUID("Placer");
         }
     }
 
     @Inject(method = "saveAdditional", at = @At("RETURN"))
-    public void onSaveAdditional(CompoundTag nbt, CallbackInfo ci) {
+    public void onSaveAdditional(CompoundTag nbt, HolderLookup.Provider registryLookup, CallbackInfo ci) {
         if (this.placer != null) nbt.putUUID("Placer", this.placer);
     }
 

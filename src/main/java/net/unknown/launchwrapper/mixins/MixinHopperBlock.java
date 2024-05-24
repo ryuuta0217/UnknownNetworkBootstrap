@@ -32,12 +32,17 @@
 package net.unknown.launchwrapper.mixins;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.Style;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -45,8 +50,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.unknown.launchwrapper.hopper.IMixinHopperBlockEntity;
+import net.unknown.launchwrapper.util.ComponentUtil;
 import org.spongepowered.asm.mixin.Mixin;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mixin(HopperBlock.class)
@@ -64,14 +71,15 @@ public abstract class MixinHopperBlock extends BlockBehaviour {
                     List<ItemStack> drops = super.getDrops(state, builder);
                     drops.forEach(stack -> {
                         if (stack.getItem() == state.getBlock().asItem()) {
-                            CompoundTag tag = stack.getOrCreateTag();
-                            tag.put("BlockEntityTag", ((BlockEntity) hopper).saveWithoutMetadata());
-                            CompoundTag display = new CompoundTag();
-                            ListTag lore = new ListTag();
-                            lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.literal("フィルターモード: " + hopper.getFilterMode().getLocalizedName()).withStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.AQUA)))));
-                            lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.literal("登録フィルター数: " + hopper.getFilters().size()).withStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.AQUA)))));
-                            display.put("Lore", lore);
-                            tag.put("display", display);
+                            stack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(((BlockEntity) hopper).saveWithoutMetadata(MinecraftServer.getDefaultRegistryAccess())));
+
+                            List<Component> styledLore = new ArrayList<>() {{
+                                add(Component.literal("フィルターモード: " + hopper.getFilterMode().getLocalizedName()).withStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.AQUA)));
+                                add(Component.literal("登録フィルター数: " + hopper.getFilters().size()).withStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.AQUA)));
+                            }};
+
+                            ItemLore lore = new ItemLore(ComponentUtil.stripStyles(styledLore), styledLore);
+                            stack.set(DataComponents.LORE, lore);
                         }
                     });
                     return drops;

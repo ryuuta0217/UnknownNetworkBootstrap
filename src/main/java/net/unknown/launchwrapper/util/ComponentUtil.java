@@ -29,60 +29,19 @@
  *     arising in any way out of the use of this source code, event if advised of the possibility of such damage.
  */
 
-package net.unknown.launchwrapper.event;
+package net.unknown.launchwrapper.util;
 
-import net.minecraft.core.dispenser.BlockSource;
-import net.minecraft.world.item.ItemStack;
-import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.block.CraftBlock;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.network.chat.Component;
 
-public class BlockDispenseBeforeEvent extends Event implements Cancellable {
-    private static final HandlerList HANDLERS = new HandlerList();
-    private final BlockSource src;
-    private boolean isCancelled = false;
-    private ItemStack item;
+import java.util.List;
+import java.util.stream.Collectors;
 
-    public BlockDispenseBeforeEvent(BlockSource src, ItemStack item) {
-        this.src = src;
-        this.item = item;
+public class ComponentUtil {
+    public static Component stripStyle(Component component)  {
+        return Component.literal(component.getString());
     }
 
-    public BlockSource getBlockSource() {
-        return this.src;
-    }
-
-    public Block getBukkitBlock() {
-        return CraftBlock.at(this.src.level(), this.src.pos());
-    }
-
-    public ItemStack getItem() {
-        return this.item;
-    }
-
-    public void setItem(ItemStack newItem) {
-        this.item = newItem;
-    }
-
-    @Override
-    public boolean isCancelled() {
-        return this.isCancelled;
-    }
-
-    @Override
-    public void setCancelled(boolean cancel) {
-        this.isCancelled = cancel;
-    }
-
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
-
-    @Override
-    public @NotNull HandlerList getHandlers() {
-        return HANDLERS;
+    public static List<Component> stripStyles(List<Component> components) {
+        return components.stream().map(ComponentUtil::stripStyle).collect(Collectors.toList());
     }
 }

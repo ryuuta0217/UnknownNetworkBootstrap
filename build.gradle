@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'io.papermc.paperweight.userdev' version '1.5.11' // Enable Development of using Mojang Mapping.
+    id 'io.papermc.paperweight.userdev' version '1.7.1' // Enable Development of using Mojang Mapping.
     id 'com.github.johnrengelman.shadow' version '7.1.0' // fatJar
     id 'com.palantir.git-version' version '+' // Git Information Getter
     id 'org.cadixdev.licenser' version '0.6.1' // Add License Header to source code headers.
@@ -44,11 +44,12 @@ repositories {
 }
 
 dependencies {
-    paperweightDevelopmentBundle("io.papermc.paper:dev-bundle:1.20.4-R0.1-SNAPSHOT")
+    paperweightDevelopmentBundle("io.papermc.paper:dev-bundle:1.20.6-R0.1-SNAPSHOT")
     implementation "net.sf.jopt-simple:jopt-simple:5.0.4"
-    implementation 'org.ow2.asm:asm:9.3'
-    implementation 'org.ow2.asm:asm-commons:9.3'
-    implementation 'org.ow2.asm:asm-util:9.3'
+    implementation 'org.ow2.asm:asm:9.7'
+    implementation 'org.ow2.asm:asm-commons:9.7'
+    implementation 'org.ow2.asm:asm-util:9.7'
+    implementation 'org.ow2.asm:asm-analysis:9.7'
     implementation "org.apache.logging.log4j:log4j-core:2.19.0"
     implementation "org.apache.logging.log4j:log4j-api:2.19.0"
     implementation "org.spongepowered:mixin:+"
@@ -66,13 +67,17 @@ jar {
     archiveFileName = "original-${archiveBaseName.get()}.${archiveExtension.get()}"
 }
 
+sourcesJar {
+    archiveFileName = "${archiveBaseName.get()}-sources.${archiveExtension.get()}"
+}
+
 shadowJar {
-    archiveFileName = "${archiveBaseName.get()}-mojang.${archiveExtension.get()}"
+    archiveFileName = "${archiveBaseName.get()}.${archiveExtension.get()}"
 }
 
 reobfJar {
     remapperArgs.add("--mixin") // Add Mixin Support
-    outputJar = layout.buildDirectory.file("libs/${project.name}.jar")
+    outputJar = layout.buildDirectory.file("libs/${project.name}-spigot.jar")
 }
 
 publishing {
@@ -81,9 +86,9 @@ publishing {
             groupId = 'net.unknown'
             artifactId = 'UnknownNetworkBootstrap'
             version = version
-            artifact "build/libs/UnknownNetworkBootstrap-mojang.jar"
+            artifact "build/libs/UnknownNetworkBootstrap.jar"
 
-            artifact("build/libs/UnknownNetworkBootstrap.jar") {
+            artifact("build/libs/UnknownNetworkBootstrap-spigot.jar") {
                 classifier "spigot"
             }
 

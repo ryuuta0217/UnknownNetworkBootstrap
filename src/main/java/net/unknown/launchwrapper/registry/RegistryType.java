@@ -32,5 +32,6 @@
 package net.unknown.launchwrapper.registry;
 
 public enum RegistryType {
-    BLOCK_ENTITY_TYPE
+    BLOCK_ENTITY_TYPE,
+    DATA_COMPONENT_TYPE
 }

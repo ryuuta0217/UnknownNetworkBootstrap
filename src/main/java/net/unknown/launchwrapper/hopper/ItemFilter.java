@@ -31,6 +31,7 @@
 
 package net.unknown.launchwrapper.hopper;
 
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.item.Item;
@@ -43,18 +44,18 @@ public class ItemFilter implements Filter {
     private final Item item;
 
     @Nullable
-    private final CompoundTag tag;
+    private final DataComponentPatch dataPatch;
 
     @Nullable
     private final TransportType transportType;
 
-    public ItemFilter(Item item, @Nullable CompoundTag tag) {
-        this(item, tag, null);
+    public ItemFilter(Item item, @Nullable DataComponentPatch dataPatch) {
+        this(item, dataPatch, null);
     }
 
-    public ItemFilter(Item item, @Nullable CompoundTag tag, @Nullable TransportType transportType) {
+    public ItemFilter(Item item, @Nullable DataComponentPatch dataPatch, @Nullable TransportType transportType) {
         this.item = item;
-        this.tag = tag;
+        this.dataPatch = dataPatch;
         this.transportType = transportType;
     }
 
@@ -64,14 +65,14 @@ public class ItemFilter implements Filter {
 
     @Nullable
     @Override
-    public CompoundTag getNbt() {
-        return this.tag;
+    public DataComponentPatch getDataPatch() {
+        return this.dataPatch;
     }
 
     @Override
     public boolean matches(@Nullable ItemStack stack, @Nonnull TransportType transportType) {
         if ((this.getTransportType() == null || transportType.equals(this.getTransportType())) && stack != null && stack.is(this.item)) {
-            return this.tag == null || NbtUtils.compareNbt(this.tag, stack.getTag(), true);
+            return this.dataPatch == null || this.dataPatch.equals(stack.getComponentsPatch());
         }
         return false;
     }

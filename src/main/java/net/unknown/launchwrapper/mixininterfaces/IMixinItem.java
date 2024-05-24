@@ -31,6 +31,10 @@
 
 package net.unknown.launchwrapper.mixininterfaces;
 
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponentType;
+
 public interface IMixinItem {
-    void setMaxStackSize(int maxStackSize);
+    <T> void setComponent(DataComponentType<T> type, T value);
+    DataComponentMap.Builder getComponentBuilder();
 }

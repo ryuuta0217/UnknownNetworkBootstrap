@@ -65,17 +65,17 @@ public class MixinEnderChestBlock {
      * @reason Inject de yaruno kuso mendo-kusai
      */
     @Overwrite
-    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
         PlayerEnderChestContainer playerEnderChestContainer = player.getEnderChestInventory();
         BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (blockEntity instanceof EnderChestBlockEntity) {
+        if (playerEnderChestContainer != null && blockEntity instanceof EnderChestBlockEntity) {
             BlockPos blockPos = pos.above();
-            if (world.getBlockState(blockPos).isRedstoneConductor(world, blockPos)) {
+            if (world.getBlockState(blockPos).isRedstoneConductor(world, blockPos)) { // Paper - diff on change; make sure that EnderChest#isBlocked uses the same logic
                 return InteractionResult.sidedSuccess(world.isClientSide);
             } else if (world.isClientSide) {
                 return InteractionResult.SUCCESS;
             } else {
-                EnderChestBlockEntity enderChestBlockEntity = (EnderChestBlockEntity) blockEntity;
+                EnderChestBlockEntity enderChestBlockEntity = (EnderChestBlockEntity)blockEntity;
                 playerEnderChestContainer.setActiveChest(enderChestBlockEntity);
                 player.openMenu(new SimpleMenuProvider((syncId, inventory, playerx) -> {
                     if (playerEnderChestContainer.getContainerSize() == 27)

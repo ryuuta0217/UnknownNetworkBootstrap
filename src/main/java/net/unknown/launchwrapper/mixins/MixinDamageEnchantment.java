@@ -34,21 +34,29 @@ package net.unknown.launchwrapper.mixins;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.enchantment.DamageEnchantment;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentCategory;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(DamageEnchantment.class)
 public abstract class MixinDamageEnchantment extends Enchantment {
-    @Shadow @Final public int type;
-
-    protected MixinDamageEnchantment(Rarity rarity, EnchantmentCategory target, EquipmentSlot[] slotTypes) {
-        super(rarity, target, slotTypes);
+    public MixinDamageEnchantment(EnchantmentDefinition properties) {
+        super(properties);
     }
 
-    @Override
-    public int getMaxLevel() {
-        return this.type == DamageEnchantment.ALL ? 10 : 5;
+    @ModifyArg(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/enchantment/Enchantment;<init>(Lnet/minecraft/world/item/enchantment/Enchantment$EnchantmentDefinition;)V"))
+    private static EnchantmentDefinition onInit(EnchantmentDefinition properties) {
+        return new EnchantmentDefinition(
+                properties.supportedItems(),
+                properties.primaryItems(),
+                properties.weight(),
+                10, // TODO 暫定対応 (ダメージ増加だけじゃなくアンデット特攻とかにも適用される)
+                properties.minCost(),
+                properties.maxCost(),
+                properties.anvilCost(),
+                properties.requiredFeatures(),
+                properties.slots());
     }
 }

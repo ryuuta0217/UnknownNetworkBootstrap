@@ -32,13 +32,17 @@
 package net.unknown.launchwrapper.mixins;
 
 import com.google.common.collect.Sets;
+import com.mojang.serialization.DataResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
@@ -243,9 +247,9 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
         // UnknownNet end
     }
 
-    @Inject(method = "load", at = @At("RETURN"))
-    public void onLoad(CompoundTag tag, CallbackInfo ci) {
-        // {Filter: {Mode: WHITELIST, Filters: [{id: "minecraft:stick", nbt: {}}, {tag: "minecraft:logs", nbt: {}]}}
+    @Inject(method = "loadAdditional", at = @At("RETURN"))
+    public void onLoad(CompoundTag tag, HolderLookup.Provider registryLookup, CallbackInfo ci) {
+        // {Filter: {Mode: WHITELIST, Filters: [{id: "minecraft:stick", components: {}}, {tag: "minecraft:logs", components: {}]}}
         if (tag.contains("Filter")) {
             CompoundTag filter = tag.getCompound("Filter");
             if (filter.contains("Mode")) {
@@ -260,15 +264,15 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
                                 ResourceLocation id = ResourceLocation.tryParse(filterData.getString("id"));
                                 Optional<Item> item = BuiltInRegistries.ITEM.getOptional(id);
                                 if (item.isPresent()) {
-                                    CompoundTag nbt = filterData.contains("nbt") ? filterData.getCompound("nbt") : null;
-                                    this.filters.add(new ItemFilter(item.get(), nbt));
+                                    DataComponentPatch componentPatch = filterData.contains("components") ? DataComponentPatch.CODEC.parse(registryLookup.createSerializationContext(NbtOps.INSTANCE), filterData.get("components")).getOrThrow() : null;
+                                    this.filters.add(new ItemFilter(item.get(), componentPatch));
                                 }
                             }
 
                             if (filterData.contains("tag")) {
                                 TagKey<Item> itemTag = TagKey.create(Registries.ITEM, new ResourceLocation(filterData.getString("tag")));
-                                CompoundTag nbt = filterData.contains("nbt") ? filterData.getCompound("nbt") : null;
-                                this.filters.add(new TagFilter(itemTag, nbt));
+                                DataComponentPatch componentPatch = filterData.contains("nbt") ? DataComponentPatch.CODEC.parse(registryLookup.createSerializationContext(NbtOps.INSTANCE), filterData.get("components")).getOrThrow() : null;
+                                this.filters.add(new TagFilter(itemTag, componentPatch));
                             }
                         }
                     });
@@ -307,7 +311,7 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
     }
 
     @Inject(method = "saveAdditional", at = @At("RETURN"))
-    public void onSaveAdditional(CompoundTag nbt, CallbackInfo ci) {
+    public void onSaveAdditional(CompoundTag nbt, HolderLookup.Provider registryLookup, CallbackInfo ci) {
         CompoundTag filterRootTag = new CompoundTag();
         filterRootTag.putString("Mode", this.getFilterMode().name());
 
@@ -320,8 +324,8 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
                 filterTag.putString("tag", tagFilter.getTag().location().toString());
             }
 
-            if (filter.getNbt() != null) {
-                filterTag.put("nbt", filter.getNbt());
+            if (filter.getDataPatch() != null) {
+                filterTag.put("components", DataComponentPatch.CODEC.encodeStart(registryLookup.createSerializationContext(NbtOps.INSTANCE), filter.getDataPatch()).getOrThrow());
             }
             filters.add(filterTag);
         });

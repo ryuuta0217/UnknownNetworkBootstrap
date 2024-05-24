@@ -31,6 +31,7 @@
 
 package net.unknown.launchwrapper.mixins;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -46,7 +47,7 @@ public class MixinItems {
     @Inject(method = "registerItem(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/world/item/Item;)Lnet/minecraft/world/item/Item;", at = @At("HEAD"))
     private static void onRegisterItem(ResourceKey<Item> key, Item item, CallbackInfoReturnable<Item> cir) {
         if (key.location().equals(ResourceLocation.of("minecraft:egg", ':')) && item instanceof IMixinItem mixinItem) {
-            mixinItem.setMaxStackSize(64); // set max stack size to 64
+            mixinItem.setComponent(DataComponents.MAX_STACK_SIZE, 64); // set max stack size to 64
         }
     }
 }

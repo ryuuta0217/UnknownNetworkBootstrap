@@ -32,6 +32,7 @@
 package net.unknown.launchwrapper.mixins;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -79,8 +80,8 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
         this.isVoidChest = isVoidChest;
     }
 
-    @Inject(method = "load", at = @At("RETURN"))
-    public void onLoad(CompoundTag nbt, CallbackInfo ci) {
+    @Inject(method = "loadAdditional", at = @At("RETURN"))
+    public void onLoad(CompoundTag nbt, HolderLookup.Provider registryLookup, CallbackInfo ci) {
         if (nbt.contains("Link")) {
             CompoundTag link = nbt.getCompound("Link");
             if (link.contains("Mode", CompoundTag.TAG_STRING)) {
@@ -105,7 +106,7 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
     }
 
     @Inject(method = "saveAdditional", at = @At("RETURN"))
-    public void onSaveAdditional(CompoundTag nbt, CallbackInfo ci) {
+    public void onSaveAdditional(CompoundTag nbt, HolderLookup.Provider registryLookup, CallbackInfo ci) {
         if (this.linkChestMode != LinkChestMode.DISABLED) {
             CompoundTag link = new CompoundTag();
 

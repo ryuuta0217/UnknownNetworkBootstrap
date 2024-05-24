@@ -44,7 +44,7 @@ import net.unknown.launchwrapper.event.ObserverBlockCheckNeighborEvent;
 import net.unknown.launchwrapper.event.ObserverBlockRemoveEvent;
 import net.unknown.launchwrapper.event.ObserverBlockTickEvent;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_20_R3.event.CraftEventFactory;
+import org.bukkit.craftbukkit.event.CraftEventFactory;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;

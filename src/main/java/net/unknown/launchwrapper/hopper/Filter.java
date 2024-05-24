@@ -31,6 +31,7 @@
 
 package net.unknown.launchwrapper.hopper;
 
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 
@@ -38,7 +39,7 @@ import javax.annotation.Nullable;
 
 public interface Filter {
     @Nullable
-    CompoundTag getNbt();
+    DataComponentPatch getDataPatch();
 
     boolean matches(@Nullable ItemStack stack, TransportType transportType);
 
