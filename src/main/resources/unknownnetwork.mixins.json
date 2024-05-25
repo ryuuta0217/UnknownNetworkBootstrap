@@ -21,6 +21,7 @@
     "MixinHopperBlockEntity",
     "MixinItem",
     "MixinItems",
+    "MixinJsonOps",
     "MixinMinecart",
     "MixinMinecraftServer",
     "MixinNearestAttackableTargetGoal",
