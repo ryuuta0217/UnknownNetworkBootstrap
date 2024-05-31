@@ -285,25 +285,25 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
             CompoundTag tagItemFind = tag.getCompound("ItemFind");
             if (tagItemFind.contains("Active")) {
                 this.findItem = tagItemFind.getBoolean("Active");
+            }
 
-                if (tagItemFind.contains("Range")) {
-                    CompoundTag Range = tagItemFind.getCompound("Range");
-                    if (Range.contains("A")) {
-                        ListTag A = Range.getList("A", CompoundTag.TAG_LIST);
-                        if (A.size() >= 3) {
-                            this.findItem1.set(0, DoubleTag.valueOf(A.getDouble(0)));
-                            this.findItem1.set(1, DoubleTag.valueOf(A.getDouble(1)));
-                            this.findItem1.set(2, DoubleTag.valueOf(A.getDouble(2)));
-                        }
+            if (tagItemFind.contains("Range")) {
+                CompoundTag Range = tagItemFind.getCompound("Range");
+                if (Range.contains("A")) {
+                    ListTag A = Range.getList("A", CompoundTag.TAG_LIST);
+                    if (A.size() >= 3) {
+                        this.findItem1.set(0, DoubleTag.valueOf(A.getDouble(0)));
+                        this.findItem1.set(1, DoubleTag.valueOf(A.getDouble(1)));
+                        this.findItem1.set(2, DoubleTag.valueOf(A.getDouble(2)));
                     }
+                }
 
-                    if (Range.contains("B")) {
-                        ListTag B = Range.getList("B", CompoundTag.TAG_LIST);
-                        if (B.size() >= 3) {
-                            this.findItem2.set(0, DoubleTag.valueOf(B.getDouble(0)));
-                            this.findItem2.set(1, DoubleTag.valueOf(B.getDouble(1)));
-                            this.findItem2.set(2, DoubleTag.valueOf(B.getDouble(2)));
-                        }
+                if (Range.contains("B")) {
+                    ListTag B = Range.getList("B", CompoundTag.TAG_LIST);
+                    if (B.size() >= 3) {
+                        this.findItem2.set(0, DoubleTag.valueOf(B.getDouble(0)));
+                        this.findItem2.set(1, DoubleTag.valueOf(B.getDouble(1)));
+                        this.findItem2.set(2, DoubleTag.valueOf(B.getDouble(2)));
                     }
                 }
             }
@@ -334,6 +334,7 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
         nbt.put("Filter", filterRootTag);
 
         CompoundTag ItemFind = new CompoundTag();
+        ItemFind.putBoolean("Active", this.findItem);
         CompoundTag Range = new CompoundTag();
         Range.put("A", this.findItem1);
         Range.put("B", this.findItem2);
