@@ -128,10 +128,10 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
                 boolean filterPassed = true; // Unknown Network - Supports filter
 
                 // Unknown Network start - Supports filter
-                if ((Hopper) hopper instanceof MixinHopperBlockEntity mHopper) {
-                    if (mHopper.filterMode != FilterType.DISABLED) {
+                if ((Hopper) hopper instanceof IMixinHopperBlockEntity mHopper) {
+                    if (mHopper.getFilterMode() != FilterType.DISABLED) {
                         // ﾌｨﾙﾀ対象
-                        boolean filteringResult = mHopper.filters.stream().anyMatch(filter -> filter.matches(item, TransportType.PUSH_TO_CONTAINER));
+                        boolean filteringResult = mHopper.getFilters().stream().anyMatch(filter -> filter.matches(item, TransportType.PUSH_TO_CONTAINER));
 
                         if (filteringResult) {
                             if (mHopper.getFilterMode() == FilterType.BLACKLIST) {
@@ -190,10 +190,10 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
 
     @Inject(method = "hopperPull", at = @At("HEAD"), cancellable = true)
     private static void onHopperPull(Level level, Hopper hopper, Container container, ItemStack origItemStack, int i, CallbackInfoReturnable<Boolean> cir) {
-        if (hopper instanceof MixinHopperBlockEntity mHopper) {
-            if (mHopper.filterMode != FilterType.DISABLED) {
+        if (hopper instanceof IMixinHopperBlockEntity mHopper) {
+            if (mHopper.getFilterMode() != FilterType.DISABLED) {
                 // ﾌｨﾙﾀ対象
-                boolean filteringResult = mHopper.filters.stream().anyMatch(filter -> filter.matches(origItemStack, TransportType.PULL_FROM_CONTAINER));
+                boolean filteringResult = mHopper.getFilters().stream().anyMatch(filter -> filter.matches(origItemStack, TransportType.PULL_FROM_CONTAINER));
 
                 if (filteringResult) {
                     if (mHopper.getFilterMode() == FilterType.BLACKLIST) {
@@ -210,7 +210,7 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
 
     @Inject(method = "addItem(Lnet/minecraft/world/Container;Lnet/minecraft/world/entity/item/ItemEntity;)Z", at = @At("HEAD"), cancellable = true)
     private static void onAddItem(Container inventory, ItemEntity itemEntity, CallbackInfoReturnable<Boolean> cir) {
-        if (inventory instanceof MixinHopperBlockEntity hopper) {
+        if (inventory instanceof IMixinHopperBlockEntity hopper) {
             if (hopper.getFilterMode() != FilterType.DISABLED) {
                 if (hopper.getFilters().size() > 0) {
                     boolean filterResult = hopper.getFilters().stream().anyMatch(filter -> filter.matches(itemEntity.getItem(), TransportType.PULL_FROM_DROPPED_ITEM));
@@ -239,12 +239,19 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
         double d2 = hopper.getLevelZ();
 
         // UnknownNet start - Customizable entity finding range
-        if (hopper instanceof MixinHopperBlockEntity hp) {
+        if (hopper instanceof IMixinHopperBlockEntity hp) {
             if (!hp.isEnabledFindItem()) cir.setReturnValue(Collections.emptyList());
             else cir.setReturnValue(world.getEntitiesOfClass(ItemEntity.class, hp.getItemFindAABB(d0, d1, d2), Entity::isAlive));
             cir.cancel();
         }
         // UnknownNet end
+    }
+
+    @Inject(method = "suckInItems", at = @At("HEAD"), cancellable = true)
+    private static void onSuckInItems(Level world, Hopper hopper, CallbackInfoReturnable<Boolean> cir) {
+        if (hopper instanceof IMixinHopperBlockEntity hp) {
+            if (!hp.isEnabledFindItem()) cir.cancel();
+        }
     }
 
     @Inject(method = "loadAdditional", at = @At("RETURN"))
