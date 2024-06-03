@@ -56,4 +56,6 @@ public interface IMixinHopperBlockEntity extends Hopper {
     AABB getItemFindAABB(double baseX, double baseY, double baseZ);
 
     void setItemFindAABB(double aX, double aY, double aZ, double bX, double bY, double bZ);
+
+    boolean isDebugMode();
 }
