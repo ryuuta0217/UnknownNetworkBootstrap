@@ -33,11 +33,7 @@ package net.unknown.launchwrapper.mixins;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
@@ -66,16 +62,22 @@ public abstract class MixinHopperBlock extends BlockBehaviour {
     public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         BlockEntity blockEntity = builder.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         if (blockEntity instanceof IMixinHopperBlockEntity hopper) {
-            if (hopper.getFilterMode() != null) {
-                if (hopper.getFilters().size() > 0) {
+            if (hopper.getIncomingFilterMode() != null) {
+                if (!hopper.getIncomingFilters().isEmpty() || !hopper.getOutgoingFilters().isEmpty()) {
                     List<ItemStack> drops = super.getDrops(state, builder);
                     drops.forEach(stack -> {
                         if (stack.getItem() == state.getBlock().asItem()) {
                             stack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(((BlockEntity) hopper).saveWithoutMetadata(MinecraftServer.getDefaultRegistryAccess())));
 
                             List<Component> styledLore = new ArrayList<>() {{
-                                add(Component.literal("フィルターモード: " + hopper.getFilterMode().getLocalizedName()).withStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.AQUA)));
-                                add(Component.literal("登録フィルター数: " + hopper.getFilters().size()).withStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.AQUA)));
+                                if (!hopper.getIncomingFilters().isEmpty()) {
+                                    add(Component.literal("搬入フィルターモード: " + hopper.getIncomingFilterMode().getLocalizedName()).withStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.AQUA)));
+                                    add(Component.literal("搬入フィルター登録数: " + hopper.getIncomingFilters().size()).withStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.AQUA)));
+                                }
+                                if (!hopper.getOutgoingFilters().isEmpty()) {
+                                    add(Component.literal("搬出フィルターモード: " + hopper.getOutgoingFilterMode().getLocalizedName()).withStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.AQUA)));
+                                    add(Component.literal("搬出フィルター登録数: " + hopper.getOutgoingFilters().size()).withStyle(Style.EMPTY.withItalic(false).withColor(ChatFormatting.AQUA)));
+                                }
                             }};
 
                             ItemLore lore = new ItemLore(ComponentUtil.stripStyles(styledLore), styledLore);

@@ -32,23 +32,19 @@
 package net.unknown.launchwrapper.mixins;
 
 import com.google.common.collect.Sets;
-import com.mojang.serialization.DataResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -67,14 +63,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 // TODO 搬入、搬出でフィルタを分ける (これまでのFilterは搬入フィルタとする)
 @Mixin(HopperBlockEntity.class)
-public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockEntity implements IMixinHopperBlockEntity {
+public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockEntity implements Hopper, IMixinHopperBlockEntity {
+    /* SHADOW */
     @Shadow private static boolean skipPushModeEventFire;
     @Shadow public static boolean skipHopperEvents;
 
@@ -93,12 +87,41 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
     private void setCooldown(int cooldown) {
     }
 
-    public Set<Filter> filters = Sets.newHashSet();
-    public FilterType filterMode = FilterType.DISABLED;
+    @Shadow private static boolean skipPullModeEventFire;
 
+    @Shadow
+    @Nullable
+    protected static Container getSourceContainer(Level world, Hopper hopper, BlockPos pos, BlockState state) {
+        return null;
+    }
+
+    @Shadow
+    protected static int[] getSlots(Container inventory, Direction side) {
+        return null;
+    }
+
+    @Shadow
+    protected static boolean tryTakeInItemFromSlot(Hopper ihopper, Container iinventory, int i, Direction enumdirection, Level world) {
+        return false;
+    }
+
+    /* SHADOW */
+
+    // Unknown Network start - Add Filter
+    public Set<Filter> incomingFilters = Sets.newHashSet();
+    public FilterType incomingFilterMode = FilterType.DISABLED;
+    public Set<Filter> outgoingFilters = Sets.newHashSet();
+    public FilterType outgoingFilterMode = FilterType.DISABLED;
+    // Unknown Network end
+
+    // Unknown Network start - Add findItem, pullItem, pushItem and disableEvent, debug
     private boolean findItem = true;
-    private boolean debug = false;
+    private boolean pullItem = true;
+    private boolean pushItem = true;
+    private boolean disableEvent = false;
+    // Unknown Network end
 
+    // Unknown Network start - Add findItem range
     private final ListTag findItem1 = new ListTag() {{
         add(0, DoubleTag.valueOf(-0.5D));
         add(1, DoubleTag.valueOf(0D));
@@ -110,6 +133,7 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
         add(1, DoubleTag.valueOf(1.5D));
         add(2, DoubleTag.valueOf(0.5D));
     }};
+    // Unknown Network end
 
     protected MixinHopperBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -122,6 +146,10 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
     @Overwrite
     private static boolean hopperPush(final Level level, final Container destination, final Direction direction, final HopperBlockEntity hopper) {
         skipPushModeEventFire = skipHopperEvents;
+        if (hopper instanceof IMixinHopperBlockEntity mHopper && !mHopper.isEnabledPushItem()) {
+            return false; // Unknown Network - Supports disable pushItem
+        }
+
         boolean foundItem = false;
         for (int i = 0; i < hopper.getContainerSize(); ++i) {
             final ItemStack item = hopper.getItem(i);
@@ -175,11 +203,53 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
         return false;
     }
 
+    /**
+     * @author ryuuta0217
+     * @reason for debug
+     */
+    @Overwrite
+    public static boolean suckInItems(Level world, Hopper hopper) {
+        BlockPos blockposition = BlockPos.containing(hopper.getLevelX(), hopper.getLevelY() + 1.0D, hopper.getLevelZ());
+        BlockState iblockdata = world.getBlockState(blockposition);
+        Container iinventory = getSourceContainer(world, hopper, blockposition, iblockdata);
+
+        if (iinventory != null) {
+            Direction enumdirection = Direction.DOWN;
+            skipPullModeEventFire = skipHopperEvents; // Paper - Perf: Optimize Hoppers
+            int[] aint = getSlots(iinventory, enumdirection);
+            int i = aint.length;
+
+            for (int j = 0; j < i; ++j) {
+                int k = aint[j];
+
+                if (tryTakeInItemFromSlot(hopper, iinventory, k, enumdirection, world)) { // Spigot
+                    return true;
+                }
+            }
+
+            return false;
+        } else {
+            boolean flag = hopper.isGridAligned() && iblockdata.isCollisionShapeFullBlock(world, blockposition) && !iblockdata.is(BlockTags.DOES_NOT_BLOCK_HOPPERS);
+
+            if (!flag) {
+                for (ItemEntity item : HopperBlockEntity.getItemsAtAndAbove(world, hopper)) {
+                    if (HopperBlockEntity.addItem(hopper, item)) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+    }
+
+
     @Inject(method = "hopperPull", at = @At("HEAD"), cancellable = true)
     private static void onHopperPull(Level level, Hopper hopper, Container container, ItemStack origItemStack, int i, CallbackInfoReturnable<Boolean> cir) {
         if (hopper instanceof IMixinHopperBlockEntity mHopper) {
-            if (mHopper.getFilterMode() != FilterType.DISABLED) {
+            if (mHopper.getIncomingFilterMode() != FilterType.DISABLED) {
                 if (!processFilter(mHopper, origItemStack, TransportType.PULL_FROM_CONTAINER)) {
+                    cir.setReturnValue(false);
                     cir.cancel();
                 }
             }
@@ -189,14 +259,62 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
     @Inject(method = "addItem(Lnet/minecraft/world/Container;Lnet/minecraft/world/entity/item/ItemEntity;)Z", at = @At("HEAD"), cancellable = true)
     private static void onAddItem(Container inventory, ItemEntity itemEntity, CallbackInfoReturnable<Boolean> cir) {
         if (inventory instanceof IMixinHopperBlockEntity hopper) {
-            if (hopper.getFilterMode() != FilterType.DISABLED) {
-                if (!hopper.getFilters().isEmpty()) {
-                    if (!processFilter(hopper, itemEntity.getItem(), TransportType.PULL_FROM_DROPPED_ITEM)) {
-                        cir.cancel();
-                    }
+            if (!hopper.isEnabledPullItem()) {
+                cir.setReturnValue(false);
+                cir.cancel();
+            }
+
+            if (isFilteringEnabled(hopper, TransportType.PULL_FROM_DROPPED_ITEM)) {
+                if (!processFilter(hopper, itemEntity.getItem(), TransportType.PULL_FROM_DROPPED_ITEM)) {
+                    cir.setReturnValue(false);
+                    cir.cancel();
                 }
             }
         }
+    }
+
+    @Inject(method = "addItem(Lnet/minecraft/world/Container;Lnet/minecraft/world/Container;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/core/Direction;)Lnet/minecraft/world/item/ItemStack;", at = @At("HEAD"), cancellable = true)
+    private static void onAddItemFromContainer(Container from, Container _to, ItemStack stack, Direction side, CallbackInfoReturnable<ItemStack> cir) {
+        if (from instanceof IMixinHopperBlockEntity hopper) {
+            if (isFilteringEnabled(hopper, TransportType.PULL_FROM_CONTAINER)) {
+                if (!processFilter(hopper, stack, TransportType.PULL_FROM_CONTAINER)) {
+                    cir.setReturnValue(stack);
+                    cir.cancel();
+                }
+            }
+        }
+
+        if (_to instanceof IMixinHopperBlockEntity hopper) {
+            if (isFilteringEnabled(hopper, TransportType.PUSH_TO_CONTAINER)) {
+                if (!processFilter(hopper, stack, TransportType.PUSH_TO_CONTAINER)) {
+                    cir.setReturnValue(stack);
+                    cir.cancel();
+                }
+            }
+        }
+    }
+
+    // ホッパーが任意のコンテナからアイテムを吸引しようとしたとき、それが可能であるかを返します。
+    // コンテナは別のホッパーの可能性があります。
+    @Inject(method = "canTakeItemFromContainer", at = @At("HEAD"), cancellable = true)
+    private static void onCanTakeItemFromContainer(Container hopperInventory, Container fromInventory, ItemStack stack, int slot, Direction facing, CallbackInfoReturnable<Boolean> cir) {
+        if (hopperInventory instanceof IMixinHopperBlockEntity hopper) {
+            if (!hopper.isEnabledPullItem()) {
+                cir.setReturnValue(false);
+                cir.cancel();
+            }
+
+            if (isFilteringEnabled(hopper, TransportType.PULL_FROM_CONTAINER)) {
+                if (!processFilter(hopper, stack, TransportType.PULL_FROM_CONTAINER)) {
+                    cir.setReturnValue(false);
+                    cir.cancel();
+                }
+            }
+        }
+    }
+
+    private static boolean isFilteringEnabled(IMixinHopperBlockEntity hopper, TransportType transportType) {
+        return (transportType.isIncoming() && hopper.isIncomingFilterEnabled()) || (transportType.isOutgoing() && hopper.isOutgoingFilterEnabled());
     }
 
     /**
@@ -207,16 +325,17 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
      * @return フィルタを通過できるかどうか
      */
     private static boolean processFilter(IMixinHopperBlockEntity hopper, ItemStack target, TransportType transportType) {
-        if (hopper.getFilterMode() != FilterType.DISABLED) {
-            boolean filteringResult = hopper.getFilters().stream().anyMatch(filter -> filter.matches(target, transportType));
+        Set<Filter> filters = transportType.isIncoming() ? hopper.getIncomingFilters() : hopper.getOutgoingFilters();
+        FilterType filterMode = transportType.isIncoming() ? hopper.getIncomingFilterMode() : hopper.getOutgoingFilterMode();
 
+        if (isFilteringEnabled(hopper, transportType)) {
+            boolean filteringResult = filters.stream().anyMatch(filter -> filter.matches(target, transportType));
             if (filteringResult) {
-                return hopper.getFilterMode() != FilterType.BLACKLIST;
+                return filterMode != FilterType.BLACKLIST;
             } else {
-                return hopper.getFilterMode() != FilterType.WHITELIST;
+                return filterMode != FilterType.WHITELIST;
             }
-        }
-        return true;
+        } else return !hopper.isIncomingFilterEnabled() && !hopper.isOutgoingFilterEnabled();
     }
 
     /**
@@ -232,60 +351,50 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
 
         // UnknownNet start - Customizable entity finding range
         if (hopper instanceof IMixinHopperBlockEntity hp) {
+            List<ItemEntity> entities;
             if (!hp.isEnabledFindItem()) {
-                if (hp.isDebugMode()) System.out.println("GetItemsAtAndAbove called but findItem is disabled");
-                cir.setReturnValue(Collections.emptyList());
+                entities = Collections.emptyList();
             } else {
-                if (hp.isDebugMode()) System.out.println("GetItemsAtAndAbove called, returning nearby item entities");
-                cir.setReturnValue(world.getEntitiesOfClass(ItemEntity.class, hp.getItemFindAABB(d0, d1, d2), Entity::isAlive));
+                entities = world.getEntitiesOfClass(ItemEntity.class, hp.getItemFindAABB(d0, d1, d2), Entity::isAlive);
             }
+            cir.setReturnValue(entities);
             cir.cancel();
         }
         // UnknownNet end
     }
 
-    @Inject(method = "suckInItems", at = @At("HEAD"), cancellable = true)
-    private static void onSuckInItems(Level world, Hopper hopper, CallbackInfoReturnable<Boolean> cir) {
-        if (hopper instanceof IMixinHopperBlockEntity hp) {
-            if (!hp.isEnabledFindItem()) {
-                if (hp.isDebugMode()) System.out.println("SuckInItems called but findItem is disabled");
-                cir.setReturnValue(true);
-                cir.cancel();
-            }
-        }
-    }
-
     @Inject(method = "loadAdditional", at = @At("RETURN"))
     public void onLoad(CompoundTag tag, HolderLookup.Provider registryLookup, CallbackInfo ci) {
-        if (tag.contains("Debug")) this.debug = tag.getBoolean("Debug");
-        // {Filter: {Mode: WHITELIST, Filters: [{id: "minecraft:stick", components: {}}, {tag: "minecraft:logs", components: {}]}}
+        if (tag.contains("DisableEvent")) this.disableEvent = tag.getBoolean("DisableEvent");
+        // {Filter: {Mode: WHITELIST, IncomingFilters: [{id: "minecraft:stick", components: {}}, {tag: "minecraft:logs", components: {}}], OutgoingFilters: []}}
         if (tag.contains("Filter")) {
             CompoundTag filter = tag.getCompound("Filter");
-            if (filter.contains("Mode")) {
-                this.filterMode = FilterType.valueOfOrDefault(filter.getString("Mode").toUpperCase(), FilterType.DISABLED);
+            if ((filter.contains("IncomingFilterMode") || filter.contains("Mode"))) {
+                this.incomingFilterMode = FilterType.valueOfOrDefault(filter.getString(filter.contains("Mode") ? "Mode" : "IncomingFilterMode").toUpperCase(), FilterType.DISABLED);
+            }
 
-                if (filter.contains("Filters")) {
-                    ListTag items = filter.getList("Filters", CompoundTag.TAG_COMPOUND);
-                    this.filters.clear();
-                    items.forEach(filterDataTag -> {
-                        if (filterDataTag instanceof CompoundTag filterData) {
-                            if (filterData.contains("id")) {
-                                ResourceLocation id = ResourceLocation.tryParse(filterData.getString("id"));
-                                Optional<Item> item = BuiltInRegistries.ITEM.getOptional(id);
-                                if (item.isPresent()) {
-                                    DataComponentPatch componentPatch = filterData.contains("components") ? DataComponentPatch.CODEC.parse(registryLookup.createSerializationContext(NbtOps.INSTANCE), filterData.get("components")).getOrThrow() : null;
-                                    this.filters.add(new ItemFilter(item.get(), componentPatch));
-                                }
-                            }
+            if (filter.contains("OutgoingFilterMode")) {
+                this.outgoingFilterMode = FilterType.valueOfOrDefault(filter.getString("OutgoingFilterMode").toUpperCase(), FilterType.DISABLED);
+            }
 
-                            if (filterData.contains("tag")) {
-                                TagKey<Item> itemTag = TagKey.create(Registries.ITEM, new ResourceLocation(filterData.getString("tag")));
-                                DataComponentPatch componentPatch = filterData.contains("nbt") ? DataComponentPatch.CODEC.parse(registryLookup.createSerializationContext(NbtOps.INSTANCE), filterData.get("components")).getOrThrow() : null;
-                                this.filters.add(new TagFilter(itemTag, componentPatch));
-                            }
-                        }
-                    });
-                }
+            if (filter.contains("IncomingFilters") || filter.contains("Filters")) { // Migrate from old version
+                ListTag items = filter.getList(filter.contains("Filters") ? "Filters" : "IncomingFilters", CompoundTag.TAG_COMPOUND);
+                this.incomingFilters.clear();
+                items.forEach(filterDataTag -> {
+                    if (filterDataTag instanceof CompoundTag filterData) {
+                        this.incomingFilters.add(Filter.fromTag(filterData, registryLookup));
+                    }
+                });
+            }
+
+            if (filter.contains("OutgoingFilters")) {
+                ListTag items = filter.getList("OutgoingFilters", CompoundTag.TAG_COMPOUND);
+                this.outgoingFilters.clear();
+                items.forEach(filterDataTag -> {
+                    if (filterDataTag instanceof CompoundTag filterData) {
+                        this.outgoingFilters.add(Filter.fromTag(filterData, registryLookup));
+                    }
+                });
             }
         }
 
@@ -299,7 +408,7 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
             if (tagItemFind.contains("Range")) {
                 CompoundTag Range = tagItemFind.getCompound("Range");
                 if (Range.contains("A")) {
-                    ListTag A = Range.getList("A", CompoundTag.TAG_LIST);
+                    ListTag A = Range.getList("A", CompoundTag.TAG_DOUBLE);
                     if (A.size() >= 3) {
                         this.findItem1.set(0, DoubleTag.valueOf(A.getDouble(0)));
                         this.findItem1.set(1, DoubleTag.valueOf(A.getDouble(1)));
@@ -308,7 +417,7 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
                 }
 
                 if (Range.contains("B")) {
-                    ListTag B = Range.getList("B", CompoundTag.TAG_LIST);
+                    ListTag B = Range.getList("B", CompoundTag.TAG_DOUBLE);
                     if (B.size() >= 3) {
                         this.findItem2.set(0, DoubleTag.valueOf(B.getDouble(0)));
                         this.findItem2.set(1, DoubleTag.valueOf(B.getDouble(1)));
@@ -317,31 +426,41 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
                 }
             }
         }
+
+        if (tag.contains("ItemPull")) {
+            CompoundTag tagItemPull = tag.getCompound("ItemPull");
+            if (tagItemPull.contains("Active")) {
+                this.pullItem = tagItemPull.getBoolean("Active");
+            }
+        }
+
+        if (tag.contains("ItemPush")) {
+            CompoundTag tagItemPush = tag.getCompound("ItemPush");
+            if (tagItemPush.contains("Active")) {
+                this.pushItem = tagItemPush.getBoolean("Active");
+            }
+        }
     }
 
     @Inject(method = "saveAdditional", at = @At("RETURN"))
     public void onSaveAdditional(CompoundTag nbt, HolderLookup.Provider registryLookup, CallbackInfo ci) {
-        if (this.debug) nbt.putBoolean("Debug", true);
+        if (this.disableEvent) nbt.putBoolean("DisableEvent", true);
 
         CompoundTag filterRootTag = new CompoundTag();
-        filterRootTag.putString("Mode", this.getFilterMode().name());
 
-        ListTag filters = new ListTag();
-        this.filters.forEach(filter -> {
-            CompoundTag filterTag = new CompoundTag();
-            if (filter instanceof ItemFilter itemFilter) {
-                filterTag.putString("id", BuiltInRegistries.ITEM.getKey(itemFilter.getItem()).toString());
-            } else if (filter instanceof TagFilter tagFilter) {
-                filterTag.putString("tag", tagFilter.getTag().location().toString());
-            }
+        filterRootTag.putString("IncomingFilterMode", this.getIncomingFilterMode().name());
+        ListTag incomingFilters = new ListTag();
+        this.incomingFilters.forEach(filter -> incomingFilters.add(filter.toTag(registryLookup)));
+        filterRootTag.put("IncomingFilters", incomingFilters);
 
-            if (filter.getDataPatch() != null) {
-                filterTag.put("components", DataComponentPatch.CODEC.encodeStart(registryLookup.createSerializationContext(NbtOps.INSTANCE), filter.getDataPatch()).getOrThrow());
-            }
-            filters.add(filterTag);
-        });
+        filterRootTag.putString("OutgoingFilterMode", this.getOutgoingFilterMode().name());
+        ListTag outgoingFilters = new ListTag();
+        this.outgoingFilters.forEach(filter -> outgoingFilters.add(filter.toTag(registryLookup)));
+        filterRootTag.put("OutgoingFilters", outgoingFilters);
 
-        filterRootTag.put("Filters", filters);
+        CompoundTag outgoingFilterRootTag = new CompoundTag();
+        outgoingFilterRootTag.putString("Mode", this.getOutgoingFilterMode().name());
+
         nbt.put("Filter", filterRootTag);
 
         CompoundTag ItemFind = new CompoundTag();
@@ -351,36 +470,100 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
         Range.put("B", this.findItem2);
         ItemFind.put("Range", Range);
         nbt.put("ItemFind", ItemFind);
+
+        CompoundTag ItemPull = new CompoundTag();
+        ItemPull.putBoolean("Active", this.pullItem);
+        nbt.put("ItemPull", ItemPull);
+
+        CompoundTag ItemPush = new CompoundTag();
+        ItemPush.putBoolean("Active", this.pushItem);
+        nbt.put("ItemPush", ItemPush);
+    }
+
+    @Inject(method = "callPushMoveEvent", at = @At("HEAD"), cancellable = true)
+    private static void onPushMoveEventCalling(Container iinventory, ItemStack itemstack, HopperBlockEntity hopper, CallbackInfoReturnable<ItemStack> cir) {
+        if (hopper instanceof IMixinHopperBlockEntity mHopper) {
+            if (mHopper.isEventDisabled()) {
+                cir.setReturnValue(null);
+                cir.cancel();
+            }
+        }
+    }
+
+    @Inject(method = "callPullMoveEvent", at = @At("HEAD"), cancellable = true)
+    private static void onPullMoveEventCalling(Hopper hopper, Container container, ItemStack itemstack, CallbackInfoReturnable<ItemStack> cir) {
+        if (hopper instanceof IMixinHopperBlockEntity mHopper) {
+            if (mHopper.isEventDisabled()) {
+                cir.setReturnValue(null);
+                cir.cancel();
+            }
+        }
     }
 
     @Override
-    public Set<Filter> getFilters() {
-        return this.filters;
+    public AABB getSuckAabb() {
+        return this.getItemFindAABB(0, 0, 0);
+    }
+
+    // Unknown Network start
+    @Override
+    public Set<Filter> getIncomingFilters() {
+        return this.incomingFilters;
     }
 
     @Override
-    public void setFilters(Set<Filter> filters) {
-        this.filters = filters;
+    public Set<Filter> getOutgoingFilters() {
+        return this.outgoingFilters;
     }
 
     @Override
-    public void addFilter(Filter filter) {
-        this.filters.add(filter);
+    public void setIncomingFilters(Set<Filter> incomingFilters) {
+        this.incomingFilters = incomingFilters;
     }
 
     @Override
-    public FilterType getFilterMode() {
-        return this.filterMode;
+    public void setOutgoingFilters(Set<Filter> outgoingFilters) {
+        this.outgoingFilters = outgoingFilters;
     }
 
     @Override
-    public void setFilterMode(FilterType filterMode) {
-        this.filterMode = filterMode;
+    public void addIncomingFilter(Filter filter) {
+        this.incomingFilters.add(filter);
     }
 
     @Override
-    public boolean isFilterEnabled() {
-        return (this.filterMode != null && this.filterMode != FilterType.DISABLED) && !this.filters.isEmpty();
+    public void addOutgoingFilter(Filter filter) {
+        this.outgoingFilters.add(filter);
+    }
+
+    @Override
+    public FilterType getIncomingFilterMode() {
+        return this.incomingFilterMode;
+    }
+
+    @Override
+    public FilterType getOutgoingFilterMode() {
+        return this.outgoingFilterMode;
+    }
+
+    @Override
+    public void setIncomingFilterMode(FilterType incomingFilterMode) {
+        this.incomingFilterMode = incomingFilterMode;
+    }
+
+    @Override
+    public void setOutgoingFilterMode(FilterType outgoingFilterMode) {
+        this.outgoingFilterMode = outgoingFilterMode;
+    }
+
+    @Override
+    public boolean isIncomingFilterEnabled() {
+        return (this.incomingFilterMode != null && this.incomingFilterMode != FilterType.DISABLED);
+    }
+
+    @Override
+    public boolean isOutgoingFilterEnabled() {
+        return (this.outgoingFilterMode != null && this.outgoingFilterMode != FilterType.DISABLED);
     }
 
     @Override
@@ -389,8 +572,28 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
     }
 
     @Override
+    public boolean isEnabledPullItem() {
+        return this.pullItem;
+    }
+
+    @Override
+    public boolean isEnabledPushItem() {
+        return this.pushItem;
+    }
+
+    @Override
     public void setEnabledFindItem(boolean enabled) {
         this.findItem = enabled;
+    }
+
+    @Override
+    public void setEnabledPullItem(boolean enabled) {
+        this.pullItem = enabled;
+    }
+
+    @Override
+    public void setEnabledPushItem(boolean enabled) {
+        this.pushItem = enabled;
     }
 
     @Override
@@ -410,7 +613,8 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
     }
 
     @Override
-    public boolean isDebugMode() {
-        return this.debug;
+    public boolean isEventDisabled() {
+        return this.disableEvent;
     }
+    // Unknown Network end
 }

@@ -31,8 +31,11 @@
 
 package net.unknown.launchwrapper.hopper;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -80,5 +83,15 @@ public class ItemFilter implements Filter {
     @Override
     public TransportType getTransportType() {
         return this.transportType;
+    }
+
+    @Override
+    public CompoundTag toTag(HolderLookup.Provider registryLookup) {
+        CompoundTag tag = new CompoundTag();
+        tag.putString("id", BuiltInRegistries.ITEM.getKey(this.getItem()).toString());
+        if (this.getDataPatch() != null) {
+            tag.put("components", DataComponentPatch.CODEC.encodeStart(registryLookup.createSerializationContext(NbtOps.INSTANCE), this.getDataPatch()).getOrThrow());
+        }
+        return tag;
     }
 }

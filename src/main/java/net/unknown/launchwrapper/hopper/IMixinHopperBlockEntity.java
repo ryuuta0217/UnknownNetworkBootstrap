@@ -37,25 +37,75 @@ import net.minecraft.world.phys.AABB;
 import java.util.Set;
 
 public interface IMixinHopperBlockEntity extends Hopper {
-    Set<Filter> getFilters();
+    @Deprecated
+    default Set<Filter> getFilters() {
+        return this.getIncomingFilters();
+    }
 
-    void setFilters(Set<Filter> filters);
+    Set<Filter> getIncomingFilters();
 
-    void addFilter(Filter filter);
+    @Deprecated
+    default void setFilters(Set<Filter> filters) {
+        this.setIncomingFilters(filters);
+    }
 
-    FilterType getFilterMode();
+    void setIncomingFilters(Set<Filter> incomingFilters);
 
-    void setFilterMode(FilterType filterMode);
+    @Deprecated
+    default void addFilter(Filter filter) {
+        this.addIncomingFilter(filter);
+    }
 
-    boolean isFilterEnabled();
+    void addIncomingFilter(Filter filter);
+
+    @Deprecated
+    default FilterType getFilterMode() {
+        return this.getIncomingFilterMode();
+    }
+
+    FilterType getIncomingFilterMode();
+
+    @Deprecated
+    default void setFilterMode(FilterType filterMode) {
+        this.setIncomingFilterMode(filterMode);
+    }
+
+    void setIncomingFilterMode(FilterType incomingFilterMode);
+
+    @Deprecated
+    default boolean isFilterEnabled() {
+        return this.isIncomingFilterEnabled();
+    }
+
+    boolean isIncomingFilterEnabled();
+
+    Set<Filter> getOutgoingFilters();
+
+    void setOutgoingFilters(Set<Filter> outgoingFilters);
+
+    void addOutgoingFilter(Filter filter);
+
+    FilterType getOutgoingFilterMode();
+
+    void setOutgoingFilterMode(FilterType outgoingFilterMode);
+
+    boolean isOutgoingFilterEnabled();
 
     boolean isEnabledFindItem();
 
+    boolean isEnabledPullItem();
+
+    boolean isEnabledPushItem();
+
     void setEnabledFindItem(boolean enabled);
+
+    void setEnabledPullItem(boolean enabled);
+
+    void setEnabledPushItem(boolean enabled);
 
     AABB getItemFindAABB(double baseX, double baseY, double baseZ);
 
     void setItemFindAABB(double aX, double aY, double aZ, double bX, double bY, double bZ);
 
-    boolean isDebugMode();
+    boolean isEventDisabled();
 }

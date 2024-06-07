@@ -32,7 +32,21 @@
 package net.unknown.launchwrapper.hopper;
 
 public enum TransportType {
-    PULL_FROM_DROPPED_ITEM,
-    PULL_FROM_CONTAINER,
-    PUSH_TO_CONTAINER
+    PULL_FROM_DROPPED_ITEM(false),
+    PULL_FROM_CONTAINER(false),
+    PUSH_TO_CONTAINER(true);
+
+    private final boolean outgoing;
+
+    TransportType(boolean outgoing) {
+        this.outgoing = outgoing;
+    }
+
+    public boolean isOutgoing() {
+        return this.outgoing;
+    }
+
+    public boolean isIncoming() {
+        return !this.outgoing;
+    }
 }

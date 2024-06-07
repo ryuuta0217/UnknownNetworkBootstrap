@@ -31,17 +31,46 @@
 
 package net.unknown.launchwrapper.hopper;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 public interface Filter {
+    static Filter fromTag(CompoundTag filterData, HolderLookup.Provider registryLookup) {
+        if (filterData.contains("id")) {
+            ResourceLocation id = ResourceLocation.tryParse(filterData.getString("id"));
+            Optional<Item> item = BuiltInRegistries.ITEM.getOptional(id);
+            if (item.isPresent()) {
+                DataComponentPatch componentPatch = filterData.contains("components") ? DataComponentPatch.CODEC.parse(registryLookup.createSerializationContext(NbtOps.INSTANCE), filterData.get("components")).getOrThrow() : null;
+                return new ItemFilter(item.get(), componentPatch);
+            }
+        }
+
+        if (filterData.contains("tag")) {
+            TagKey<Item> itemTag = TagKey.create(Registries.ITEM, new ResourceLocation(filterData.getString("tag")));
+            DataComponentPatch componentPatch = filterData.contains("nbt") ? DataComponentPatch.CODEC.parse(registryLookup.createSerializationContext(NbtOps.INSTANCE), filterData.get("components")).getOrThrow() : null;
+            return new TagFilter(itemTag, componentPatch);
+        }
+
+        return null;
+    }
+
     @Nullable
     DataComponentPatch getDataPatch();
 
     boolean matches(@Nullable ItemStack stack, TransportType transportType);
 
     TransportType getTransportType();
+
+    CompoundTag toTag(HolderLookup.Provider registryLookup);
 }
