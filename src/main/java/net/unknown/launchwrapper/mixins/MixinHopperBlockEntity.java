@@ -218,7 +218,7 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
     @Inject(method = "addItem(Lnet/minecraft/world/Container;Lnet/minecraft/world/entity/item/ItemEntity;)Z", at = @At("HEAD"), cancellable = true)
     private static void onAddItem(Container inventory, ItemEntity itemEntity, CallbackInfoReturnable<Boolean> cir) {
         if (inventory instanceof IMixinHopperBlockEntity hopper) {
-            if (!hopper.isEnabledPullItem()) {
+            if (!hopper.isEnabledFindItem()) {
                 cir.setReturnValue(false);
                 cir.cancel();
             }
