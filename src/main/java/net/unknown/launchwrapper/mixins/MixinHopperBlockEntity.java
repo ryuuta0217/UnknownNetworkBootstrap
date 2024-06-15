@@ -203,47 +203,6 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
         return false;
     }
 
-    /**
-     * @author ryuuta0217
-     * @reason for debug
-     */
-    @Overwrite
-    public static boolean suckInItems(Level world, Hopper hopper) {
-        BlockPos blockposition = BlockPos.containing(hopper.getLevelX(), hopper.getLevelY() + 1.0D, hopper.getLevelZ());
-        BlockState iblockdata = world.getBlockState(blockposition);
-        Container iinventory = getSourceContainer(world, hopper, blockposition, iblockdata);
-
-        if (iinventory != null) {
-            Direction enumdirection = Direction.DOWN;
-            skipPullModeEventFire = skipHopperEvents; // Paper - Perf: Optimize Hoppers
-            int[] aint = getSlots(iinventory, enumdirection);
-            int i = aint.length;
-
-            for (int j = 0; j < i; ++j) {
-                int k = aint[j];
-
-                if (tryTakeInItemFromSlot(hopper, iinventory, k, enumdirection, world)) { // Spigot
-                    return true;
-                }
-            }
-
-            return false;
-        } else {
-            boolean flag = hopper.isGridAligned() && iblockdata.isCollisionShapeFullBlock(world, blockposition) && !iblockdata.is(BlockTags.DOES_NOT_BLOCK_HOPPERS);
-
-            if (!flag) {
-                for (ItemEntity item : HopperBlockEntity.getItemsAtAndAbove(world, hopper)) {
-                    if (HopperBlockEntity.addItem(hopper, item)) {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-    }
-
-
     @Inject(method = "hopperPull", at = @At("HEAD"), cancellable = true)
     private static void onHopperPull(Level level, Hopper hopper, Container container, ItemStack origItemStack, int i, CallbackInfoReturnable<Boolean> cir) {
         if (hopper instanceof IMixinHopperBlockEntity mHopper) {
