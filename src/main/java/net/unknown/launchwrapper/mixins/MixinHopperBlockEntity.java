@@ -294,7 +294,7 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
             } else {
                 return filterMode != FilterType.WHITELIST;
             }
-        } else return !hopper.isIncomingFilterEnabled() && !hopper.isOutgoingFilterEnabled();
+        } else return true; // If filter is disabled, return true (Allow, pass)
     }
 
     /**
