@@ -49,13 +49,13 @@ import java.util.concurrent.TimeUnit;
 public class Main {
     public static boolean FORCE_ALLOW_BUNDLE_FEATURES = System.getProperty("UnknownNetworkMagic") != null && System.getProperty("UnknownNetworkMagic").contains("bundle");
     public static boolean FORCE_ALLOW_TRADE_REBALANCE_FEATURES = System.getProperty("UnknownNetworkMagic") != null && System.getProperty("UnknownNetworkMagic").contains("trade-rebalance");
-    public static boolean FORCE_ALLOW_UPDATE_1_21 = System.getProperty("UnknownNetworkMagic") != null && System.getProperty("UnknownNetworkMagic").contains("update_1_21");
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
+    public static Path PAPERCLIP_JAR = System.getProperties().contains("unknown.bootstrap.paperclip_jar_path") ? Path.of(System.getProperty("unknown.bootstrap.paperclip_jar_path")) : Path.of("paper.jar");
     public static Path SERVER_JAR = System.getProperties().contains("unknown.bootstrap.server_jar_path") ? Path.of(System.getProperty("unknown.bootstrap.server_jar_path")) : null;
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        if (FORCE_ALLOW_BUNDLE_FEATURES || FORCE_ALLOW_TRADE_REBALANCE_FEATURES || FORCE_ALLOW_UPDATE_1_21) {
-            String activatedFeatureFlags = String.join(",", (FORCE_ALLOW_BUNDLE_FEATURES ? "bundle" : ""), (FORCE_ALLOW_TRADE_REBALANCE_FEATURES ? "trade_rebalance" : ""), (FORCE_ALLOW_UPDATE_1_21 ? "update_1_21" : ""));
+        if (FORCE_ALLOW_BUNDLE_FEATURES || FORCE_ALLOW_TRADE_REBALANCE_FEATURES) {
+            String activatedFeatureFlags = String.join(",", (FORCE_ALLOW_BUNDLE_FEATURES ? "bundle" : ""), (FORCE_ALLOW_TRADE_REBALANCE_FEATURES ? "trade_rebalance" : ""));
             System.out.println("\n" +
                                "\n" +
                                "                           Unknown Network Bootstrap\n" +
@@ -66,7 +66,7 @@ public class Main {
             Thread.sleep(TimeUnit.SECONDS.toMillis(3));
         }
 
-        File paperJar = new File("./paper.jar");
+        File paperJar = PAPERCLIP_JAR.toFile();
 
         URL[] classpathUrls;
         if (paperJar.exists()) {

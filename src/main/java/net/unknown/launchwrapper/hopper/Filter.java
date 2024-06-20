@@ -57,7 +57,7 @@ public interface Filter {
         }
 
         if (filterData.contains("tag")) {
-            TagKey<Item> itemTag = TagKey.create(Registries.ITEM, new ResourceLocation(filterData.getString("tag")));
+            TagKey<Item> itemTag = TagKey.create(Registries.ITEM, ResourceLocation.parse(filterData.getString("tag")));
             DataComponentPatch componentPatch = filterData.contains("nbt") ? DataComponentPatch.CODEC.parse(registryLookup.createSerializationContext(NbtOps.INSTANCE), filterData.get("components")).getOrThrow() : null;
             return new TagFilter(itemTag, componentPatch);
         }

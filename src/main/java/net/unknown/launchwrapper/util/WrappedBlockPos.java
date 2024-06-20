@@ -35,7 +35,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.TicketType;
+import ca.spottedleaf.moonrise.patches.chunk_system.scheduling.ChunkTaskScheduler;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -98,7 +98,7 @@ public class WrappedBlockPos {
         if (level != null) {
             if (!level.isLoaded(this.blockPos()) && load) {
                 ChunkPos chunkPos = new ChunkPos(this.blockPos());
-                level.getChunkSource().addRegionTicket(TicketType.CHUNK_LOAD, chunkPos, 0, 20 * 3L);
+                level.getChunkSource().addRegionTicket(ChunkTaskScheduler.CHUNK_LOAD, chunkPos, 0, 20 * 3L);
                 ChunkAccess chunk = level.getChunkSource().getChunk(chunkPos.x, chunkPos.z, ChunkStatus.FULL, true);
                 if (chunk != null) return chunk.getBlockEntity(this.blockPos());
             } else if (level.isLoaded(this.blockPos())) {

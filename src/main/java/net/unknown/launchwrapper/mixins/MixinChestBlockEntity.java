@@ -91,7 +91,7 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
             if (this.linkChestMode == LinkChestMode.CLIENT && link.contains("SourcePos", CompoundTag.TAG_COMPOUND)) {
                 CompoundTag sourcePos = link.getCompound("SourcePos");
                 if (sourcePos.contains("Level") && sourcePos.contains("Pos", CompoundTag.TAG_INT_ARRAY)) {
-                    ResourceKey<Level> levelKey = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(sourcePos.getString("Level")));
+                    ResourceKey<Level> levelKey = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(sourcePos.getString("Level")));
                     int[] pos = sourcePos.getIntArray("Pos");
                     if (pos.length == 3) {
                         this.linkChestSource = new WrappedBlockPos(levelKey, new BlockPos(pos[0], pos[1], pos[2]));

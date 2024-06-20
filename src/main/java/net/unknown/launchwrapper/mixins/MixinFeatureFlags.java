@@ -49,7 +49,6 @@ public class MixinFeatureFlags {
         List<FeatureFlag> additionalFlags = new ArrayList<>() {{
             if (Main.FORCE_ALLOW_BUNDLE_FEATURES) add(FeatureFlags.BUNDLE);
             if (Main.FORCE_ALLOW_TRADE_REBALANCE_FEATURES) add(FeatureFlags.TRADE_REBALANCE);
-            if (Main.FORCE_ALLOW_UPDATE_1_21) add(FeatureFlags.UPDATE_1_21);
         }};
 
         return !additionalFlags.isEmpty() ? FeatureFlagSet.of(feature, additionalFlags.toArray(FeatureFlag[]::new)) : FeatureFlagSet.of(feature);

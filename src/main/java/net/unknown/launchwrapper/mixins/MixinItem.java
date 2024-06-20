@@ -32,19 +32,27 @@
 package net.unknown.launchwrapper.mixins;
 
 import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.EggItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.unknown.launchwrapper.mixininterfaces.IMixinItem;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Item.class)
-public class MixinItem implements IMixinItem {
+public abstract class MixinItem implements IMixinItem {
     @Mutable
     @Shadow @Final private DataComponentMap components;
+
+    @Shadow public abstract DataComponentMap components();
 
     @Override
     public <T> void setComponent(DataComponentType<T> type, T value) {
@@ -54,5 +62,18 @@ public class MixinItem implements IMixinItem {
     @Override
     public DataComponentMap.Builder getComponentBuilder() {
         return DataComponentMap.builder().addAll(this.components);
+    }
+
+    @Inject(method = "verifyComponentsAfterLoad", at = @At("HEAD"))
+    private void onVerifyComponentsAfterLoad(ItemStack stack, CallbackInfo ci) {
+        // Previous MixinItems implementation is set Egg's default DataComponent minecraft:max_stack_size to 64, but this is server-side only, so we need to *FORCE* set it here to apply client to max_stack_size to 64.
+        // This operation will prevent you from setting the maximum stack size of eggs to 16. You can set it to 15 or 17, etc., but not 16.
+        if ((Object) this instanceof EggItem) {
+            if (stack.getComponents().has(DataComponents.MAX_STACK_SIZE) && stack.getComponents().get(DataComponents.MAX_STACK_SIZE).equals(this.components().get(DataComponents.MAX_STACK_SIZE))) {
+                stack.applyComponents(DataComponentPatch.builder()
+                        .set(DataComponents.MAX_STACK_SIZE, 64)
+                        .build());
+            }
+        }
     }
 }

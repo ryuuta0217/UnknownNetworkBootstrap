@@ -32,7 +32,6 @@
 package net.unknown.launchwrapper.mixins;
 
 import io.papermc.paper.configuration.WorldConfiguration;
-import io.papermc.paper.util.math.ThreadUnsafeRandom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
@@ -63,8 +62,6 @@ import java.util.function.Supplier;
 
 @Mixin(ServerLevel.class)
 public abstract class MixinServerLevel extends Level {
-    @Shadow @Final private ThreadUnsafeRandom randomTickRandom;
-
     protected MixinServerLevel(WritableLevelData worlddatamutable, ResourceKey<Level> resourcekey, RegistryAccess iregistrycustom, Holder<DimensionType> holder, Supplier<ProfilerFiller> supplier, boolean flag, boolean flag1, long i, int j, ChunkGenerator gen, BiomeProvider biomeProvider, World.Environment env, Function<SpigotWorldConfig, WorldConfiguration> paperWorldConfigCreator, Executor executor) {
         super(worlddatamutable, resourcekey, iregistrycustom, holder, supplier, flag, flag1, i, j, gen, biomeProvider, env, paperWorldConfigCreator, executor);
     }
@@ -77,7 +74,7 @@ public abstract class MixinServerLevel extends Level {
                 if (blockState.getBlock() instanceof LeavesBlock || blockState.is(BlockTags.LEAVES)) {
                     if (blockState.hasProperty(LeavesBlock.PERSISTENT) && !blockState.getValue(LeavesBlock.PERSISTENT)) {
                         blockState.setValue(LeavesBlock.DISTANCE, LeavesBlock.DECAY_DISTANCE);
-                        blockState.randomTick(level, blockPos, this.randomTickRandom);
+                        blockState.randomTick(level, blockPos, this.random);
                     }
                 }
             }
