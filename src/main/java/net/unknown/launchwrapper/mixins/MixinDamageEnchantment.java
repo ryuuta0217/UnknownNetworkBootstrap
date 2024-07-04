@@ -31,24 +31,10 @@
 
 package net.unknown.launchwrapper.mixins;
 
-import net.minecraft.advancements.critereon.DamageSourcePredicate;
-import net.minecraft.advancements.critereon.TagPredicate;
-import net.minecraft.core.HolderGetter;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.tags.EnchantmentTags;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.EquipmentSlotGroup;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.item.enchantment.LevelBasedValue;
-import net.minecraft.world.item.enchantment.effects.AddValue;
-import net.minecraft.world.level.storage.loot.predicates.DamageSourceCondition;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -61,29 +47,6 @@ public abstract class MixinDamageEnchantment {
 
     @ModifyArg(method = "bootstrap", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/enchantment/Enchantments;register(Lnet/minecraft/data/worldgen/BootstrapContext;Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/world/item/enchantment/Enchantment$Builder;)V", shift = At.Shift.BEFORE))
     private static Enchantment.Builder onBootstrap(BootstrapContext<Enchantment> ctx, ResourceKey<Enchantment> key, Enchantment.Builder builder) {
-        if (key == SHARPNESS) {
-            HolderGetter<Enchantment> enchantLookup = ctx.lookup(Registries.ENCHANTMENT);
-            HolderGetter<Item> itemLookup = ctx.lookup(Registries.ITEM);
-            return Enchantment.enchantment(
-                            Enchantment.definition(
-                                    itemLookup.getOrThrow(ItemTags.ARMOR_ENCHANTABLE),
-                                    10,
-                                    9,
-                                    Enchantment.dynamicCost(1, 11),
-                                    Enchantment.dynamicCost(12, 11),
-                                    1,
-                                    EquipmentSlotGroup.ARMOR
-                            )
-                    )
-                    .exclusiveWith(enchantLookup.getOrThrow(EnchantmentTags.ARMOR_EXCLUSIVE))
-                    .withEffect(
-                            EnchantmentEffectComponents.DAMAGE_PROTECTION,
-                            new AddValue(LevelBasedValue.perLevel(1.0F)),
-                            DamageSourceCondition.hasDamageSource(
-                                    DamageSourcePredicate.Builder.damageType().tag(TagPredicate.isNot(DamageTypeTags.BYPASSES_INVULNERABILITY))
-                            ));
-        } else {
-            return builder;
-        }
+        return builder;
     }
 }
