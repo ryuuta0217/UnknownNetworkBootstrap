@@ -84,6 +84,7 @@ public abstract class MixinChestBlock extends BlockBehaviour {
                 originalDrops.forEach(stack -> {
                     if (stack.getItem() == Items.CHEST) {
                         CompoundTag blockEntityTag = new CompoundTag();
+                        blockEntityTag.putString("id", "minecraft:chest");
                         blockEntityTag.putBoolean("VoidChest", chest.isVoidChest());
                         stack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(blockEntityTag));;
 
