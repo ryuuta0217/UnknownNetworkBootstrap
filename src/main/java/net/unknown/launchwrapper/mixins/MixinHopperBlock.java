@@ -67,7 +67,7 @@ public abstract class MixinHopperBlock extends BlockBehaviour {
                     List<ItemStack> drops = super.getDrops(state, builder);
                     drops.forEach(stack -> {
                         if (stack.getItem() == state.getBlock().asItem()) {
-                            stack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(((BlockEntity) hopper).saveWithoutMetadata(MinecraftServer.getDefaultRegistryAccess())));
+                            stack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(((BlockEntity) hopper).saveWithId(MinecraftServer.getDefaultRegistryAccess())));
 
                             List<Component> styledLore = new ArrayList<>() {{
                                 if (!hopper.getIncomingFilters().isEmpty()) {
