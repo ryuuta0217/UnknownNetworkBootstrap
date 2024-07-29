@@ -233,7 +233,7 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
     }
 
     @Inject(method = "addItem(Lnet/minecraft/world/Container;Lnet/minecraft/world/Container;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/core/Direction;)Lnet/minecraft/world/item/ItemStack;", at = @At("HEAD"), cancellable = true)
-    private static void onAddItemFromContainer(Container from, Container _to, ItemStack stack, Direction side, CallbackInfoReturnable<ItemStack> cir) {
+    private static void onAddItemFromContainer(Container from, Container to, ItemStack stack, Direction side, CallbackInfoReturnable<ItemStack> cir) {
         if (from instanceof IMixinHopperBlockEntity hopper) {
             if (isFilteringEnabled(hopper, TransportType.PUSH_TO_CONTAINER)) {
                 if (!processFilter(hopper, stack, TransportType.PUSH_TO_CONTAINER)) {
@@ -243,7 +243,7 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
             }
         }
 
-        if (_to instanceof IMixinHopperBlockEntity hopper) { // from Container to Hopper
+        if (to instanceof IMixinHopperBlockEntity hopper) { // from Container to Hopper
             if (isFilteringEnabled(hopper, TransportType.PULL_FROM_CONTAINER)) {
                 if (!processFilter(hopper, stack, TransportType.PULL_FROM_CONTAINER)) {
                     cir.setReturnValue(stack);
