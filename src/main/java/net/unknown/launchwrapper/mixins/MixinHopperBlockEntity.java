@@ -234,7 +234,7 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
 
     @Inject(method = "addItem(Lnet/minecraft/world/Container;Lnet/minecraft/world/Container;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/core/Direction;)Lnet/minecraft/world/item/ItemStack;", at = @At("HEAD"), cancellable = true)
     private static void onAddItem(@Nullable Container from, Container to, ItemStack stack, Direction side, CallbackInfoReturnable<ItemStack> cir) {
-        if (from instanceof IMixinHopperBlockEntity hopper) {
+        /*if (from instanceof IMixinHopperBlockEntity hopper) {
             if (isFilteringEnabled(hopper, TransportType.PUSH_TO_CONTAINER)) {
                 if (!processFilter(hopper, stack, TransportType.PUSH_TO_CONTAINER)) {
                     cir.setReturnValue(stack);
@@ -250,7 +250,7 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
                     cir.cancel();
                 }
             }
-        }
+        }*/
     }
 
     // ホッパーが任意のコンテナからアイテムを吸引しようとしたとき、それが可能であるかを返します。
