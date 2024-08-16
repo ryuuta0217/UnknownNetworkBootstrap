@@ -21,6 +21,8 @@ settings:
   bungeecord: false
   netty-threads: 4
   attribute:
+    maxAbsorption:
+      max: 2048.0
     maxHealth:
       max: 2048.0
     movementSpeed:
@@ -57,6 +59,7 @@ commands:
   silent-commandblock-console: false
 world-settings:
   default:
+    unload-frozen-chunks: false
     seed-trialchambers: 94251327
     seed-trailruins: 83469867
     seed-ancientcity: 20083232
