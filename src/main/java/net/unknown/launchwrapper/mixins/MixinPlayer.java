@@ -87,9 +87,8 @@ public abstract class MixinPlayer extends LivingEntity {
             int enchLevel = this.getWeaponItem().getEnchantments().getLevel(doubleAttackEnch);
             if (enchLevel > 0 && this.getAttackStrengthScale(0.5f) >= 0.8f) {
                 if (this.level() != null && this.level().getLevelData() instanceof ServerLevelData levelData) {
-                    levelData.getScheduledEvents().schedule("double_attack", this.level().getGameTime() + 11, (server, events, time) -> entity.hurt(source, amount));
+                    this.processDoubleAttackEnchant(entity, source, amount, enchLevel, levelData);
                 }
-                return entity.hurt(source, amount);
             }
         }
         return entity.hurt(source, amount);
@@ -114,9 +113,8 @@ public abstract class MixinPlayer extends LivingEntity {
             int enchLevel = this.getWeaponItem().getEnchantments().getLevel(doubleAttackEnch);
             if (enchLevel > 0 && this.getAttackStrengthScale(0.5f) >= 0.8f) {
                 if (this.level() != null && this.level().getLevelData() instanceof ServerLevelData levelData) {
-                    levelData.getScheduledEvents().schedule("double_attack", this.level().getGameTime() + 11, (server, events, time) -> entity.hurt(source, amount));
+                    this.processDoubleAttackEnchant(entity, source, amount, enchLevel, levelData);
                 }
-                return entity.hurt(source, amount);
             }
         }
         return entity.hurt(source, amount);
@@ -132,6 +130,12 @@ public abstract class MixinPlayer extends LivingEntity {
                     }
                 }, target.position().x(), target.position().y(), target.position().z(), 1.0f * enchantLevel, false, Level.ExplosionInteraction.NONE);
             });
+        }
+    }
+
+    private void processDoubleAttackEnchant(Entity target, DamageSource source, float amount, int enchantLevel, ServerLevelData levelData) {
+        if (enchantLevel > 0) {
+            levelData.getScheduledEvents().schedule("double_attack", this.level().getGameTime() + 11, (server, events, time) -> target.hurt(source, amount));
         }
     }
 }
