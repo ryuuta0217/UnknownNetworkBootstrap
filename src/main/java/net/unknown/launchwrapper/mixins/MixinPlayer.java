@@ -32,6 +32,7 @@
 package net.unknown.launchwrapper.mixins;
 
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -42,6 +43,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ServerLevelData;
 import net.unknown.launchwrapper.enchantment.CustomEnchantments;
@@ -65,7 +68,20 @@ public abstract class MixinPlayer extends LivingEntity {
 
     @Redirect(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
     private boolean onAttack(Entity entity, DamageSource source, float amount) {
-        Optional<Holder.Reference<Enchantment>> doubleAttackEnchOpt = this.registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolder(CustomEnchantments.DOUBLE_ATTACK);
+        Registry<Enchantment> enchRegistry = this.registryAccess().registryOrThrow(Registries.ENCHANTMENT);
+
+        Optional<Holder.Reference<Enchantment>> explodeEnchOpt = enchRegistry.getHolder(CustomEnchantments.EXPLODE);
+        if (explodeEnchOpt.isPresent()) {
+            Holder.Reference<Enchantment> explodeEnch = explodeEnchOpt.get();
+            int enchLevel = this.getWeaponItem().getEnchantments().getLevel(explodeEnch);
+            if (enchLevel > 0) {
+                if (this.level() != null && this.level().getLevelData() instanceof ServerLevelData levelData) {
+                    this.processExplodeEnchant(entity, source, amount, enchLevel, levelData);
+                }
+            }
+        }
+
+        Optional<Holder.Reference<Enchantment>> doubleAttackEnchOpt = enchRegistry.getHolder(CustomEnchantments.DOUBLE_ATTACK);
         if (doubleAttackEnchOpt.isPresent()) {
             Holder.Reference<Enchantment> doubleAttackEnch = doubleAttackEnchOpt.get();
             int enchLevel = this.getWeaponItem().getEnchantments().getLevel(doubleAttackEnch);
@@ -81,7 +97,18 @@ public abstract class MixinPlayer extends LivingEntity {
 
     @Redirect(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
     private boolean onLivingEntityAttack(LivingEntity entity, DamageSource source, float amount) {
-        Optional<Holder.Reference<Enchantment>> doubleAttackEnchOpt = this.registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolder(CustomEnchantments.DOUBLE_ATTACK);
+        Registry<Enchantment> enchRegistry = this.registryAccess().registryOrThrow(Registries.ENCHANTMENT);
+
+        Optional<Holder.Reference<Enchantment>> explodeEnchOpt = enchRegistry.getHolder(CustomEnchantments.EXPLODE);
+        if (explodeEnchOpt.isPresent()) {
+            Holder.Reference<Enchantment> explodeEnch = explodeEnchOpt.get();
+            int enchLevel = this.getWeaponItem().getEnchantments().getLevel(explodeEnch);
+            if (enchLevel > 0 && this.level() != null && this.level().getLevelData() instanceof ServerLevelData levelData) {
+                this.processExplodeEnchant(entity, source, amount, enchLevel, levelData);
+            }
+        }
+
+        Optional<Holder.Reference<Enchantment>> doubleAttackEnchOpt = enchRegistry.getHolder(CustomEnchantments.DOUBLE_ATTACK);
         if (doubleAttackEnchOpt.isPresent()) {
             Holder.Reference<Enchantment> doubleAttackEnch = doubleAttackEnchOpt.get();
             int enchLevel = this.getWeaponItem().getEnchantments().getLevel(doubleAttackEnch);
@@ -93,5 +120,18 @@ public abstract class MixinPlayer extends LivingEntity {
             }
         }
         return entity.hurt(source, amount);
+    }
+
+    private void processExplodeEnchant(Entity target, DamageSource source, float amount, int enchantLevel, ServerLevelData levelData) {
+        if (enchantLevel > 0) {
+            levelData.getScheduledEvents().schedule("explode", this.level().getGameTime() + 1, (server, events, time) -> {
+                target.level().explode(this, source, new ExplosionDamageCalculator() {
+                    @Override
+                    public boolean shouldDamageEntity(Explosion explosion, Entity entity) {
+                        return entity.equals(target);
+                    }
+                }, target.position().x(), target.position().y(), target.position().z(), 1.0f * enchantLevel, false, Level.ExplosionInteraction.NONE);
+            });
+        }
     }
 }
