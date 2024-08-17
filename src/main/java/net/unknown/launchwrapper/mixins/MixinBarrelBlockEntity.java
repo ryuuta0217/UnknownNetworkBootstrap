@@ -37,7 +37,6 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.item.ItemStack;
@@ -80,8 +79,9 @@ public abstract class MixinBarrelBlockEntity extends RandomizableContainerBlockE
         if (nbt.contains("Large")) this.setLarge(nbt.getBoolean("Large"));
     }
 
-    @Override
-    public @Nullable AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
+    @Nullable
+    @Overwrite
+    protected AbstractContainerMenu createMenu(int syncId, @Nullable Inventory playerInventory) {
         if (!this.large) return ChestMenu.threeRows(syncId, playerInventory, this);
         else return ChestMenu.sixRows(syncId, playerInventory, this);
     }
