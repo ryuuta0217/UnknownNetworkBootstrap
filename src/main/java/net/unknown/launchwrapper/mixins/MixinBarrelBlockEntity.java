@@ -79,6 +79,10 @@ public abstract class MixinBarrelBlockEntity extends RandomizableContainerBlockE
         if (nbt.contains("Large")) this.setLarge(nbt.getBoolean("Large"));
     }
 
+    /**
+     * @author ryuuta0217
+     * @reason Support for large barrels (open menu as 6 rows)
+     */
     @Nullable
     @Overwrite
     protected AbstractContainerMenu createMenu(int syncId, @Nullable Inventory playerInventory) {
