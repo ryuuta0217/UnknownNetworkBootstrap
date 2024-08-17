@@ -32,6 +32,7 @@ public abstract class MixinBarrelBlock extends BaseEntityBlock {
                         stack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(blockEntity.saveWithId(blockEntity.getLevel().registryAccess())));
                     }
                 });
+                return modifiedDrops;
             }
         }
         return super.getDrops(state, builder);
