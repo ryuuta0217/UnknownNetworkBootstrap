@@ -41,7 +41,7 @@ public abstract class MixinBarrelBlockEntity extends RandomizableContainerBlockE
 
     @Inject(method = "loadAdditional", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/RandomizableContainerBlockEntity;loadAdditional(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/core/HolderLookup$Provider;)V"))
     private void onLoading(CompoundTag nbt, HolderLookup.Provider registryLookup, CallbackInfo ci) {
-        if (nbt.contains("Large")) this.large = nbt.getBoolean("Large");
+        if (nbt.contains("Large")) this.setLarge(nbt.getBoolean("Large"));
     }
 
     /**
