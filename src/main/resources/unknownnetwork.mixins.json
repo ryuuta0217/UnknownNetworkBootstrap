@@ -5,6 +5,8 @@
   "target": "@env(DEFAULT)",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "MixinBarrelBlock",
+    "MixinBarrelBlockEntity",
     "MixinBlockBehaviour",
     "MixinBlockEntity",
     "MixinBlockItem",
