@@ -32,6 +32,7 @@
 package net.unknown.launchwrapper.mixins;
 
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.BarrelBlock;
@@ -60,6 +61,7 @@ public abstract class MixinBarrelBlock extends BaseEntityBlock {
                 List<ItemStack> modifiedDrops = originalDrops.stream().map(ItemStack::copy).toList();
                 modifiedDrops.forEach(stack -> {
                     if (stack.getItem().equals(state.getBlock().asItem())) {
+                        stack.set(DataComponents.ITEM_NAME, Component.literal("樽 (L)"));
                         stack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(blockEntity.saveWithId(blockEntity.getLevel().registryAccess())));
                     }
                 });
