@@ -63,8 +63,7 @@ public abstract class MixinBarrelBlock extends BaseEntityBlock {
                 modifiedDrops.forEach(stack -> {
                     if (stack.getItem().equals(state.getBlock().asItem())) {
                         stack.set(DataComponents.ITEM_NAME, Component.literal("樽 (L)"));
-                        CustomData blockEntityData = CustomData.of(new CompoundTag());
-                        blockEntityData.update(tag -> {
+                        CustomData blockEntityData = CustomData.of(new CompoundTag()).update(tag -> {
                             tag.putString("id", "minecraft:barrel");
                             tag.putBoolean("Large", true);
                         });
