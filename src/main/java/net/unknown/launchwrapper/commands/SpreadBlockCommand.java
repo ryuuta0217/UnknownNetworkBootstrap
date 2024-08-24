@@ -389,11 +389,11 @@ public class SpreadBlockCommand {
 
         // Alias Command /gb
 
-        LiteralArgumentBuilder<CommandSourceStack> aliasBuilder = LiteralArgumentBuilder.literal("sb");
+        /*LiteralArgumentBuilder<CommandSourceStack> aliasBuilder = LiteralArgumentBuilder.literal("sb");
         aliasBuilder.requires(source -> source.hasPermission(2))
                 .redirect(node);
 
-        dispatcher.register(aliasBuilder);
+        dispatcher.register(aliasBuilder);*/
     }
 
     /**
