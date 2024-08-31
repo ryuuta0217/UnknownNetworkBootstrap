@@ -215,7 +215,7 @@ public class BlockWrapper extends Block {
 
     @Override
     public boolean isRandomlyTicking(BlockState state) {
-        return this.spreadEnabled;
+        return true;
     }
 
     @Override
