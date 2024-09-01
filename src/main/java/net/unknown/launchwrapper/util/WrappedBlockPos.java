@@ -108,4 +108,12 @@ public class WrappedBlockPos {
         retryCount++;
         return getBlockEntity(load, maxRetry, retryCount);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof WrappedBlockPos other) {
+            return this.level.equals(other.level) && this.blockPos.equals(other.blockPos);
+        }
+        return super.equals(obj);
+    }
 }
