@@ -167,7 +167,7 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
         }
 
         if (this.linkChestMode == LinkChestMode.CLIENT) {
-            if (this.linkChestSource != null) {
+            if (this.linkChestSource != null && this.linkChestSource.equals(new WrappedBlockPos(this.getLevel(), this.getBlockPos()))) {
                 BlockEntity blockEntity = this.linkChestSource.getBlockEntity(true, 3);
                 if (blockEntity instanceof MixinChestBlockEntity chestBlockEntity) {
                     if (chestBlockEntity.getChestTransportMode() == LinkChestMode.SOURCE) {
