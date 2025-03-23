@@ -3,6 +3,11 @@ home-base-count: 5
 home-additional-count: 0
 force-global-chat-prefix: g.
 use-kana-convert: false
+home-default-group: default
+reply-target: 65922e55-04b3-48c2-a4f7-5b393692adf4
+use-minimessage: false
+homeGroupItems:
+  default: WHITE_WOOL
 homes:
   default:
     test:
@@ -12,3 +17,4 @@ homes:
       z: 7.5
       yaw: 0.0
       pitch: 0.0
+registries: {}

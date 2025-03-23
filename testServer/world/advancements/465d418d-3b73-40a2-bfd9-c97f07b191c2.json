@@ -1,16 +1,1 @@
-{
-  "minecraft:adventure/root": {
-    "criteria": {
-      "killed_by_something": "2022-07-28 16:32:08 +0900"
-    },
-    "done": true
-  },
-  "minecraft:adventure/adventuring_time": {
-    "criteria": {
-      "minecraft:forest": "2022-07-28 16:25:56 +0900",
-      "minecraft:meadow": "2022-07-28 16:26:09 +0900"
-    },
-    "done": false
-  },
-  "DataVersion": 3105
-}
+{"minecraft:adventure/adventuring_time":{"criteria":{"minecraft:forest":"2022-07-28 16:25:56 +0900","minecraft:meadow":"2022-07-28 16:26:09 +0900"},"done":false},"minecraft:adventure/root":{"criteria":{"killed_by_something":"2022-07-28 16:32:08 +0900"},"done":true},"minecraft:recipes/decorations/crafting_table":{"criteria":{"unlock_right_away":"2025-03-24 00:22:45 +0900"},"done":true},"DataVersion":4189}

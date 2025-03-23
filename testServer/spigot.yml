@@ -175,6 +175,8 @@ world-settings:
     below-zero-generation-in-existing-chunks: true
   faweregentempworld:
     verbose: false
+  worldeditregentempworld:
+    verbose: false
 players:
   disable-saving: false
 config-version: 12
