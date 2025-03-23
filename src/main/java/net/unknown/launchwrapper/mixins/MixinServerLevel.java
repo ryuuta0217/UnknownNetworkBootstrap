@@ -44,6 +44,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.level.storage.WritableLevelData;
 import org.bukkit.World;
 import org.bukkit.generator.BiomeProvider;
@@ -62,12 +63,12 @@ import java.util.function.Supplier;
 
 @Mixin(ServerLevel.class)
 public abstract class MixinServerLevel extends Level {
-    protected MixinServerLevel(WritableLevelData worlddatamutable, ResourceKey<Level> resourcekey, RegistryAccess iregistrycustom, Holder<DimensionType> holder, Supplier<ProfilerFiller> supplier, boolean flag, boolean flag1, long i, int j, ChunkGenerator gen, BiomeProvider biomeProvider, World.Environment env, Function<SpigotWorldConfig, WorldConfiguration> paperWorldConfigCreator, Executor executor) {
-        super(worlddatamutable, resourcekey, iregistrycustom, holder, supplier, flag, flag1, i, j, gen, biomeProvider, env, paperWorldConfigCreator, executor);
+    protected MixinServerLevel(WritableLevelData levelData, ResourceKey<Level> dimension, RegistryAccess registryAccess, Holder<DimensionType> dimensionTypeRegistration, boolean isClientSide, boolean isDebug, long biomeZoomSeed, int maxChainedNeighborUpdates, ChunkGenerator gen, BiomeProvider biomeProvider, World.Environment env, Function<SpigotWorldConfig, WorldConfiguration> paperWorldConfigCreator, Executor executor) {
+        super(levelData, dimension, registryAccess, dimensionTypeRegistration, isClientSide, isDebug, biomeZoomSeed, maxChainedNeighborUpdates, gen, biomeProvider, env, paperWorldConfigCreator, executor);
     }
 
-    @Inject(method = "neighborChanged(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/core/BlockPos;)V", at = @At("HEAD"))
-    public void onUpdateNeighborsAt(BlockPos blockPos, Block block, BlockPos originalPos, CallbackInfo ci) {
+    @Inject(method = "neighborChanged(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;Z)V", at = @At("HEAD"))
+    public void onUpdateNeighborsAt(BlockState state, BlockPos blockPos, Block block, Orientation orientation, boolean movedByPiston, CallbackInfo ci) {
         if ((Object) this instanceof ServerLevel level) {
             if (this.isLoaded(blockPos)) {
                 BlockState blockState = this.getBlockState(blockPos);

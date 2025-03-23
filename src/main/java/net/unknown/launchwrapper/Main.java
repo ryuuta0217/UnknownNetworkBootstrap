@@ -45,17 +45,19 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 public class Main {
-    public static boolean FORCE_ALLOW_BUNDLE_FEATURES = System.getProperty("UnknownNetworkMagic") != null && System.getProperty("UnknownNetworkMagic").contains("bundle");
     public static boolean FORCE_ALLOW_TRADE_REBALANCE_FEATURES = System.getProperty("UnknownNetworkMagic") != null && System.getProperty("UnknownNetworkMagic").contains("trade-rebalance");
+    public static boolean FORCE_ALLOW_REDSTONE_EXPERIMENTS_FEATURES = System.getProperty("UnknownNetworkMagic") != null && System.getProperty("UnknownNetworkMagic").contains("redstone-experiments");
+    public static boolean FORCE_ALLOW_MINECART_IMPROVEMENTS_FEATURES = System.getProperty("UnknownNetworkMagic") != null && System.getProperty("UnknownNetworkMagic").contains("minecart-improvements");
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
     public static Path PAPERCLIP_JAR = System.getProperties().contains("unknown.bootstrap.paperclip_jar_path") ? Path.of(System.getProperty("unknown.bootstrap.paperclip_jar_path")) : Path.of("paper.jar");
     public static Path SERVER_JAR = System.getProperties().contains("unknown.bootstrap.server_jar_path") ? Path.of(System.getProperty("unknown.bootstrap.server_jar_path")) : null;
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        if (FORCE_ALLOW_BUNDLE_FEATURES || FORCE_ALLOW_TRADE_REBALANCE_FEATURES) {
-            String activatedFeatureFlags = String.join(",", (FORCE_ALLOW_BUNDLE_FEATURES ? "bundle" : ""), (FORCE_ALLOW_TRADE_REBALANCE_FEATURES ? "trade_rebalance" : ""));
+        if (FORCE_ALLOW_TRADE_REBALANCE_FEATURES || FORCE_ALLOW_REDSTONE_EXPERIMENTS_FEATURES || FORCE_ALLOW_MINECART_IMPROVEMENTS_FEATURES) {
+            String activatedFeatureFlags = String.join(",", Stream.of((FORCE_ALLOW_TRADE_REBALANCE_FEATURES ? "trade_rebalance" : ""), (FORCE_ALLOW_REDSTONE_EXPERIMENTS_FEATURES ? "redstone_experiments" : ""), (FORCE_ALLOW_MINECART_IMPROVEMENTS_FEATURES ? "minecart_improvements" : "")).filter(s -> !s.isEmpty()).toList());
             System.out.println("\n" +
                                "\n" +
                                "                           Unknown Network Bootstrap\n" +

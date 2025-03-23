@@ -47,8 +47,9 @@ public class MixinFeatureFlags {
     @Redirect(method = "<clinit>", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/flag/FeatureFlagSet;of(Lnet/minecraft/world/flag/FeatureFlag;)Lnet/minecraft/world/flag/FeatureFlagSet;"))
     private static FeatureFlagSet onClInit(FeatureFlag feature) {
         List<FeatureFlag> additionalFlags = new ArrayList<>() {{
-            if (Main.FORCE_ALLOW_BUNDLE_FEATURES) add(FeatureFlags.BUNDLE);
             if (Main.FORCE_ALLOW_TRADE_REBALANCE_FEATURES) add(FeatureFlags.TRADE_REBALANCE);
+            if (Main.FORCE_ALLOW_REDSTONE_EXPERIMENTS_FEATURES) add(FeatureFlags.REDSTONE_EXPERIMENTS);
+            if (Main.FORCE_ALLOW_MINECART_IMPROVEMENTS_FEATURES) add(FeatureFlags.MINECART_IMPROVEMENTS);
         }};
 
         return !additionalFlags.isEmpty() ? FeatureFlagSet.of(feature, additionalFlags.toArray(FeatureFlag[]::new)) : FeatureFlagSet.of(feature);

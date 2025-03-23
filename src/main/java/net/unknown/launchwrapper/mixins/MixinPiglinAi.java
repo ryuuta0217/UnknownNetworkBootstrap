@@ -31,6 +31,7 @@
 
 package net.unknown.launchwrapper.mixins;
 
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.item.*;
@@ -46,21 +47,19 @@ public class MixinPiglinAi {
      * @reason Piglins think that the player is their friend when the player is wearing a piglin's head.
      */
     @Overwrite
-    public static boolean isWearingGold(LivingEntity entity) {
+    public static boolean isWearingSafeArmor(LivingEntity entity) {
         Iterable<ItemStack> iterable = entity.getArmorSlots();
         Iterator<ItemStack> iterator = iterable.iterator();
 
-        Item item;
+        ItemStack stack;
 
         do {
             if (!iterator.hasNext()) {
                 return false;
             }
 
-            ItemStack itemstack = iterator.next();
-
-            item = itemstack.getItem();
-        } while (item != Items.PIGLIN_HEAD && (!(item instanceof ArmorItem) || ((ArmorItem) item).getMaterial() != ArmorMaterials.GOLD));
+            stack = iterator.next();
+        } while (!stack.is(Items.PIGLIN_HEAD) && !stack.is(ItemTags.PIGLIN_SAFE_ARMOR));
 
         return true;
     }

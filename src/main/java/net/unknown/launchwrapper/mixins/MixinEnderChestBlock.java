@@ -71,7 +71,7 @@ public class MixinEnderChestBlock {
         if (playerEnderChestContainer != null && blockEntity instanceof EnderChestBlockEntity) {
             BlockPos blockPos = pos.above();
             if (world.getBlockState(blockPos).isRedstoneConductor(world, blockPos)) { // Paper - diff on change; make sure that EnderChest#isBlocked uses the same logic
-                return InteractionResult.sidedSuccess(world.isClientSide);
+                return world.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
             } else if (world.isClientSide) {
                 return InteractionResult.SUCCESS;
             } else {
@@ -89,11 +89,11 @@ public class MixinEnderChestBlock {
                     else return ChestMenu.threeRows(syncId, inventory, playerEnderChestContainer);
                 }, CONTAINER_TITLE));
                 player.awardStat(Stats.OPEN_ENDERCHEST);
-                PiglinAi.angerNearbyPiglins(player, true);
+                PiglinAi.angerNearbyPiglins(world.getMinecraftWorld(), player, true);
                 return InteractionResult.CONSUME;
             }
         } else {
-            return InteractionResult.sidedSuccess(world.isClientSide);
+            return world.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
         }
     }
 }

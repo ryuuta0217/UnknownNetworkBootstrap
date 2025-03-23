@@ -37,6 +37,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ObserverBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -56,7 +58,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinObserverBlock extends Block {
     @Shadow protected abstract void updateNeighborsInFront(Level world, BlockPos pos, BlockState state);
 
-    @Shadow protected abstract void startSignal(LevelAccessor world, BlockPos pos);
+    @Shadow protected abstract void startSignal(LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos);
 
     private BlockState lastNeighborState = null;
 
@@ -69,8 +71,8 @@ public abstract class MixinObserverBlock extends Block {
      * @reason overwrite.
      */
     @Overwrite
-    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
-        ObserverBlockCheckNeighborEvent.WrappedData wrappedData = new ObserverBlockCheckNeighborEvent.WrappedData(state, direction, neighborState, world, pos, neighborPos);
+    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
+        ObserverBlockCheckNeighborEvent.WrappedData wrappedData = new ObserverBlockCheckNeighborEvent.WrappedData(state, direction, neighborState, (LevelAccessor) level, pos, neighborPos);
         ObserverBlockCheckNeighborEvent event = new ObserverBlockCheckNeighborEvent((data) -> {
             boolean isDirectionValid = data.observer().getValue(ObserverBlock.FACING) == data.observerDirection();
             boolean isPowered = data.observer().getValue(ObserverBlock.POWERED);
@@ -80,10 +82,10 @@ public abstract class MixinObserverBlock extends Block {
         Bukkit.getPluginManager().callEvent(event);
         if(event.isCancelled()) return event.getObserver();
         if (event.getPredicate().test(wrappedData)) {
-            this.startSignal(world, pos);
+            this.startSignal(level, scheduledTickAccess, pos);
         }
 
-        return super.updateShape(state, direction, neighborState, world, pos, neighborPos);
+        return super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
     }
 
     /**

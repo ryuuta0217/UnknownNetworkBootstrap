@@ -46,9 +46,6 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(DefaultDispenseItemBehavior.class)
 public abstract class MixinDefaultDispenseItemBehavior implements DispenseItemBehavior {
     @Shadow
-    private Direction enumdirection;
-
-    @Shadow
     protected abstract ItemStack execute(BlockSource pointer, ItemStack stack);
 
     @Shadow
@@ -56,6 +53,8 @@ public abstract class MixinDefaultDispenseItemBehavior implements DispenseItemBe
 
     @Shadow
     protected abstract void playAnimation(BlockSource pointer, Direction side);
+
+    @Shadow private Direction direction;
 
     /**
      * Add BlockDispenseBeforeEvent
@@ -66,14 +65,14 @@ public abstract class MixinDefaultDispenseItemBehavior implements DispenseItemBe
     @Overwrite
     @Override
     public final ItemStack dispense(BlockSource pointer, ItemStack stack) {
-        this.enumdirection = pointer.state().getValue(DispenserBlock.FACING); // Paper - cache facing direction
+        this.direction = pointer.state().getValue(DispenserBlock.FACING); // Paper - cache facing direction
         // Unknown Network Start - Add BlockDispenseBeforeEvent
         BlockDispenseBeforeEvent event = new BlockDispenseBeforeEvent(pointer, stack);
         Bukkit.getPluginManager().callEvent(event);
         if (!event.isCancelled()) {
             event.setItem(this.execute(event.getBlockSource(), event.getItem()));
             this.playSound(event.getBlockSource());
-            this.playAnimation(event.getBlockSource(), enumdirection); // Paper - cache facing direction
+            this.playAnimation(event.getBlockSource(), this.direction); // Paper - cache facing direction
         }
         return event.getItem();
         // Unknown network End
