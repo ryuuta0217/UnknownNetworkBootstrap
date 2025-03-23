@@ -22,7 +22,13 @@ jobs:
           NEXUS_USERNAME: ${{secrets.NEXUS_USERNAME}}
           NEXUS_PASSWORD: ${{secrets.NEXUS_PASSWORD}}
         run: ./gradlew clean compileJava jar shadowJar reobfJar publish
-      - name: Save artifacts
-        uses: actions/upload-artifact@v2
+      - name: Save artifacts (for Paper)
+        uses: actions/upload-artifact@v4
         with:
-          path: "build/libs/*UnknownNetworkBootstrap*.jar"
+          name: UnknownNetworkBootstrap
+          path: "build/libs/UnknownNetworkBootstrap.jar"
+      - name: Save artifacts (for Spigot)
+        uses: actions/upload-artifact@v4
+        with:
+          name: UnknownNetworkBootstrap-spigot
+          path: "build/libs/UnknownNetworkBootstrap-spigot.jar"  
