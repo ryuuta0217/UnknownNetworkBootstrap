@@ -206,7 +206,13 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
         if (this.getChestTransportMode() == LinkChestMode.CLIENT) {
             this.setChestTransportMode(LinkChestMode.DISABLED);
         } else {
+            boolean isVoidChest = false;
+            if (this.isVoidChest && !this.items.isEmpty()) {
+                this.setVoidChest(false);
+                isVoidChest = true;
+            }
             super.preRemoveSideEffects(pos, state);
+            if (isVoidChest) this.setVoidChest(true);
         }
     }
 
