@@ -1,9 +1,9 @@
 {
   "required": true,
-  "minVersion": "0.8.5",
+  "minVersion": "0.8.7",
   "package": "net.unknown.launchwrapper.mixins",
   "target": "@env(DEFAULT)",
-  "compatibilityLevel": "JAVA_16",
+  "compatibilityLevel": "JAVA_21",
   "mixins": [
     "MixinBarrelBlock",
     "MixinBarrelBlockEntity",
