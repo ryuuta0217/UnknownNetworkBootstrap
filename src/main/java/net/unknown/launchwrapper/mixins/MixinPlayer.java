@@ -31,9 +31,11 @@
 
 package net.unknown.launchwrapper.mixins;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -46,6 +48,8 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ServerLevelData;
+import net.minecraft.world.level.timers.TimerCallback;
+import net.minecraft.world.level.timers.TimerQueue;
 import net.unknown.launchwrapper.enchantment.CustomEnchantments;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -121,20 +125,40 @@ public abstract class MixinPlayer extends LivingEntity {
 
     private void processExplodeEnchant(Entity target, DamageSource source, float amount, int enchantLevel, ServerLevelData levelData) {
         if (enchantLevel > 0) {
-            levelData.getScheduledEvents().schedule("explode", this.level().getGameTime() + 1, (server, events, time) -> {
-                target.level().explode(this, source, new ExplosionDamageCalculator() {
-                    @Override
-                    public boolean shouldDamageEntity(Explosion explosion, Entity entity) {
-                        return entity.equals(target);
-                    }
-                }, target.position().x(), target.position().y(), target.position().z(), 1.0f * enchantLevel, false, Level.ExplosionInteraction.NONE);
+            ExplosionDamageCalculator damageCalculator = new ExplosionDamageCalculator() {
+                @Override
+                public boolean shouldDamageEntity(Explosion explosion, Entity entity) {
+                    return entity.equals(target);
+                }
+            };
+
+            levelData.getScheduledEvents().schedule("explode", this.level().getGameTime() + 1, new TimerCallback<>() {
+                @Override
+                public void handle(MinecraftServer obj, TimerQueue<MinecraftServer> manager, long gameTime) {
+                    target.level().explode(MixinPlayer.this, source, damageCalculator, target.position().x(), target.position().y(), target.position().z(), 1.0f * enchantLevel, false, Level.ExplosionInteraction.NONE);
+                }
+
+                @Override
+                public MapCodec<? extends TimerCallback<MinecraftServer>> codec() {
+                    return MapCodec.unit(this);
+                }
             });
         }
     }
 
     private void processDoubleAttackEnchant(Entity target, DamageSource source, float amount, int enchantLevel, ServerLevelData levelData) {
         if (enchantLevel > 0) {
-            levelData.getScheduledEvents().schedule("double_attack", this.level().getGameTime() + 11, (server, events, time) -> target.hurt(source, amount));
+            levelData.getScheduledEvents().schedule("double_attack", this.level().getGameTime() + 11, new TimerCallback<>() {
+                @Override
+                public void handle(MinecraftServer obj, TimerQueue manager, long gameTime) {
+                    target.hurt(source, amount);
+                }
+
+                @Override
+                public MapCodec<? extends TimerCallback<MinecraftServer>> codec() {
+                    return MapCodec.unit(this);
+                }
+            });
         }
     }
 }

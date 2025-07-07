@@ -253,7 +253,7 @@ public class BlockWrapper extends Block {
             Block beforeBlock = beforeBlockState.getBlock();
 
             if (!doNotSpreadBlocks.contains(beforeBlock) && beforeBlockState.isSolid() && (spreadAnyBlock || spreadBlocks.contains(beforeBlock))) {
-                CraftEventFactory.handleBlockSpreadEvent(world, pos, spreadPos, defaultState);
+                CraftEventFactory.handleBlockSpreadEvent(world, pos, spreadPos, defaultState, Block.UPDATE_ALL);
             }
         }
     }

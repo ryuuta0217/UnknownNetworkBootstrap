@@ -43,7 +43,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ObserverBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.unknown.launchwrapper.event.ObserverBlockCheckNeighborEvent;
-import net.unknown.launchwrapper.event.ObserverBlockRemoveEvent;
 import net.unknown.launchwrapper.event.ObserverBlockTickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.event.CraftEventFactory;
@@ -118,11 +117,5 @@ public abstract class MixinObserverBlock extends Block {
         }
 
         if(event.isUpdateFrontNeighbors()) this.updateNeighborsInFront(event.getLevel(), event.getObserverPos(), event.getObserver()); // ブロックの変化を前方のブロックに通知する
-    }
-
-    @Inject(method = "onRemove", at = @At("HEAD"))
-    public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean moved, CallbackInfo ci) {
-        ObserverBlockRemoveEvent event = new ObserverBlockRemoveEvent(state, world, pos, newState, moved);
-        Bukkit.getPluginManager().callEvent(event);
     }
 }

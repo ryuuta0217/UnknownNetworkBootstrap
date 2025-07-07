@@ -48,7 +48,7 @@ import java.util.Optional;
 public interface Filter {
     static Filter fromTag(CompoundTag filterData, HolderLookup.Provider registryLookup) {
         if (filterData.contains("id")) {
-            ResourceLocation id = ResourceLocation.tryParse(filterData.getString("id"));
+            ResourceLocation id = ResourceLocation.tryParse(filterData.getStringOr("id", "minecraft:air"));
             Optional<Item> item = BuiltInRegistries.ITEM.getOptional(id);
             if (item.isPresent()) {
                 DataComponentPatch componentPatch = filterData.contains("components") ? DataComponentPatch.CODEC.parse(registryLookup.createSerializationContext(NbtOps.INSTANCE), filterData.get("components")).getOrThrow() : null;
@@ -57,7 +57,7 @@ public interface Filter {
         }
 
         if (filterData.contains("tag")) {
-            TagKey<Item> itemTag = TagKey.create(Registries.ITEM, ResourceLocation.parse(filterData.getString("tag")));
+            TagKey<Item> itemTag = TagKey.create(Registries.ITEM, ResourceLocation.parse(filterData.getStringOr("tag", "minecraft:items/empty")));
             DataComponentPatch componentPatch = filterData.contains("nbt") ? DataComponentPatch.CODEC.parse(registryLookup.createSerializationContext(NbtOps.INSTANCE), filterData.get("components")).getOrThrow() : null;
             return new TagFilter(itemTag, componentPatch);
         }

@@ -33,9 +33,11 @@ package net.unknown.launchwrapper.mixins;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
@@ -43,6 +45,7 @@ import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.unknown.launchwrapper.hopper.IMixinHopperBlockEntity;
@@ -67,7 +70,9 @@ public abstract class MixinHopperBlock extends BlockBehaviour {
                     List<ItemStack> drops = super.getDrops(state, builder);
                     drops.forEach(stack -> {
                         if (stack.getItem() == state.getBlock().asItem()) {
-                            stack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(((BlockEntity) hopper).saveWithId(MinecraftServer.getDefaultRegistryAccess())));
+                            CompoundTag tag = new CompoundTag();
+                            ((BlockEntity) hopper).saveWithId(TagValueOutput.createWrappingGlobal(ProblemReporter.DISCARDING, tag));
+                            stack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(tag));
 
                             List<Component> styledLore = new ArrayList<>() {{
                                 if (!hopper.getIncomingFilters().isEmpty()) {

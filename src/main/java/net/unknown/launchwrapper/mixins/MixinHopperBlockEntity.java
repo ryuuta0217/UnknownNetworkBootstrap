@@ -41,6 +41,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
@@ -52,6 +53,8 @@ import net.minecraft.world.level.block.entity.Hopper;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.unknown.launchwrapper.hopper.*;
 import org.spongepowered.asm.mixin.Mixin;
@@ -122,17 +125,19 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
     // Unknown Network end
 
     // Unknown Network start - Add findItem range
-    private final ListTag findItem1 = new ListTag() {{
-        add(0, DoubleTag.valueOf(-0.5D));
-        add(1, DoubleTag.valueOf(0D));
-        add(2, DoubleTag.valueOf(-0.5D));
-    }};
+    private final ListTag findItem1 = new ListTag();
+    {
+        findItem1.add(2, DoubleTag.valueOf(-0.5D));
+        findItem1.add(1, DoubleTag.valueOf(0D));
+        findItem1.add(0, DoubleTag.valueOf(-0.5D));
+    }
 
-    private final ListTag findItem2 = new ListTag() {{
-        add(0, DoubleTag.valueOf(0.5D));
-        add(1, DoubleTag.valueOf(1.5D));
-        add(2, DoubleTag.valueOf(0.5D));
-    }};
+    private final ListTag findItem2 = new ListTag();
+    {
+        findItem2.add(2, DoubleTag.valueOf(0.5D));
+        findItem2.add(1, DoubleTag.valueOf(1.5D));
+        findItem2.add(0, DoubleTag.valueOf(0.5D));
+    }
     // Unknown Network end
 
     protected MixinHopperBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -323,104 +328,96 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
     }
 
     @Inject(method = "loadAdditional", at = @At("RETURN"))
-    public void onLoad(CompoundTag tag, HolderLookup.Provider registryLookup, CallbackInfo ci) {
-        if (tag.contains("DisableEvent")) this.disableEvent = tag.getBoolean("DisableEvent");
+    public void onLoad(ValueInput input, CallbackInfo ci) {
+        this.disableEvent = input.getBooleanOr("DisableEvent", false);
         // {Filter: {Mode: WHITELIST, IncomingFilters: [{id: "minecraft:stick", components: {}}, {tag: "minecraft:logs", components: {}}], OutgoingFilters: []}}
-        if (tag.contains("Filter")) {
-            CompoundTag filter = tag.getCompound("Filter");
-            if ((filter.contains("IncomingFilterMode") || filter.contains("Mode"))) {
-                this.incomingFilterMode = FilterType.valueOfOrDefault(filter.getString(filter.contains("Mode") ? "Mode" : "IncomingFilterMode").toUpperCase(), FilterType.DISABLED);
-            }
+        CompoundTag filter = input.read("Filter", CompoundTag.CODEC).orElse(new CompoundTag());
+        if ((filter.contains("IncomingFilterMode") || filter.contains("Mode"))) {
+            this.incomingFilterMode = FilterType.valueOfOrDefault(filter.getStringOr(filter.contains("Mode") ? "Mode" : "IncomingFilterMode", FilterType.DISABLED.name()).toUpperCase(), FilterType.DISABLED);
+        }
 
-            if (filter.contains("OutgoingFilterMode")) {
-                this.outgoingFilterMode = FilterType.valueOfOrDefault(filter.getString("OutgoingFilterMode").toUpperCase(), FilterType.DISABLED);
-            }
+        if (filter.contains("OutgoingFilterMode")) {
+            this.outgoingFilterMode = FilterType.valueOfOrDefault(filter.getStringOr("OutgoingFilterMode", FilterType.DISABLED.name()).toUpperCase(), FilterType.DISABLED);
+        }
 
-            if (filter.contains("IncomingFilters") || filter.contains("Filters")) { // Migrate from old version
-                ListTag items = filter.getList(filter.contains("Filters") ? "Filters" : "IncomingFilters", CompoundTag.TAG_COMPOUND);
-                this.incomingFilters.clear();
-                items.forEach(filterDataTag -> {
-                    if (filterDataTag instanceof CompoundTag filterData) {
-                        this.incomingFilters.add(Filter.fromTag(filterData, registryLookup));
-                    }
-                });
-            }
+        if (filter.contains("IncomingFilters") || filter.contains("Filters")) { // Migrate from old version
+            ListTag items = filter.getListOrEmpty(filter.contains("Filters") ? "Filters" : "IncomingFilters");
+            this.incomingFilters.clear();
+            items.forEach(filterDataTag -> {
+                if (filterDataTag instanceof CompoundTag filterData) {
+                    this.incomingFilters.add(Filter.fromTag(filterData, MinecraftServer.getServer().registryAccess()));
+                }
+            });
+        }
 
-            if (filter.contains("OutgoingFilters")) {
-                ListTag items = filter.getList("OutgoingFilters", CompoundTag.TAG_COMPOUND);
-                this.outgoingFilters.clear();
-                items.forEach(filterDataTag -> {
-                    if (filterDataTag instanceof CompoundTag filterData) {
-                        this.outgoingFilters.add(Filter.fromTag(filterData, registryLookup));
-                    }
-                });
-            }
+        if (filter.contains("OutgoingFilters")) {
+            ListTag items = filter.getListOrEmpty("OutgoingFilters");
+            this.outgoingFilters.clear();
+            items.forEach(filterDataTag -> {
+                if (filterDataTag instanceof CompoundTag filterData) {
+                    this.outgoingFilters.add(Filter.fromTag(filterData, MinecraftServer.getServer().registryAccess()));
+                }
+            });
         }
 
         // {"ItemFind":{"Active":"true", "Range":{"A":[-0.5, 0, -0.5], "B":[0.5, 1.5, 0.5]}}}
-        if (tag.contains("ItemFind")) {
-            CompoundTag tagItemFind = tag.getCompound("ItemFind");
-            if (tagItemFind.contains("Active")) {
-                this.findItem = tagItemFind.getBoolean("Active");
+        CompoundTag tagItemFind = input.read("ItemFind", CompoundTag.CODEC).orElse(new CompoundTag());
+        if (tagItemFind.contains("Active")) {
+            this.findItem = tagItemFind.getBooleanOr("Active", true);
+        }
+
+        if (tagItemFind.contains("Range")) {
+            CompoundTag Range = tagItemFind.getCompoundOrEmpty("Range");
+            if (Range.contains("A")) {
+                ListTag A = Range.getListOrEmpty("A");
+                if (A.size() >= 3) {
+                    this.findItem1.set(0, DoubleTag.valueOf(A.getDoubleOr(0, -0.5D)));
+                    this.findItem1.set(1, DoubleTag.valueOf(A.getDoubleOr(1, 0D)));
+                    this.findItem1.set(2, DoubleTag.valueOf(A.getDoubleOr(2, -0.5D)));
+                }
             }
 
-            if (tagItemFind.contains("Range")) {
-                CompoundTag Range = tagItemFind.getCompound("Range");
-                if (Range.contains("A")) {
-                    ListTag A = Range.getList("A", CompoundTag.TAG_DOUBLE);
-                    if (A.size() >= 3) {
-                        this.findItem1.set(0, DoubleTag.valueOf(A.getDouble(0)));
-                        this.findItem1.set(1, DoubleTag.valueOf(A.getDouble(1)));
-                        this.findItem1.set(2, DoubleTag.valueOf(A.getDouble(2)));
-                    }
-                }
-
-                if (Range.contains("B")) {
-                    ListTag B = Range.getList("B", CompoundTag.TAG_DOUBLE);
-                    if (B.size() >= 3) {
-                        this.findItem2.set(0, DoubleTag.valueOf(B.getDouble(0)));
-                        this.findItem2.set(1, DoubleTag.valueOf(B.getDouble(1)));
-                        this.findItem2.set(2, DoubleTag.valueOf(B.getDouble(2)));
-                    }
+            if (Range.contains("B")) {
+                ListTag B = Range.getListOrEmpty("B");
+                if (B.size() >= 3) {
+                    this.findItem2.set(0, DoubleTag.valueOf(B.getDoubleOr(0, 0.5D)));
+                    this.findItem2.set(1, DoubleTag.valueOf(B.getDoubleOr(1, 1.5D)));
+                    this.findItem2.set(2, DoubleTag.valueOf(B.getDoubleOr(2, 0.5D)));
                 }
             }
         }
 
-        if (tag.contains("ItemPull")) {
-            CompoundTag tagItemPull = tag.getCompound("ItemPull");
-            if (tagItemPull.contains("Active")) {
-                this.pullItem = tagItemPull.getBoolean("Active");
-            }
+        CompoundTag tagItemPull = input.read("ItemPull", CompoundTag.CODEC).orElse(new CompoundTag());
+        if (tagItemPull.contains("Active")) {
+            this.pullItem = tagItemPull.getBooleanOr("Active", true);
         }
 
-        if (tag.contains("ItemPush")) {
-            CompoundTag tagItemPush = tag.getCompound("ItemPush");
-            if (tagItemPush.contains("Active")) {
-                this.pushItem = tagItemPush.getBoolean("Active");
-            }
+        CompoundTag tagItemPush = input.read("ItemPush", CompoundTag.CODEC).orElse(new CompoundTag());
+        if (tagItemPush.contains("Active")) {
+            this.pushItem = tagItemPush.getBooleanOr("Active", true);
         }
     }
 
     @Inject(method = "saveAdditional", at = @At("RETURN"))
-    public void onSaveAdditional(CompoundTag nbt, HolderLookup.Provider registryLookup, CallbackInfo ci) {
-        if (this.disableEvent) nbt.putBoolean("DisableEvent", true);
+    public void onSaveAdditional(ValueOutput output, CallbackInfo ci) {
+        output.putBoolean("DisableEvent", this.disableEvent);
 
         CompoundTag filterRootTag = new CompoundTag();
 
         filterRootTag.putString("IncomingFilterMode", this.getIncomingFilterMode().name());
         ListTag incomingFilters = new ListTag();
-        this.incomingFilters.forEach(filter -> incomingFilters.add(filter.toTag(registryLookup)));
+        this.incomingFilters.forEach(filter -> incomingFilters.add(filter.toTag(MinecraftServer.getServer().registryAccess())));
         filterRootTag.put("IncomingFilters", incomingFilters);
 
         filterRootTag.putString("OutgoingFilterMode", this.getOutgoingFilterMode().name());
         ListTag outgoingFilters = new ListTag();
-        this.outgoingFilters.forEach(filter -> outgoingFilters.add(filter.toTag(registryLookup)));
+        this.outgoingFilters.forEach(filter -> outgoingFilters.add(filter.toTag(MinecraftServer.getServer().registryAccess())));
         filterRootTag.put("OutgoingFilters", outgoingFilters);
 
         CompoundTag outgoingFilterRootTag = new CompoundTag();
         outgoingFilterRootTag.putString("Mode", this.getOutgoingFilterMode().name());
 
-        nbt.put("Filter", filterRootTag);
+        output.store("Filter", CompoundTag.CODEC, filterRootTag);
 
         CompoundTag ItemFind = new CompoundTag();
         ItemFind.putBoolean("Active", this.findItem);
@@ -428,15 +425,15 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
         Range.put("A", this.findItem1);
         Range.put("B", this.findItem2);
         ItemFind.put("Range", Range);
-        nbt.put("ItemFind", ItemFind);
+        output.store("ItemFind", CompoundTag.CODEC, ItemFind);
 
         CompoundTag ItemPull = new CompoundTag();
         ItemPull.putBoolean("Active", this.pullItem);
-        nbt.put("ItemPull", ItemPull);
+        output.store("ItemPull", CompoundTag.CODEC, ItemPull);
 
         CompoundTag ItemPush = new CompoundTag();
         ItemPush.putBoolean("Active", this.pushItem);
-        nbt.put("ItemPush", ItemPush);
+        output.store("ItemPush", CompoundTag.CODEC, ItemPush);
     }
 
     @Inject(method = "callPushMoveEvent", at = @At("HEAD"), cancellable = true)
@@ -557,7 +554,7 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
 
     @Override
     public AABB getItemFindAABB(double baseX, double baseY, double baseZ) {
-        return new AABB(baseX + this.findItem1.getDouble(0), baseY + this.findItem1.getDouble(1), baseZ + this.findItem1.getDouble(2), baseX + this.findItem2.getDouble(0), baseY + this.findItem2.getDouble(1), baseZ + this.findItem2.getDouble(2));
+        return new AABB(baseX + this.findItem1.getDoubleOr(0, -0.5d), baseY + this.findItem1.getDoubleOr(1, 0d), baseZ + this.findItem1.getDoubleOr(2, -0.5d), baseX + this.findItem2.getDoubleOr(0, 0.5d), baseY + this.findItem2.getDoubleOr(1, 1.5d), baseZ + this.findItem2.getDoubleOr(2, 0.5d));
     }
 
     @Override

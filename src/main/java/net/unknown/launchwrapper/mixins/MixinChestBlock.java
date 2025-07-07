@@ -37,6 +37,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
@@ -63,16 +64,6 @@ import java.util.List;
 public abstract class MixinChestBlock extends BlockBehaviour {
     public MixinChestBlock(Properties settings) {
         super(settings);
-    }
-
-    @Inject(method = "onRemove", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/Containers;dropContentsOnDestroy(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)V"))
-    public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean moved, CallbackInfo ci) {
-        BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (blockEntity instanceof IMixinChestBlockEntity chest) {
-            if (chest.getChestTransportMode() == LinkChestMode.CLIENT) {
-                chest.setChestTransportMode(LinkChestMode.DISABLED);
-            }
-        }
     }
 
     @Override

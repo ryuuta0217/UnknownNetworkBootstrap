@@ -32,9 +32,12 @@
 package net.unknown.launchwrapper.mixins;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.unknown.launchwrapper.mixininterfaces.IMixinBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -49,15 +52,13 @@ public abstract class MixinBlockEntity implements IMixinBlockEntity {
     private UUID placer = null;
 
     @Inject(method = "loadAdditional", at = @At("RETURN"))
-    public void onLoad(CompoundTag nbt, HolderLookup.Provider registryLookup, CallbackInfo ci) {
-        if (nbt.contains("Placer", Tag.TAG_INT_ARRAY)) {
-            this.placer = nbt.getUUID("Placer");
-        }
+    public void onLoad(ValueInput input, CallbackInfo ci) {
+        this.placer = input.read("Placer", UUIDUtil.CODEC).orElse(null);
     }
 
     @Inject(method = "saveAdditional", at = @At("RETURN"))
-    public void onSaveAdditional(CompoundTag nbt, HolderLookup.Provider registryLookup, CallbackInfo ci) {
-        if (this.placer != null) nbt.putUUID("Placer", this.placer);
+    public void onSaveAdditional(ValueOutput output, CallbackInfo ci) {
+        if (this.placer != null) output.store("Placer", UUIDUtil.CODEC, this.placer);
     }
 
     @Nullable

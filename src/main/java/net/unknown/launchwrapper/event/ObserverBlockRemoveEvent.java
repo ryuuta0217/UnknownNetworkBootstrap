@@ -39,6 +39,7 @@ import org.bukkit.event.HandlerList;
 
 import javax.annotation.Nonnull;
 
+@Deprecated(forRemoval = true)
 public class ObserverBlockRemoveEvent extends Event {
     private static final HandlerList HANDLERS = new HandlerList();
 

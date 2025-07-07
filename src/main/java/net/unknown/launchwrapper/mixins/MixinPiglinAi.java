@@ -32,12 +32,14 @@
 package net.unknown.launchwrapper.mixins;
 
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.item.*;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 @Mixin(PiglinAi.class)
@@ -48,7 +50,12 @@ public class MixinPiglinAi {
      */
     @Overwrite
     public static boolean isWearingSafeArmor(LivingEntity entity) {
-        Iterable<ItemStack> iterable = entity.getArmorSlots();
+        Iterable<ItemStack> iterable = new ArrayList<>() {{
+            for (EquipmentSlot slot : EquipmentSlot.values()) {
+                ItemStack stack = entity.getItemBySlot(slot);
+                add(stack);
+            }
+        }};
         Iterator<ItemStack> iterator = iterable.iterator();
 
         ItemStack stack;

@@ -36,12 +36,15 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.unknown.launchwrapper.linkchest.LinkChestMode;
 import net.unknown.launchwrapper.mixininterfaces.IMixinChestBlockEntity;
 import net.unknown.launchwrapper.util.WrappedBlockPos;
@@ -81,32 +84,26 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
     }
 
     @Inject(method = "loadAdditional", at = @At("RETURN"))
-    public void onLoad(CompoundTag nbt, HolderLookup.Provider registryLookup, CallbackInfo ci) {
-        if (nbt.contains("Link")) {
-            CompoundTag link = nbt.getCompound("Link");
-            if (link.contains("Mode", CompoundTag.TAG_STRING)) {
-                this.linkChestMode = LinkChestMode.valueOfOrDefault(link.getString("Mode"), LinkChestMode.DISABLED);
-            }
+    public void onLoad(ValueInput input, CallbackInfo ci) {
+        CompoundTag link = input.read("Link", CompoundTag.CODEC).orElse(new CompoundTag());
+        this.linkChestMode = LinkChestMode.valueOfOrDefault(link.getStringOr("Mode", "DISABLED"), LinkChestMode.DISABLED);
 
-            if (this.linkChestMode == LinkChestMode.CLIENT && link.contains("SourcePos", CompoundTag.TAG_COMPOUND)) {
-                CompoundTag sourcePos = link.getCompound("SourcePos");
-                if (sourcePos.contains("Level") && sourcePos.contains("Pos", CompoundTag.TAG_INT_ARRAY)) {
-                    ResourceKey<Level> levelKey = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(sourcePos.getString("Level")));
-                    int[] pos = sourcePos.getIntArray("Pos");
-                    if (pos.length == 3) {
-                        this.linkChestSource = new WrappedBlockPos(levelKey, new BlockPos(pos[0], pos[1], pos[2]));
-                    }
+        if (this.linkChestMode == LinkChestMode.CLIENT && link.contains("SourcePos")) {
+            CompoundTag sourcePos = link.getCompoundOrEmpty("SourcePos");
+            if (sourcePos.contains("Level") && sourcePos.contains("Pos")) {
+                ResourceKey<Level> levelKey = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(sourcePos.getStringOr("Level", "minecraft:overworld")));
+                int[] pos = sourcePos.getIntArray("Pos").get();
+                if (pos.length == 3) {
+                    this.linkChestSource = new WrappedBlockPos(levelKey, new BlockPos(pos[0], pos[1], pos[2]));
                 }
             }
         }
 
-        if (nbt.contains("VoidChest", CompoundTag.TAG_BYTE)) {
-            this.isVoidChest = nbt.getBoolean("VoidChest");
-        }
+        this.isVoidChest = input.getBooleanOr("VoidChest", false);
     }
 
     @Inject(method = "saveAdditional", at = @At("RETURN"))
-    public void onSaveAdditional(CompoundTag nbt, HolderLookup.Provider registryLookup, CallbackInfo ci) {
+    public void onSaveAdditional(ValueOutput output, CallbackInfo ci) {
         if (this.linkChestMode != LinkChestMode.DISABLED) {
             CompoundTag link = new CompoundTag();
 
@@ -118,10 +115,10 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
                 link.put("SourcePos", sourcePos);
             }
 
-            nbt.put("Link", link);
+            output.store("Link", CompoundTag.CODEC, link);
         }
 
-        nbt.putBoolean("VoidChest", this.isVoidChest);
+        output.putBoolean("VoidChest", this.isVoidChest);
     }
 
     @Override
@@ -201,6 +198,15 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        if (this.getChestTransportMode() == LinkChestMode.CLIENT) {
+            this.setChestTransportMode(LinkChestMode.DISABLED);
+        } else {
+            super.preRemoveSideEffects(pos, state);
         }
     }
 

@@ -44,6 +44,8 @@ import net.minecraft.world.level.block.entity.BarrelBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import net.unknown.launchwrapper.mixininterfaces.IMixinBarrelBlockEntity;
 import org.jetbrains.annotations.Nullable;
@@ -69,14 +71,14 @@ public abstract class MixinBarrelBlockEntity extends RandomizableContainerBlockE
         return NonNullList.withSize(this.large ? 54 : 27, defaultElement);
     }
 
-    @Inject(method = "saveAdditional", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/RandomizableContainerBlockEntity;saveAdditional(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/core/HolderLookup$Provider;)V", shift = At.Shift.AFTER))
-    private void onSaving(CompoundTag nbt, HolderLookup.Provider registryLookup, CallbackInfo ci) {
-        if (this.large) nbt.putBoolean("Large", this.large);
+    @Inject(method = "saveAdditional", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/RandomizableContainerBlockEntity;saveAdditional(Lnet/minecraft/world/level/storage/ValueOutput;)V", shift = At.Shift.AFTER))
+    private void onSaving(ValueOutput output, CallbackInfo ci) {
+        if (this.large) output.putBoolean("Large", this.large);
     }
 
-    @Inject(method = "loadAdditional", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/RandomizableContainerBlockEntity;loadAdditional(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/core/HolderLookup$Provider;)V"))
-    private void onLoading(CompoundTag nbt, HolderLookup.Provider registryLookup, CallbackInfo ci) {
-        if (nbt.contains("Large")) this.setLarge(nbt.getBoolean("Large"));
+    @Inject(method = "loadAdditional", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/RandomizableContainerBlockEntity;loadAdditional(Lnet/minecraft/world/level/storage/ValueInput;)V"))
+    private void onLoading(ValueInput input, CallbackInfo ci) {
+        this.setLarge(input.getBooleanOr("Large", false));
     }
 
     /**
