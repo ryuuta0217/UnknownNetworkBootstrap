@@ -126,22 +126,23 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
 
     // Unknown Network start - Add findItem range
     private final ListTag findItem1 = new ListTag();
-    {
-        findItem1.add(2, DoubleTag.valueOf(-0.5D));
-        findItem1.add(1, DoubleTag.valueOf(0D));
-        findItem1.add(0, DoubleTag.valueOf(-0.5D));
-    }
 
     private final ListTag findItem2 = new ListTag();
-    {
-        findItem2.add(2, DoubleTag.valueOf(0.5D));
-        findItem2.add(1, DoubleTag.valueOf(1.5D));
-        findItem2.add(0, DoubleTag.valueOf(0.5D));
-    }
     // Unknown Network end
 
     protected MixinHopperBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+    }
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void onInit(BlockPos pos, BlockState blockState, CallbackInfo ci) {
+        this.findItem1.add(0, DoubleTag.valueOf(-0.5D));
+        this.findItem1.add(1, DoubleTag.valueOf(0D));
+        this.findItem1.add(2, DoubleTag.valueOf(-0.5D));
+
+        this.findItem2.add(0, DoubleTag.valueOf(0.5D));
+        this.findItem2.add(1, DoubleTag.valueOf(1.5D));
+        this.findItem2.add(2, DoubleTag.valueOf(0.5D));
     }
 
     /**
