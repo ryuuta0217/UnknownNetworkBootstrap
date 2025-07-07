@@ -36,6 +36,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.TargetGoal;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Skeleton;
 import net.minecraft.world.entity.monster.WitherSkeleton;
@@ -44,37 +46,46 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-import java.util.function.Predicate;
+import javax.annotation.Nullable;
 
 @Mixin(NearestAttackableTargetGoal.class)
-public class MixinNearestAttackableTargetGoal {
-    @ModifyArg(method = "<init>(Lnet/minecraft/world/entity/Mob;Ljava/lang/Class;Z)V", index = 5, at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/ai/goal/target/NearestAttackableTargetGoal;<init>(Lnet/minecraft/world/entity/Mob;Ljava/lang/Class;IZZLjava/util/function/Predicate;)V"))
-    private static <T extends LivingEntity> Predicate<LivingEntity> onInit(Mob mob, Class<T> targetClass, int reciprocalChance, boolean checkVisibility, boolean checkCanNavigate, Predicate<LivingEntity> targetPredicate) {
-        if (targetPredicate != null || targetClass != Player.class) {
-            return targetPredicate;
+public abstract class MixinNearestAttackableTargetGoal extends TargetGoal {
+    @Shadow @Final protected Class<?> targetType;
+
+    private MixinNearestAttackableTargetGoal(Mob mob, boolean mustSee) {
+        super(mob, mustSee);
+    }
+
+    @ModifyArg(method = "<init>(Lnet/minecraft/world/entity/Mob;Ljava/lang/Class;IZZLnet/minecraft/world/entity/ai/targeting/TargetingConditions$Selector;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/ai/targeting/TargetingConditions;selector(Lnet/minecraft/world/entity/ai/targeting/TargetingConditions$Selector;)Lnet/minecraft/world/entity/ai/targeting/TargetingConditions;"))
+    private TargetingConditions.Selector onInit(@Nullable TargetingConditions.Selector selector) {
+        if (!this.targetType.equals(Player.class)) {
+            return selector;
         }
         Item skull;
-        if (mob instanceof Creeper) {
+        if (this.mob instanceof Creeper) {
             skull = Items.CREEPER_HEAD;
-        } else if (mob instanceof Zombie) {
+        } else if (this.mob instanceof Zombie) {
             skull = Items.ZOMBIE_HEAD;
-        } else if (mob instanceof WitherSkeleton) {
+        } else if (this.mob instanceof WitherSkeleton) {
             skull = Items.WITHER_SKELETON_SKULL;
-        } else if (mob instanceof Skeleton) {
+        } else if (this.mob instanceof Skeleton) {
             skull = Items.SKELETON_SKULL;
         } else {
-            return null;
+            return selector;
         }
-        return entity -> {
+
+        return (entity, level) -> {
             if (entity instanceof ServerPlayer player) {
                 ItemStack head = player.getItemBySlot(EquipmentSlot.HEAD);
                 return !head.is(skull);
             }
-            return true;
+            return selector != null ? selector.test(entity, level) : true;
         };
     }
 }
