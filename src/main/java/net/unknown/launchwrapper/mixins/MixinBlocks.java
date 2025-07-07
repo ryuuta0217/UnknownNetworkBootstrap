@@ -31,22 +31,51 @@
 
 package net.unknown.launchwrapper.mixins;
 
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.unknown.launchwrapper.block.BlockWrapper;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.function.Function;
+
 @Mixin(Blocks.class)
-public class MixinBlocks {
-    @Redirect(method = "<clinit>", at = @At(value = "NEW", target = "(Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)Lnet/minecraft/world/level/block/Block;"))
-    private static Block onBlockInstanceGenerating(BlockBehaviour.Properties properties) {
-        return new BlockWrapper(properties);
+public abstract class MixinBlocks {
+    @Shadow
+    private static Block register(String name, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties properties) {
+        return null;
+    }
+
+    @Shadow
+    private static Block register(ResourceKey<Block> resourceKey, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties properties) {
+        return null;
+    }
+
+    /**
+     * @author ryuuta0217
+     * @reason To allow to modify block properties before registering.
+     */
+    @Overwrite
+    private static Block register(ResourceKey<Block> resourceKey, BlockBehaviour.Properties properties) {
+        return register(resourceKey, BlockWrapper::new, properties);
+    }
+
+    /**
+     * @author ryuuta0217
+     * @reason To allow to modify block properties before registering.
+     */
+    @Overwrite
+    private static Block register(String name, BlockBehaviour.Properties properties) {
+        return register(name, BlockWrapper::new, properties);
     }
 
     @Inject(method = "<clinit>", at = @At("RETURN"))
