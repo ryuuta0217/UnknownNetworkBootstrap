@@ -49,8 +49,8 @@ public class MixinCommands {
     @Final
     private CommandDispatcher<CommandSourceStack> dispatcher;
 
-    @Inject(method = "<init>(Lnet/minecraft/commands/Commands$CommandSelection;Lnet/minecraft/commands/CommandBuildContext;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/commands/WorldBorderCommand;register(Lcom/mojang/brigadier/CommandDispatcher;)V", shift = At.Shift.AFTER, unsafe = true))
-    private void onCommandInitEnd(Commands.CommandSelection environment, CommandBuildContext commandRegistryAccess, CallbackInfo ci) {
-        SpreadBlockCommand.register(this.dispatcher, commandRegistryAccess);
+    @Inject(method = "<init>(Lnet/minecraft/commands/Commands$CommandSelection;Lnet/minecraft/commands/CommandBuildContext;Z)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/commands/WorldBorderCommand;register(Lcom/mojang/brigadier/CommandDispatcher;)V", shift = At.Shift.AFTER, unsafe = true))
+    private void onCommandInitEnd(Commands.CommandSelection selection, CommandBuildContext context, boolean modern, CallbackInfo ci) {
+        SpreadBlockCommand.register(this.dispatcher, context);
     }
 }
