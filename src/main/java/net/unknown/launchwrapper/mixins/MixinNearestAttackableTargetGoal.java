@@ -83,7 +83,7 @@ public abstract class MixinNearestAttackableTargetGoal extends TargetGoal {
         return (entity, level) -> {
             if (entity instanceof ServerPlayer player) {
                 ItemStack head = player.getItemBySlot(EquipmentSlot.HEAD);
-                return !head.is(skull);
+                return !head.is(skull) && (selector != null ? selector.test(entity, level) : true);
             }
             return selector != null ? selector.test(entity, level) : true;
         };
