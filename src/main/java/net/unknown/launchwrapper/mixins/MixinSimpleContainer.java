@@ -68,7 +68,7 @@ public class MixinSimpleContainer {
     @Inject(method = "getContainerSize", at = @At("RETURN"), cancellable = true)
     public void getContainerSize(CallbackInfoReturnable<Integer> cir) {
         if ((Object) this instanceof PlayerEnderChestContainer enderChest) {
-            if (enderChest.getBukkitOwner() instanceof CraftPlayer p) {
+            if (enderChest.getOwner() instanceof CraftPlayer p) {
                 // TODO FEATURE: Reference UNC PlayerData#isBuyedSixRowsEnderChest ?
                 // but requires a MultiProject
                 if (p.isOp() || p.hasPermission("unknown.mixin.feature.ender_chest.six_rows")) cir.setReturnValue(54);

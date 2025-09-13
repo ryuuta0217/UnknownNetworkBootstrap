@@ -44,7 +44,7 @@ repositories {
 }
 
 dependencies {
-    paperweightDevelopmentBundle("io.papermc.paper:dev-bundle:1.21.7-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.21.8-R0.1-SNAPSHOT")
     implementation "net.sf.jopt-simple:jopt-simple:5.0.4"
     implementation 'org.ow2.asm:asm:+'
     implementation 'org.ow2.asm:asm-commons:+'
