@@ -16,6 +16,7 @@
     "MixinChestBlockEntity",
     "MixinCommands",
     "MixinCraftServer",
+    "MixinCriterionTrigger$MixinListener",
     "MixinDamageEnchantment",
     "MixinDedicatedServer",
     "MixinDefaultDispenseItemBehavior",
