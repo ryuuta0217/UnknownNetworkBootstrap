@@ -71,8 +71,8 @@ public class MixinEnderChestBlock {
         if (playerEnderChestContainer != null && blockEntity instanceof EnderChestBlockEntity) {
             BlockPos blockPos = pos.above();
             if (world.getBlockState(blockPos).isRedstoneConductor(world, blockPos)) { // Paper - diff on change; make sure that EnderChest#isBlocked uses the same logic
-                return world.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
-            } else if (world.isClientSide) {
+                return world.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+            } else if (world.isClientSide()) {
                 return InteractionResult.SUCCESS;
             } else {
                 EnderChestBlockEntity enderChestBlockEntity = (EnderChestBlockEntity)blockEntity;
@@ -93,7 +93,7 @@ public class MixinEnderChestBlock {
                 return InteractionResult.CONSUME;
             }
         } else {
-            return world.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+            return world.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
         }
     }
 }

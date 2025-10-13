@@ -36,6 +36,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.level.block.BarrelBlock;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -67,7 +68,7 @@ public abstract class MixinBarrelBlock extends BaseEntityBlock {
                             tag.putString("id", "minecraft:barrel");
                             tag.putBoolean("Large", true);
                         });
-                        stack.set(DataComponents.BLOCK_ENTITY_DATA, blockEntityData);
+                        stack.set(DataComponents.BLOCK_ENTITY_DATA, TypedEntityData.of(blockEntity.getType(), blockEntityData.copyTag()));
                     }
                 });
                 return modifiedDrops;

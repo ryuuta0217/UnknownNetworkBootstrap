@@ -42,6 +42,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -77,7 +78,7 @@ public abstract class MixinChestBlock extends BlockBehaviour {
                         CompoundTag blockEntityTag = new CompoundTag();
                         blockEntityTag.putString("id", "minecraft:chest");
                         blockEntityTag.putBoolean("VoidChest", chest.isVoidChest());
-                        stack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(blockEntityTag));;
+                        stack.set(DataComponents.BLOCK_ENTITY_DATA, TypedEntityData.of(blockEntity.getType(), blockEntityTag));
 
                         stack.set(DataComponents.CUSTOM_NAME, Component.literal("ゴミ箱").setStyle(Style.EMPTY.withColor(ChatFormatting.RED).withBold(true).withItalic(false)));
 

@@ -41,6 +41,7 @@ import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -72,7 +73,7 @@ public abstract class MixinHopperBlock extends BlockBehaviour {
                         if (stack.getItem() == state.getBlock().asItem()) {
                             CompoundTag tag = new CompoundTag();
                             ((BlockEntity) hopper).saveWithId(TagValueOutput.createWrappingGlobal(ProblemReporter.DISCARDING, tag));
-                            stack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(tag));
+                            stack.set(DataComponents.BLOCK_ENTITY_DATA, TypedEntityData.of(((BlockEntity) hopper).getType(), tag));
 
                             List<Component> styledLore = new ArrayList<>() {{
                                 if (!hopper.getIncomingFilters().isEmpty()) {
