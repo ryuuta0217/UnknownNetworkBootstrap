@@ -15,6 +15,7 @@
     "MixinChestBlock",
     "MixinChestBlockEntity",
     "MixinCommands",
+    "MixinConnection",
     "MixinCraftServer",
     "MixinCriterionTrigger$MixinListener",
     "MixinDamageEnchantment",
