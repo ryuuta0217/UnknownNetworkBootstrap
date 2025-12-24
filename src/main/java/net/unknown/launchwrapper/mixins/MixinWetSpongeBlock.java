@@ -42,6 +42,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.unknown.launchwrapper.SpongeState;
+import org.bukkit.craftbukkit.event.CraftEventFactory;
 import org.spongepowered.asm.mixin.Mixin;
 
 import javax.annotation.Nonnull;
@@ -57,9 +58,9 @@ public abstract class MixinWetSpongeBlock extends Block implements ChangeOverTim
     public void randomTick(@Nonnull BlockState state, ServerLevel world, @Nonnull BlockPos pos, @Nonnull RandomSource random) {
         if (!world.isRaining() && !world.isThundering() && world.getBlockStates(AABB.ofSize(new Vec3(pos.getX(), pos.getY(), pos.getZ()), 1, 1, 1)).noneMatch(blockState -> blockState.getBlock() == Blocks.WATER)) {
             if (world.getBlockState(pos.below()).is(Blocks.CAMPFIRE)) {
-                this.changeOverTime(state, world, pos, random);
+                this.getNextState(state, world, pos, random).ifPresent(nextState -> CraftEventFactory.handleBlockFormEvent(world, pos, state, Block.UPDATE_ALL));
             } else if (world.getDayTime() < 12000 && random.nextInt(1, 3) == 2) {
-                this.changeOverTime(state, world, pos, random);
+                this.getNextState(state, world, pos, random).ifPresent(nextState -> CraftEventFactory.handleBlockFormEvent(world, pos, state, Block.UPDATE_ALL));;
             }
         }
     }
