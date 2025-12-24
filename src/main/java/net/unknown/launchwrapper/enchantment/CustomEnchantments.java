@@ -33,10 +33,10 @@ package net.unknown.launchwrapper.enchantment;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.enchantment.Enchantment;
 
 public class CustomEnchantments {
-    public static final ResourceKey<Enchantment> DOUBLE_ATTACK = ResourceKey.create(Registries.ENCHANTMENT, ResourceLocation.tryParse("unknown-network:double_attack"));
-    public static final ResourceKey<Enchantment> EXPLODE = ResourceKey.create(Registries.ENCHANTMENT, ResourceLocation.tryParse("unknown-network:explode"));
+    public static final ResourceKey<Enchantment> DOUBLE_ATTACK = ResourceKey.create(Registries.ENCHANTMENT, Identifier.tryParse("unknown-network:double_attack"));
+    public static final ResourceKey<Enchantment> EXPLODE = ResourceKey.create(Registries.ENCHANTMENT, Identifier.tryParse("unknown-network:explode"));
 }

@@ -31,7 +31,7 @@
 
 package net.unknown.launchwrapper.mixins;
 
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.unknown.launchwrapper.mixininterfaces.IMixinBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;

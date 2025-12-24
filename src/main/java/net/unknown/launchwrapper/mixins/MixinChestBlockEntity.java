@@ -38,7 +38,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.*;
@@ -91,7 +91,7 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
         if (this.linkChestMode == LinkChestMode.CLIENT && link.contains("SourcePos")) {
             CompoundTag sourcePos = link.getCompoundOrEmpty("SourcePos");
             if (sourcePos.contains("Level") && sourcePos.contains("Pos")) {
-                ResourceKey<Level> levelKey = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(sourcePos.getStringOr("Level", "minecraft:overworld")));
+                ResourceKey<Level> levelKey = ResourceKey.create(Registries.DIMENSION, Identifier.parse(sourcePos.getStringOr("Level", "minecraft:overworld")));
                 int[] pos = sourcePos.getIntArray("Pos").get();
                 if (pos.length == 3) {
                     this.linkChestSource = new WrappedBlockPos(levelKey, new BlockPos(pos[0], pos[1], pos[2]));
@@ -110,7 +110,7 @@ public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEn
             link.putString("Mode", this.linkChestMode.name());
             if (this.linkChestMode == LinkChestMode.CLIENT && this.linkChestSource != null) {
                 CompoundTag sourcePos = new CompoundTag();
-                sourcePos.putString("Level", this.linkChestSource.levelKey().location().toString());
+                sourcePos.putString("Level", this.linkChestSource.levelKey().identifier().toString());
                 sourcePos.putIntArray("Pos", new int[]{this.linkChestSource.blockPos().getX(), this.linkChestSource.blockPos().getY(), this.linkChestSource.blockPos().getZ()});
                 link.put("SourcePos", sourcePos);
             }

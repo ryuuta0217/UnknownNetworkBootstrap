@@ -64,7 +64,7 @@ public abstract class MixinItem implements IMixinItem {
         return DataComponentMap.builder().addAll(this.components);
     }
 
-    @Inject(method = "verifyComponentsAfterLoad", at = @At("HEAD"))
+    /*@Inject(method = "verifyComponentsAfterLoad", at = @At("HEAD")) TODO: Implement
     private void onVerifyComponentsAfterLoad(ItemStack stack, CallbackInfo ci) {
         // Previous MixinItems implementation is set Egg's default DataComponent minecraft:max_stack_size to 64, but this is server-side only, so we need to *FORCE* set it here to apply client to max_stack_size to 64.
         // This operation will prevent you from setting the maximum stack size of eggs to 16. You can set it to 15 or 17, etc., but not 16.
@@ -75,5 +75,5 @@ public abstract class MixinItem implements IMixinItem {
                         .build());
             }
         }
-    }
+    }*/
 }

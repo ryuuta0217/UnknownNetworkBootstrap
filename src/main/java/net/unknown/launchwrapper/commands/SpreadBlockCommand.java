@@ -51,6 +51,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -91,7 +92,7 @@ public class SpreadBlockCommand {
         HolderLookup.RegistryLookup<Block> blocks = buildContext.lookup(Registries.BLOCK).orElse(null);
         HolderLookup<Block> spreadBlocks = blocks.filterElements(block -> block instanceof BlockWrapper);
 
-        builder.requires(source -> source.hasPermission(2))
+        builder.requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                 .then(Commands.argument("spread_block", BlockStateArgument.block(buildContext))
                         .suggests((ctx, suggestionsBuilder) -> BlockStateParser.fillSuggestions(spreadBlocks, suggestionsBuilder, false, false))
                         .then(Commands.literal("enabled")
@@ -120,7 +121,7 @@ public class SpreadBlockCommand {
                                     BlockWrapper spreadBlock = (BlockWrapper) BlockStateArgument.getBlock(ctx, "spread_block").getState().getBlock();
                                     MutableComponent msg = Component.empty().append(blockName(spreadBlock)).append("の伝播許可ワールドは").append(Component.literal(spreadBlock.getSpreadAllowedLevels().size() + "個").withStyle(ChatFormatting.GOLD)).append("登録されています");
                                     for (ResourceKey<Level> spreadAllowedLevel : spreadBlock.getSpreadAllowedLevels()) {
-                                        msg.append("\n- ").append(spreadAllowedLevel.location().toString());
+                                        msg.append("\n- ").append(spreadAllowedLevel.identifier().toString());
                                     }
                                     ctx.getSource().sendSuccess(() -> msg, true);
                                     return spreadBlock.getSpreadAllowedLevels().size();
@@ -148,7 +149,7 @@ public class SpreadBlockCommand {
                                                 })))
                                 .then(Commands.literal("add")
                                         .then(Commands.argument("level", DimensionArgument.dimension())
-                                                .suggests((ctx, suggestionsBuilder) -> SharedSuggestionProvider.suggestResource(MinecraftServer.getServer().levelKeys(), suggestionsBuilder, ResourceKey::location, (key) -> Component.empty()))
+                                                .suggests((ctx, suggestionsBuilder) -> SharedSuggestionProvider.suggestResource(MinecraftServer.getServer().levelKeys(), suggestionsBuilder, ResourceKey::identifier, (key) -> Component.empty()))
                                                 .executes(ctx -> {
                                                     BlockWrapper spreadBlock = (BlockWrapper) BlockStateArgument.getBlock(ctx, "spread_block").getState().getBlock();
                                                     ResourceKey<Level> level = DimensionArgument.getDimension(ctx, "level").dimension();
@@ -156,19 +157,19 @@ public class SpreadBlockCommand {
                                                         ctx.getSource().sendFailure(Component.literal("ワールドは既に伝播許可ワールドとして登録されています"));
                                                     } else {
                                                         spreadBlock.addSpreadAllowedLevel(level);
-                                                        ctx.getSource().sendSuccess(() -> Component.empty().append(level.location().toString()).append("を").append(blockName(spreadBlock)).append("の伝播許可ワールドに追加しました"), true);
+                                                        ctx.getSource().sendSuccess(() -> Component.empty().append(level.identifier().toString()).append("を").append(blockName(spreadBlock)).append("の伝播許可ワールドに追加しました"), true);
                                                     }
                                                     return spreadBlock.getSpreadAllowedLevels().size();
                                                 })))
                                 .then(Commands.literal("remove")
                                         .then(Commands.argument("level", DimensionArgument.dimension())
-                                                .suggests((ctx, suggestionsBuilder) -> SharedSuggestionProvider.suggestResource(MinecraftServer.getServer().levelKeys(), suggestionsBuilder, ResourceKey::location, (key) -> Component.empty()))
+                                                .suggests((ctx, suggestionsBuilder) -> SharedSuggestionProvider.suggestResource(MinecraftServer.getServer().levelKeys(), suggestionsBuilder, ResourceKey::identifier, (key) -> Component.empty()))
                                                 .executes(ctx -> {
                                                     BlockWrapper spreadBlock = (BlockWrapper) BlockStateArgument.getBlock(ctx, "spread_block").getState().getBlock();
                                                     ResourceKey<Level> level = DimensionArgument.getDimension(ctx, "level").dimension();
                                                     if (spreadBlock.isSpreadAllowedLevel(level)) {
                                                         spreadBlock.removeSpreadAllowedLevel(level);
-                                                        ctx.getSource().sendSuccess(() -> Component.empty().append(level.location().toString()).append("を").append(blockName(spreadBlock)).append("の伝播許可ワールドから削除しました"), true);
+                                                        ctx.getSource().sendSuccess(() -> Component.empty().append(level.identifier().toString()).append("を").append(blockName(spreadBlock)).append("の伝播許可ワールドから削除しました"), true);
                                                     } else {
                                                         ctx.getSource().sendFailure(Component.literal("ワールドは伝播許可ワールドとして登録されていません"));
                                                     }
