@@ -35,9 +35,7 @@
     "MixinServerLevel",
     "MixinSignBlockEntity",
     "MixinSimpleContainer",
-    "MixinWeatheringCopperFullBlock",
-    "MixinWeatheringCopperSlabBlock",
-    "MixinWeatheringCopperStairBlock",
+    "MixinWeatheringCoppers",
     "MixinWetSpongeBlock"
   ]
 }

@@ -34,17 +34,34 @@ package net.unknown.launchwrapper.mixins;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.WeatheringCopper;
-import net.minecraft.world.level.block.WeatheringCopperSlabBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.unknown.launchwrapper.util.CopperBlockUtil;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(WeatheringCopperSlabBlock.class)
-public abstract class MixinWeatheringCopperSlabBlock implements WeatheringCopper {
-    @Overwrite
-    public void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+@Mixin({
+        WeatheringCopperBarsBlock.class,
+        WeatheringCopperBulbBlock.class,
+        WeatheringCopperChainBlock.class,
+        WeatheringCopperChestBlock.class,
+        WeatheringCopperDoorBlock.class,
+        WeatheringCopperFullBlock.class,
+        WeatheringCopperGolemStatueBlock.class,
+        WeatheringCopperGrateBlock.class,
+        WeatheringCopperSlabBlock.class,
+        WeatheringCopperStairBlock.class,
+        WeatheringCopperTrapDoorBlock.class,
+        WeatheringLanternBlock.class,
+        WeatheringLightningRodBlock.class
+})
+public abstract class MixinWeatheringCoppers implements WeatheringCopper {
+    @Inject(method = "randomTick", at = @At("HEAD"), cancellable = true)
+    public void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random, CallbackInfo ci) {
+        System.out.println("[U.N.] Weathering " + state.getBlock() + " randomly ticking at " + pos);
         CopperBlockUtil.randomTick(this, state, world, pos, random);
+        ci.cancel();
     }
 }
