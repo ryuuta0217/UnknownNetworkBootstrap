@@ -45,9 +45,9 @@ import javax.annotation.Nonnull;
 public class CopperBlockUtil {
     public static void randomTick(@Nonnull WeatheringCopper copper, @Nonnull BlockState state, @Nonnull ServerLevel world, @Nonnull BlockPos pos, @Nonnull RandomSource random) {
         if (random.nextFloat() < 0.05688889F) { // Vanilla
-            copper.getNextState(state, world, pos, random).ifPresent(nextState -> CraftEventFactory.handleBlockFormEvent(world, pos, state, Block.UPDATE_ALL));
+            copper.getNextState(state, world, pos, random).ifPresent(nextState -> CraftEventFactory.handleBlockFormEvent(world, pos, nextState, Block.UPDATE_ALL));
         } else if (world.getBlockState(pos.below()).is(Blocks.CAMPFIRE) && random.nextInt(1, 3) == 2) { // Unknown Network
-            copper.getNextState(state, world, pos, random).ifPresent(nextState -> CraftEventFactory.handleBlockFormEvent(world, pos, state, Block.UPDATE_ALL));
+            copper.getNextState(state, world, pos, random).ifPresent(nextState -> CraftEventFactory.handleBlockFormEvent(world, pos, nextState, Block.UPDATE_ALL));
         }
     }
 }
