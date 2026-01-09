@@ -60,7 +60,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinWeatheringCoppers implements WeatheringCopper {
     @Inject(method = "randomTick", at = @At("HEAD"), cancellable = true)
     public void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random, CallbackInfo ci) {
-        System.out.println("[U.N.] Weathering " + state.getBlock() + " randomly ticking at " + pos);
         CopperBlockUtil.randomTick(this, state, world, pos, random);
         ci.cancel();
     }
