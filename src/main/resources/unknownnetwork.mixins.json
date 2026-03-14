@@ -24,7 +24,6 @@
     "MixinFeatureFlags",
     "MixinHopperBlock",
     "MixinHopperBlockEntity",
-    "MixinItem",
     "MixinJsonOps",
     "MixinMinecraftServer",
     "MixinNearestAttackableTargetGoal",
@@ -36,6 +35,7 @@
     "MixinSignBlockEntity",
     "MixinSimpleContainer",
     "MixinWeatheringCoppers",
-    "MixinWetSpongeBlock"
+    "MixinWetSpongeBlock",
+    "MixinEggItem"
   ]
 }
