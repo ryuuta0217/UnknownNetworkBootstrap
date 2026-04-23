@@ -99,9 +99,9 @@ public class WrappedBlockPos {
         ServerLevel level = this.serverLevel();
         if (level != null) {
             if (!level.isLoaded(this.blockPos()) && load) {
-                ChunkPos chunkPos = new ChunkPos(this.blockPos());
+                ChunkPos chunkPos = ChunkPos.containing(this.blockPos());
                 level.getChunkSource().addTicket(new Ticket(TicketType.CHUNK_LOAD, 0, 20 * 3L), chunkPos);
-                ChunkAccess chunk = level.getChunkSource().getChunk(chunkPos.x, chunkPos.z, ChunkStatus.FULL, true);
+                ChunkAccess chunk = level.getChunkSource().getChunk(chunkPos.x(), chunkPos.z(), ChunkStatus.FULL, true);
                 if (chunk != null) return chunk.getBlockEntity(this.blockPos());
             } else if (level.isLoaded(this.blockPos())) {
                 return level.getBlockEntity(this.blockPos());

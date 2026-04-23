@@ -243,10 +243,14 @@ public class BlockWrapper extends Block {
             }
 
             ChunkAccess blockChunk;
-            if (cachedBlockChunk.getPos().x == spreadPos.getX() >> 4 && cachedBlockChunk.getPos().z == spreadPos.getZ() >> 4) {
+            if (cachedBlockChunk.getPos().x() == spreadPos.getX() >> 4 && cachedBlockChunk.getPos().z() == spreadPos.getZ() >> 4) {
                 blockChunk = cachedBlockChunk;
             } else {
                 blockChunk = world.getChunkIfLoaded(spreadPos);
+            }
+
+            if (blockChunk == null) { // NPE の可能性あり、修正
+                continue;
             }
 
             BlockState beforeBlockState = blockChunk.getBlockState(spreadPos);

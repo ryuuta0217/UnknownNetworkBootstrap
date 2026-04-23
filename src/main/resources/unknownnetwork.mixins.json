@@ -30,7 +30,6 @@
     "MixinObserverBlock",
     "MixinPiglinAi",
     "MixinPlayer",
-    "MixinReobfServer",
     "MixinServerLevel",
     "MixinSignBlockEntity",
     "MixinSimpleContainer",

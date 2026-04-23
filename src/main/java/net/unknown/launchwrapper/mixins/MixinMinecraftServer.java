@@ -31,7 +31,6 @@
 
 package net.unknown.launchwrapper.mixins;
 
-import net.minecraft.obfuscate.DontObfuscate;
 import net.minecraft.server.MinecraftServer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -43,7 +42,6 @@ public abstract class MixinMinecraftServer {
      * @author ryuuta0217
      * @reason Unknown Network - Unknown Network > // Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
      */
-    @DontObfuscate
     @Overwrite
     public String getServerModName() {
         return "Unknown Network";

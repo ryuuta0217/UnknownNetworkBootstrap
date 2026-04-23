@@ -79,7 +79,7 @@ public abstract class MixinPlayer extends LivingEntity {
             int enchLevel = this.getWeaponItem().getEnchantments().getLevel(explodeEnch);
             if (enchLevel > 0) {
                 if (this.level() != null && this.level().getLevelData() instanceof ServerLevelData levelData) {
-                    this.processExplodeEnchant(entity, source, amount, enchLevel, levelData);
+                    this.processExplodeEnchant(entity, source, amount, enchLevel);
                 }
             }
         }
@@ -90,40 +90,14 @@ public abstract class MixinPlayer extends LivingEntity {
             int enchLevel = this.getWeaponItem().getEnchantments().getLevel(doubleAttackEnch);
             if (enchLevel > 0 && this.getAttackStrengthScale(0.5f) >= 0.8f) {
                 if (this.level() != null && this.level().getLevelData() instanceof ServerLevelData levelData) {
-                    this.processDoubleAttackEnchant(entity, source, amount, enchLevel, levelData);
+                    this.processDoubleAttackEnchant(entity, source, amount, enchLevel);
                 }
             }
         }
         return entity.hurtOrSimulate(source, amount);
     }
 
-    @Redirect(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
-    private boolean onLivingEntityAttack(LivingEntity entity, ServerLevel level, DamageSource source, float amount) {
-        Registry<Enchantment> enchRegistry = this.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
-
-        Optional<Holder.Reference<Enchantment>> explodeEnchOpt = enchRegistry.get(CustomEnchantments.EXPLODE);
-        if (explodeEnchOpt.isPresent()) {
-            Holder.Reference<Enchantment> explodeEnch = explodeEnchOpt.get();
-            int enchLevel = this.getWeaponItem().getEnchantments().getLevel(explodeEnch);
-            if (enchLevel > 0 && this.level() != null && this.level().getLevelData() instanceof ServerLevelData levelData) {
-                this.processExplodeEnchant(entity, source, amount, enchLevel, levelData);
-            }
-        }
-
-        Optional<Holder.Reference<Enchantment>> doubleAttackEnchOpt = enchRegistry.get(CustomEnchantments.DOUBLE_ATTACK);
-        if (doubleAttackEnchOpt.isPresent()) {
-            Holder.Reference<Enchantment> doubleAttackEnch = doubleAttackEnchOpt.get();
-            int enchLevel = this.getWeaponItem().getEnchantments().getLevel(doubleAttackEnch);
-            if (enchLevel > 0 && this.getAttackStrengthScale(0.5f) >= 0.8f) {
-                if (this.level() != null && this.level().getLevelData() instanceof ServerLevelData levelData) {
-                    this.processDoubleAttackEnchant(entity, source, amount, enchLevel, levelData);
-                }
-            }
-        }
-        return entity.hurtServer(level, source, amount);
-    }
-
-    private void processExplodeEnchant(Entity target, DamageSource source, float amount, int enchantLevel, ServerLevelData levelData) {
+    private void processExplodeEnchant(Entity target, DamageSource source, float amount, int enchantLevel) {
         if (enchantLevel > 0) {
             ExplosionDamageCalculator damageCalculator = new ExplosionDamageCalculator() {
                 @Override
@@ -132,10 +106,12 @@ public abstract class MixinPlayer extends LivingEntity {
                 }
             };
 
-            levelData.getScheduledEvents().schedule("explode", this.level().getGameTime() + 1, new TimerCallback<>() {
+            ServerLevel level = (ServerLevel) this.level();
+
+            level.scheduledEvents.schedule("explode", this.level().getGameTime() + 1, new TimerCallback<>() {
                 @Override
                 public void handle(MinecraftServer obj, TimerQueue<MinecraftServer> manager, long gameTime) {
-                    target.level().explode(MixinPlayer.this, source, damageCalculator, target.position().x(), target.position().y(), target.position().z(), 1.0f * enchantLevel, false, Level.ExplosionInteraction.NONE);
+                    level.explode(MixinPlayer.this, source, damageCalculator, target.position().x(), target.position().y(), target.position().z(), 1.0f * enchantLevel, false, Level.ExplosionInteraction.NONE);
                 }
 
                 @Override
@@ -146,9 +122,9 @@ public abstract class MixinPlayer extends LivingEntity {
         }
     }
 
-    private void processDoubleAttackEnchant(Entity target, DamageSource source, float amount, int enchantLevel, ServerLevelData levelData) {
+    private void processDoubleAttackEnchant(Entity target, DamageSource source, float amount, int enchantLevel) {
         if (enchantLevel > 0) {
-            levelData.getScheduledEvents().schedule("double_attack", this.level().getGameTime() + 11, new TimerCallback<>() {
+            ((ServerLevel) this.level()).scheduledEvents.schedule("double_attack", this.level().getGameTime() + 11, new TimerCallback<>() {
                 @Override
                 public void handle(MinecraftServer obj, TimerQueue manager, long gameTime) {
                     target.hurt(source, amount);

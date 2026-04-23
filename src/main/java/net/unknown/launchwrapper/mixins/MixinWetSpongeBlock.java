@@ -32,8 +32,12 @@
 package net.unknown.launchwrapper.mixins;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.clock.WorldClocks;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChangeOverTimeBlock;
@@ -41,6 +45,7 @@ import net.minecraft.world.level.block.WetSpongeBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.timeline.Timelines;
 import net.unknown.launchwrapper.SpongeState;
 import org.bukkit.craftbukkit.event.CraftEventFactory;
 import org.spongepowered.asm.mixin.Mixin;
@@ -59,7 +64,7 @@ public abstract class MixinWetSpongeBlock extends Block implements ChangeOverTim
         if (!world.isRaining() && !world.isThundering() && world.getBlockStates(AABB.ofSize(new Vec3(pos.getX(), pos.getY(), pos.getZ()), 1, 1, 1)).noneMatch(blockState -> blockState.getBlock() == Blocks.WATER)) {
             if (world.getBlockState(pos.below()).is(Blocks.CAMPFIRE)) {
                 this.getNextState(state, world, pos, random).ifPresent(nextState -> CraftEventFactory.handleBlockFormEvent(world, pos, state, Block.UPDATE_ALL));
-            } else if (world.getDayTime() < 12000 && random.nextInt(1, 3) == 2) {
+            } else if (world.registryAccess().getOrThrow(Registries.TIMELINE).value().get(Timelines.OVERWORLD_DAY).orElseThrow().value().getCurrentTicks(world.clockManager()) < 12000 && random.nextInt(1, 3) == 2) {
                 this.getNextState(state, world, pos, random).ifPresent(nextState -> CraftEventFactory.handleBlockFormEvent(world, pos, state, Block.UPDATE_ALL));;
             }
         }

@@ -107,7 +107,7 @@ public class Main {
         }
 
         try {
-            SERVER_JAR = Path.of(Class.forName("io.papermc.paper.pluginremap.ReobfServer").getProtectionDomain().getCodeSource().getLocation().toURI());
+            SERVER_JAR = Path.of(Class.forName("io.papermc.paper.PaperBootstrap").getProtectionDomain().getCodeSource().getLocation().toURI());
         } catch (URISyntaxException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
