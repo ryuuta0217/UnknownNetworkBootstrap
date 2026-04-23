@@ -86,10 +86,6 @@ publishing {
             version = version
             artifact "build/libs/UnknownNetworkBootstrap.jar"
 
-            artifact("build/libs/UnknownNetworkBootstrap-spigot.jar") {
-                classifier "spigot"
-            }
-
             pom {
                 name = project.name
                 description = "Unknown Network Bootstrapper"
