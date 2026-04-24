@@ -64,7 +64,7 @@ public abstract class MixinWetSpongeBlock extends Block implements ChangeOverTim
         if (!world.isRaining() && !world.isThundering() && world.getBlockStates(AABB.ofSize(new Vec3(pos.getX(), pos.getY(), pos.getZ()), 1, 1, 1)).noneMatch(blockState -> blockState.getBlock() == Blocks.WATER)) {
             if (world.getBlockState(pos.below()).is(Blocks.CAMPFIRE)) {
                 this.getNextState(state, world, pos, random).ifPresent(nextState -> CraftEventFactory.handleBlockFormEvent(world, pos, state, Block.UPDATE_ALL));
-            } else if (world.registryAccess().getOrThrow(Registries.TIMELINE).value().get(Timelines.OVERWORLD_DAY).orElseThrow().value().getCurrentTicks(world.clockManager()) < 12000 && random.nextInt(1, 3) == 2) {
+            } else if (world.registryAccess().getOrThrow(Timelines.OVERWORLD_DAY).value().getCurrentTicks(world.clockManager()) < 12000 && random.nextInt(1, 3) == 2) {
                 this.getNextState(state, world, pos, random).ifPresent(nextState -> CraftEventFactory.handleBlockFormEvent(world, pos, state, Block.UPDATE_ALL));;
             }
         }
