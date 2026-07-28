@@ -17,7 +17,7 @@
     "MixinCommands",
     "MixinConnection",
     "MixinCraftServer",
-    "MixinCriterionTrigger$MixinListener",
+    "MixinPlayerAdvancements",
     "MixinDedicatedServer",
     "MixinDefaultDispenseItemBehavior",
     "MixinEnderChestBlock",

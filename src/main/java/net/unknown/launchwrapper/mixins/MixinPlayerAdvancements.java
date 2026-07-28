@@ -29,19 +29,42 @@
  *     arising in any way out of the use of this source code, event if advised of the possibility of such damage.
  */
 
-package net.unknown.launchwrapper.mixininterfaces;
+package net.unknown.launchwrapper.mixins;
 
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.server.PlayerAdvancements;
+import net.unknown.launchwrapper.mixininterfaces.IMixinPlayerAdvancements;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
-import java.util.function.Consumer;
 
-public interface IMixinCriterionTrigger {
-    interface Listener {
-        void setCustomListener(Consumer<PlayerAdvancements> listener);
-        @Nullable Consumer<PlayerAdvancements> getCustomListener();
-        default boolean hasCustomListener() {
-            return this.getCustomListener() != null;
+@Mixin(PlayerAdvancements.class)
+public abstract class MixinPlayerAdvancements implements IMixinPlayerAdvancements {
+    @Unique
+    private AwardHandler customAwardHandler = null;
+
+    @Override
+    @Nullable
+    public AwardHandler getAwardHandler() {
+        return this.customAwardHandler;
+    }
+
+    @Override
+    public void setAwardHandler(@Nullable AwardHandler handler) {
+        this.customAwardHandler = handler;
+    }
+
+    @Inject(method = "award", at = @At("HEAD"), cancellable = true)
+    private void onAward(AdvancementHolder holder, String criterion, CallbackInfoReturnable<Boolean> cir) {
+        if (this.customAwardHandler != null) {
+            Boolean result = this.customAwardHandler.onAward((PlayerAdvancements) (Object) this, holder, criterion);
+            if (result != null) {
+                cir.setReturnValue(result);
+            }
         }
     }
 }

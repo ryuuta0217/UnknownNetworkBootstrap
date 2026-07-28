@@ -33,6 +33,7 @@ package net.unknown.launchwrapper.mixins;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.references.BlockItemId;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -51,7 +52,7 @@ import java.util.function.Function;
 @Mixin(Blocks.class)
 public abstract class MixinBlocks {
     @Shadow
-    private static Block register(String name, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties properties) {
+    private static Block register(final BlockItemId id, final Function<BlockBehaviour.Properties, Block> factory, final BlockBehaviour.Properties properties) {
         return null;
     }
 
@@ -74,8 +75,8 @@ public abstract class MixinBlocks {
      * @reason To allow to modify block properties before registering.
      */
     @Overwrite
-    private static Block register(String name, BlockBehaviour.Properties properties) {
-        return register(name, BlockWrapper::new, properties);
+    private static Block register(final BlockItemId id, final BlockBehaviour.Properties properties) {
+        return register(id.block(), BlockWrapper::new, properties);
     }
 
     @Inject(method = "<clinit>", at = @At("RETURN"))

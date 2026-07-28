@@ -29,54 +29,22 @@
  *     arising in any way out of the use of this source code, event if advised of the possibility of such damage.
  */
 
-package net.unknown.launchwrapper.mixins;
+package net.unknown.launchwrapper.mixininterfaces;
 
 import net.minecraft.advancements.AdvancementHolder;
-import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.server.PlayerAdvancements;
-import net.unknown.launchwrapper.mixininterfaces.IMixinCriterionTrigger;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
 
 import javax.annotation.Nullable;
-import java.util.function.Consumer;
 
-public class MixinCriterionTrigger {
-    @Mixin(CriterionTrigger.Listener.class)
-    public static class MixinListener implements IMixinCriterionTrigger.Listener {
-        @Shadow
-        @Final
-        private AdvancementHolder advancement;
-        @Shadow
-        @Final
-        private String criterion;
+public interface IMixinPlayerAdvancements {
+    @Nullable
+    AwardHandler getAwardHandler();
 
-        private Consumer<PlayerAdvancements> customListener = null;
+    void setAwardHandler(@Nullable AwardHandler handler);
 
-        @Override
-        public void setCustomListener(Consumer<PlayerAdvancements> listener) {
-            this.customListener = listener;
-        }
-
-        @Override
+    @FunctionalInterface
+    interface AwardHandler {
         @Nullable
-        public Consumer<PlayerAdvancements> getCustomListener() {
-            return this.customListener;
-        }
-
-        /**
-         * @author ryuuta0217
-         * @reason Allow custom behavior when a criterion is triggered
-         */
-        @Overwrite
-        public void run(PlayerAdvancements playerAdvancements) {
-            if (this.hasCustomListener()) {
-                this.getCustomListener().accept(playerAdvancements);
-            } else {
-                playerAdvancements.award(this.advancement, this.criterion);
-            }
-        }
+        Boolean onAward(PlayerAdvancements advancements, AdvancementHolder holder, String criterion);
     }
 }
