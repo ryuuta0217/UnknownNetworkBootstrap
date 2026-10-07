@@ -48,7 +48,7 @@ public class MixinBlockBehaviour {
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onInitialize(BlockBehaviour.Properties settings, CallbackInfo ci) {
         if ((Object) this instanceof BuddingAmethystBlock) {
-            this.properties.pushReaction(PushReaction.NORMAL);
+            this.properties.pushReaction(PushReaction.PUSH_PULL);
             System.out.println("[BuddingAmethystBlock] Changed push reaction to NORMAL.");
         }
     }

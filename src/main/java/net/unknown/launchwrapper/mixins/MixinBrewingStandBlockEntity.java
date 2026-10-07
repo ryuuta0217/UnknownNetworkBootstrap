@@ -33,6 +33,7 @@ package net.unknown.launchwrapper.mixins;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -44,8 +45,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BrewingStandBlockEntity.class)
 public class MixinBrewingStandBlockEntity {
-    @Inject(method = "doBrew", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;levelEvent(ILnet/minecraft/core/BlockPos;I)V"))
-    private static void doBrewBeforeLevelEvent(Level level, BlockPos blockPos, NonNullList<ItemStack> items, BrewingStandBlockEntity brewingStand, CallbackInfo ci) {
+    @Inject(method = "doBrew", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;levelEvent(ILnet/minecraft/core/BlockPos;I)V"))
+    private static void doBrewBeforeLevelEvent(ServerLevel level, BlockPos blockPos, BrewingStandBlockEntity brewingStand, CallbackInfo ci) {
         brewingStand.getBlockState().updateNeighbourShapes(level, blockPos, Block.UPDATE_ALL);
     }
 }

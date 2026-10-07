@@ -42,7 +42,7 @@ repositories {
 }
 
 dependencies {
-    paperweight.paperDevBundle("26.2.build.+")
+    paperweight.paperDevBundle("26.3.build.+")
     implementation "net.sf.jopt-simple:jopt-simple:5.0.4"
     implementation 'org.ow2.asm:asm:+'
     implementation 'org.ow2.asm:asm-commons:+'
